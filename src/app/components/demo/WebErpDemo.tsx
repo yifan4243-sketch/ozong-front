@@ -47,6 +47,8 @@ import {
   WarningOutlined,
   WalletOutlined,
 } from "@ant-design/icons";
+import { AiWorkflowReplica } from "./AiWorkflowReplica";
+import { SelectionReplica } from "./SelectionReplica";
 import "./web-erp-demo.css";
 
 type ViewKey =
@@ -584,34 +586,7 @@ const categoryRows = [
   ["小百货和配饰","2428.27万","216.45亿","4.48%","2.84%"],
 ];
 
-function SelectionView() {
-  const [period, setPeriod] = useState<"week"|"month"|"quarter"|"year">("month");
-  const cards = [
-    ["week","周数据","133,145,630","175.88亿",<CalendarOutlined />,"purple"],
-    ["month","月数据","541,543,500","704.81亿",<CalendarOutlined />,"blue"],
-    ["quarter","季数据","1,600,368,344","2075.52亿",<PieChartOutlined />,"cyan"],
-    ["year","年数据","5,411,882,918","6976.49亿",<BarChartOutlined />,"violet"],
-  ] as const;
-  return (
-    <PageFrame className="real-selection-page">
-      <div className="real-selection-title"><h1>选品分析</h1><span>Ozon 全平台市场数据分析，每周更新</span></div>
-      <section className="real-insight-strip">
-        <article><IconBox tone="purple"><AppstoreOutlined /></IconBox><div><strong>数据洞察</strong><em>市场需求持续增长</em></div></article>
-        <article><IconBox tone="orange"><FireOutlined /></IconBox><div><strong>住宅和花园类目增长最快</strong><em>销量占比 15.93%</em></div></article>
-        <article><IconBox tone="blue"><CrownOutlined /></IconBox><div><strong>服装销售额占比高</strong><em>销售额占比 16.78%</em></div></article>
-        <article><IconBox tone="cyan"><CarOutlined /></IconBox><div><strong>FBO 发货占比 71.36%</strong><em>较上月提升 2.18 个百分点</em></div></article>
-      </section>
-      <section className="real-period-grid">
-        {cards.map(([key,label,sales,amount,icon,tone])=><button key={key} className={`real-period-card ${tone} ${period===key?"active":""}`} onClick={()=>setPeriod(key)}><div className="wave"></div><h3>{label}</h3><span>销量</span><b>{sales}</b><span>销售额</span><strong>¥{amount}</strong><i>{icon}</i><div className="bars">{[1,2,3,4,5,6,7].map(n=><em key={n} style={{height:8+n*4}}></em>)}</div></button>)}
-      </section>
-      <section className="real-selection-panel">
-        <div className="panel-head"><h2><TrophyOutlined /> 一级类目排行</h2><button>查看全部 &gt;</button></div>
-        <div className="real-category-table"><div className="real-category-row head"><span>排名</span><span>类目名</span><span>月销量</span><span>月销售额(₽)</span><span>销量占比</span><span>销售额占比</span></div><div className="body">{categoryRows.map((r,i)=><div className="real-category-row" key={r[0]}><span><b className={i<3?"top":""}>{i+1}</b></span>{r.map(x=><span key={x}>{x}</span>)}</div>)}</div></div>
-        <footer>共 29 条　<span>可在表格内上下拖动查看全部类目</span></footer>
-      </section>
-    </PageFrame>
-  );
-}
+function SelectionView() { return <SelectionReplica />; }
 
 function FinanceView() {
   return (
@@ -625,28 +600,7 @@ function FinanceView() {
   );
 }
 
-function AiImageView() {
-  return (
-    <PageFrame className="real-ai-page">
-      <div className="real-ai-toolbar"><strong>OzonG AI Workflow</strong><span>统一生图</span><i>● 已保存</i><button>＋ 新建</button><button>历史记录</button><button>自动布局</button><button>−</button><button>55%</button><button>＋</button><button>适应画布</button><span className="grow"></span><button>单主图</button><button className="active">8图套图</button><span>生图点数：<b>956</b></span><span>预计消耗：24点</span><button>⇩ 下载全部</button><button className="run">▶ 运行工作流</button></div>
-      <div className="real-ai-canvas">
-        <svg className="workflow-lines" viewBox="0 0 1300 640" preserveAspectRatio="none">
-          <path d="M330 145 C390 145 390 280 465 280" />
-          <path className="pink" d="M330 300 C400 300 405 280 465 280" />
-          <path className="orange" d="M330 450 C405 450 420 290 465 280" />
-          {[125,225,325,425].map((y,i)=><path key={"l"+i} d={`M645 280 C710 280 700 ${y} 780 ${y}`} />)}
-          {[175,275,375,475].map((y,i)=><path key={"r"+i} d={`M645 280 C755 280 830 ${y} 965 ${y}`} />)}
-        </svg>
-        <article className="flow-node source"><header>▣ 商品源图 <span>0 / 5</span></header><div>＋<b>上传商品源图</b><small>最多5张 · JPG PNG WEBP · 10MB</small></div><footer>💡 商品源图会参与主体识别</footer></article>
-        <article className="flow-node reference"><header>✦ 风格参考 <span>0 / 5</span></header><div>＋<b>上传风格参考</b><small>可选 · 最多5张</small></div><footer>仅影响：构图 / 灯光 / 配色</footer></article>
-        <article className="flow-node request"><header>✎ 创作要求</header><textarea defaultValue="补充商品事实、核心卖点或希望强调的场景..." /><footer><span>输出语言　俄语</span><span>比例　3:4</span></footer></article>
-        <article className="flow-node plan"><header>✦ PromptPlan v3 <button>统一计划</button></header><div><span>样式<b>8图套图</b></span><span>任务<b>8个</b></span><span>商品图<b>已锁定 ✓</b></span></div><a>查看计划详情 →</a></article>
-        {["Ozon 主图","使用场景图","商品细节图","核心卖点图 1"].map((n,i)=><article className={`flow-node out left-out out-${i}`} key={n}><header>{5+i}　{n}<span>●</span></header><p>{i===0?"建立商品主视觉":i===1?"展示可使用场景":i===2?"只展示可看到的细节": "一个卖点一个中心价值"}</p><div>○ 等待工作流运行</div><footer>预计 3 点</footer></article>)}
-        {["核心卖点图 2","参数信息图","包装清单图","营销卖点图"].map((n,i)=><article className={`flow-node out right-out out-${i}`} key={n}><header>{9+i}　{n}<span>●</span></header><p>{i===0?"表达第二个场景卖点":"只展示可证实的信息"}</p><div>○ 等待工作流运行</div><footer>预计 3 点</footer></article>)}
-      </div>
-    </PageFrame>
-  );
-}
+function AiImageView() { return <AiWorkflowReplica />; }
 
 function WatermarksView() {
   return (
