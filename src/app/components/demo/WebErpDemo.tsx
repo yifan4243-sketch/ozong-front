@@ -279,6 +279,7 @@ function Sidebar({
   setCollapsed: (value: boolean) => void;
 }) {
   const [accountOpen, setAccountOpen] = useState(false);
+  const [hoverGroup, setHoverGroup] = useState<"products"|"promo"|null>(null);
   const productActive = ["products", "collection", "listing"].includes(view);
   const promoActive = ["promoJoin", "promoAuto"].includes(view);
   const itemClass = (key: ViewKey) => view === key ? "real-sidebar-item active" : "real-sidebar-item";
@@ -288,21 +289,36 @@ function Sidebar({
       <nav className="real-sidebar-menu">
         <button className={itemClass("dashboard")} onClick={() => go("dashboard")}><HomeOutlined /><span>首页</span></button>
 
-        <button className={`real-sidebar-item ${productActive ? "parent-active" : ""}`} onClick={() => { if (collapsed) { setCollapsed(false); setProductsOpen(true); } else setProductsOpen(!productsOpen); }} title={collapsed ? "商品" : ""}><ShoppingOutlined /><span>商品</span>{productsOpen ? <DownOutlined /> : <RightOutlined />}</button>
-        {productsOpen && !collapsed && <div className="real-sidebar-children">
-          <button className={view === "products" ? "active" : ""} onClick={() => go("products")}>商品管理</button>
-          <button className={view === "collection" ? "active" : ""} onClick={() => go("collection")}>采集箱</button>
-          <button className={view === "listing" ? "active" : ""} onClick={() => go("listing")}>上架记录</button>
-        </div>}
+        <div className="real-menu-group-wrap" onMouseEnter={() => collapsed && setHoverGroup("products")} onMouseLeave={() => collapsed && setHoverGroup(null)}>
+          <button className={`real-sidebar-item ${productActive ? "parent-active" : ""}`} onClick={() => { if (!collapsed) setProductsOpen(!productsOpen); }} title={collapsed ? "商品" : ""}><ShoppingOutlined /><span>商品</span>{productsOpen ? <DownOutlined /> : <RightOutlined />}</button>
+          {productsOpen && !collapsed && <div className="real-sidebar-children">
+            <button className={view === "products" ? "active" : ""} onClick={() => go("products")}>商品管理</button>
+            <button className={view === "collection" ? "active" : ""} onClick={() => go("collection")}>采集箱</button>
+            <button className={view === "listing" ? "active" : ""} onClick={() => go("listing")}>上架记录</button>
+          </div>}
+          {collapsed && hoverGroup === "products" && <div className="real-collapsed-flyout">
+            <b>商品</b>
+            <button className={view === "products" ? "active" : ""} onClick={() => go("products")}>商品管理</button>
+            <button className={view === "collection" ? "active" : ""} onClick={() => go("collection")}>采集箱</button>
+            <button className={view === "listing" ? "active" : ""} onClick={() => go("listing")}>上架记录</button>
+          </div>}
+        </div>
 
         <button className={itemClass("source1688")} onClick={() => go("source1688")}><ArrowRightOutlined /><span>1688 → Ozon</span></button>
         <button className={itemClass("orders")} onClick={() => go("orders")}><OrderedListOutlined /><span>订单管理</span></button>
 
-        <button className={`real-sidebar-item ${promoActive ? "parent-active" : ""}`} onClick={() => { if (collapsed) { setCollapsed(false); setPromoOpen(true); } else setPromoOpen(!promoOpen); }} title={collapsed ? "促销活动" : ""}><DollarOutlined /><span>促销活动</span>{promoOpen ? <DownOutlined /> : <RightOutlined />}</button>
-        {promoOpen && !collapsed && <div className="real-sidebar-children">
-          <button className={view === "promoJoin" ? "active" : ""} onClick={() => go("promoJoin")}>参加促销</button>
-          <button className={view === "promoAuto" ? "active" : ""} onClick={() => go("promoAuto")}>自动踢促销</button>
-        </div>}
+        <div className="real-menu-group-wrap" onMouseEnter={() => collapsed && setHoverGroup("promo")} onMouseLeave={() => collapsed && setHoverGroup(null)}>
+          <button className={`real-sidebar-item ${promoActive ? "parent-active" : ""}`} onClick={() => { if (!collapsed) setPromoOpen(!promoOpen); }} title={collapsed ? "促销活动" : ""}><DollarOutlined /><span>促销活动</span>{promoOpen ? <DownOutlined /> : <RightOutlined />}</button>
+          {promoOpen && !collapsed && <div className="real-sidebar-children">
+            <button className={view === "promoJoin" ? "active" : ""} onClick={() => go("promoJoin")}>参加促销</button>
+            <button className={view === "promoAuto" ? "active" : ""} onClick={() => go("promoAuto")}>自动踢促销</button>
+          </div>}
+          {collapsed && hoverGroup === "promo" && <div className="real-collapsed-flyout">
+            <b>促销活动</b>
+            <button className={view === "promoJoin" ? "active" : ""} onClick={() => go("promoJoin")}>参加促销</button>
+            <button className={view === "promoAuto" ? "active" : ""} onClick={() => go("promoAuto")}>自动踢促销</button>
+          </div>}
+        </div>
 
         <button className={itemClass("shops")} onClick={() => go("shops")}><ShopOutlined /><span>店铺管理</span><RightOutlined /></button>
         <button className={itemClass("selection")} onClick={() => go("selection")}><ShoppingCartOutlined /><span>选品分析</span><RightOutlined /></button>
