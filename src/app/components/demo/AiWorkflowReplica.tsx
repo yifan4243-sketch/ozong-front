@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent, WheelEvent as ReactWheelEvent } from "react";
+import { DemoToast } from "./ReplicaCommon";
 import "./ai-workflow-replica.css";
 
 type Point={x:number;y:number};
@@ -41,6 +42,7 @@ export function AiWorkflowReplica(){
   const [slotStatus,setSlotStatus]=useState<Record<string,SlotStatus>>({});
   const [historyOpen,setHistoryOpen]=useState(false);
   const [planOpen,setPlanOpen]=useState(false);
+  const [notice,setNotice]=useState("");
   const [dragging,setDragging]=useState<{kind:"canvas";startX:number;startY:number;baseX:number;baseY:number}|{kind:"node";key:NodeKey;startX:number;startY:number;base:Point}|null>(null);
   const running=Object.values(slotStatus).some(v=>v==="running");
   const enabledSlots=generationKind==="main"?["main"]:SLOT_META.map(x=>x[0]);
@@ -144,6 +146,16 @@ export function AiWorkflowReplica(){
       setSlotStatus(done);
     },1100);
   }
+  function flash(text:string){setNotice(text);window.setTimeout(()=>setNotice(""),1400)}
+  function redoSlot(key:string){
+    setSlotStatus(v=>({...v,[key]:"running"}));
+    window.setTimeout(()=>{setSlotStatus(v=>({...v,[key]:"succeeded"}));flash("该槽位已重新生成示例结果")},850);
+  }
+  function downloadMock(key:string,title:string){
+    const svg='<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#eef2ff"/><stop offset="1" stop-color="#ddd6fe"/></linearGradient></defs><rect width="900" height="1200" fill="url(#g)"/><rect x="90" y="130" width="720" height="820" rx="40" fill="white" opacity=".9"/><text x="450" y="535" text-anchor="middle" font-family="Arial" font-size="54" fill="#5b4bff">OzonG ERP</text><text x="450" y="615" text-anchor="middle" font-family="Arial" font-size="36" fill="#334155">'+title+'</text><text x="450" y="1060" text-anchor="middle" font-family="Arial" font-size="24" fill="#94a3b8">Demo generated result</text></svg>';
+    const url=URL.createObjectURL(new Blob([svg],{type:"image/svg+xml"}));const a=document.createElement("a");a.href=url;a.download="ozong-"+key+"-demo.svg";document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);flash("示例结果已下载");
+  }
+  function downloadAll(){SLOT_META.filter(m=>enabledSlots.includes(m[0])).forEach((m,i)=>window.setTimeout(()=>downloadMock(m[0],m[2]),i*80))}
   function newConversation(){
     setImages({product:[],style:[]});setPrompt("补充商品事实、核心卖点或希望强调的场景…");setSlotStatus({});
   }
@@ -188,11 +200,11 @@ export function AiWorkflowReplica(){
       </div>
       <div className="demo-tb-right">
         <div className="demo-kind-toggle"><button className={generationKind==="main"?"active":""} disabled={running} onClick={()=>setGenerationKind("main")}>单主图</button><button className={generationKind==="set"?"active":""} disabled={running} onClick={()=>setGenerationKind("set")}>8图套图</button></div>
-        <span>生图点数：<b>956</b></span><span>预计消耗：{estimate}点</span><button disabled={!completed}>↓ 下载全部</button>
+        <span>生图点数：<b>956</b></span><span>预计消耗：{estimate}点</span><button disabled={!completed} onClick={downloadAll}>↓ 下载全部</button>
         {!running?<button className="run" disabled={!images.product.length} onClick={runMock}>▶ 运行工作流</button>:<button className="cancel" onClick={()=>setSlotStatus({})}>■ 取消任务</button>}
       </div>
     </div>
-    <div className="demo-ai-canvas" ref={canvasRef} onPointerDown={canvasPointerDown} onWheel={onWheel} style={{backgroundSize:`${22*viewport.zoom}px ${22*viewport.zoom}px`,backgroundPosition:`${viewport.x}px ${viewport.y}px`}}>
+    <DemoToast text={notice}/><div className="demo-ai-canvas" ref={canvasRef} onPointerDown={canvasPointerDown} onWheel={onWheel} style={{backgroundSize:`${22*viewport.zoom}px ${22*viewport.zoom}px`,backgroundPosition:`${viewport.x}px ${viewport.y}px`}}>
       <div className="demo-world" style={{transform:`translate(${viewport.x}px,${viewport.y}px) scale(${viewport.zoom})`}}>
         <svg className="demo-edge-layer" width="1900" height="1200">{edges.map((e,i)=><path key={i} d={e.d} stroke={e.color}/>)}</svg>
         <InputNode kind="product" title="商品源图" accent="#3b82f6" note="🔒 商品身份来源 · 决定商品本体、包装、Logo 与真实文字"/>
@@ -209,7 +221,7 @@ export function AiWorkflowReplica(){
           const enabled=key==="main"||generationKind==="set";const status=slotStatus[key]||"idle";
           return <article className={`demo-flow-node slot-node ${enabled?"":"disabled"}`} key={key} style={{left:positions[key as NodeKey].x,top:positions[key as NodeKey].y,width:SIZE[key as NodeKey].w}} onPointerDown={e=>nodePointerDown(key as NodeKey,e)}>
             <span className="demo-port left center" style={{color:accent}}></span><header className="demo-node-header"><span style={{color:accent}}>{order}</span><b>{title}</b><i style={{background:!enabled?"#e2e8f0":status==="running"?"#8b5cf6":status==="succeeded"?"#22c55e":"#cbd5e1"}}></i></header>
-            <div className="demo-node-body"><p>{purpose}</p><div className="demo-slot-stage">{!enabled?"本次单主图模式不生成此槽位":status==="running"?"◌ 生成中…":status==="succeeded"?"✓ 示例结果已生成":"○ 等待工作流运行"}</div>{status==="succeeded"&&<div className="demo-slot-actions"><button>下载</button><button>重做</button></div>}<footer>{!enabled?"本模式不扣点":status==="running"?"冻结 3 点":status==="succeeded"?"已消耗 3 点":"预计 3 点"}</footer></div>
+            <div className="demo-node-body"><p>{purpose}</p><div className="demo-slot-stage">{!enabled?"本次单主图模式不生成此槽位":status==="running"?"◌ 生成中…":status==="succeeded"?"✓ 示例结果已生成":"○ 等待工作流运行"}</div>{status==="succeeded"&&<div className="demo-slot-actions"><button onClick={()=>downloadMock(key,title)}>下载</button><button onClick={()=>redoSlot(key)}>重做</button></div>}<footer>{!enabled?"本模式不扣点":status==="running"?"冻结 3 点":status==="succeeded"?"已消耗 3 点":"预计 3 点"}</footer></div>
           </article>
         })}
       </div>
