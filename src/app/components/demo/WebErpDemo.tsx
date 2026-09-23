@@ -640,6 +640,8 @@ function Sidebar({
   setProductsOpen,
   promoOpen,
   setPromoOpen,
+  collapsed,
+  setCollapsed,
 }: {
   view: ViewKey;
   go: (view: ViewKey) => void;
@@ -647,18 +649,20 @@ function Sidebar({
   setProductsOpen: (value: boolean) => void;
   promoOpen: boolean;
   setPromoOpen: (value: boolean) => void;
+  collapsed: boolean;
+  setCollapsed: (value: boolean) => void;
 }) {
   const productActive = ["products", "collection", "listing"].includes(view);
   const promoActive = ["promoJoin", "promoAuto"].includes(view);
   const itemClass = (key: ViewKey) => view === key ? "real-sidebar-item active" : "real-sidebar-item";
   return (
-    <aside className="real-erp-sidebar">
+    <aside className={`real-erp-sidebar ${collapsed ? "collapsed" : ""}`}>
       <button className="real-sidebar-logo" onClick={() => go("dashboard")}><span><img src={REAL_LOGO} alt="OzonG ERP" /></span><b>ERP管理系统</b></button>
       <nav className="real-sidebar-menu">
         <button className={itemClass("dashboard")} onClick={() => go("dashboard")}><HomeOutlined /><span>首页</span></button>
 
-        <button className={`real-sidebar-item ${productActive ? "parent-active" : ""}`} onClick={() => setProductsOpen(!productsOpen)}><ShoppingOutlined /><span>商品</span>{productsOpen ? <DownOutlined /> : <RightOutlined />}</button>
-        {productsOpen && <div className="real-sidebar-children">
+        <button className={`real-sidebar-item ${productActive ? "parent-active" : ""}`} onClick={() => { if (collapsed) { setCollapsed(false); setProductsOpen(true); } else setProductsOpen(!productsOpen); }} title={collapsed ? "商品" : ""}><ShoppingOutlined /><span>商品</span>{productsOpen ? <DownOutlined /> : <RightOutlined />}</button>
+        {productsOpen && !collapsed && <div className="real-sidebar-children">
           <button className={view === "products" ? "active" : ""} onClick={() => go("products")}>商品管理</button>
           <button className={view === "collection" ? "active" : ""} onClick={() => go("collection")}>采集箱</button>
           <button className={view === "listing" ? "active" : ""} onClick={() => go("listing")}>上架记录</button>
@@ -667,8 +671,8 @@ function Sidebar({
         <button className={itemClass("source1688")} onClick={() => go("source1688")}><ArrowRightOutlined /><span>1688 → Ozon</span></button>
         <button className={itemClass("orders")} onClick={() => go("orders")}><OrderedListOutlined /><span>订单管理</span></button>
 
-        <button className={`real-sidebar-item ${promoActive ? "parent-active" : ""}`} onClick={() => setPromoOpen(!promoOpen)}><DollarOutlined /><span>促销活动</span>{promoOpen ? <DownOutlined /> : <RightOutlined />}</button>
-        {promoOpen && <div className="real-sidebar-children">
+        <button className={`real-sidebar-item ${promoActive ? "parent-active" : ""}`} onClick={() => { if (collapsed) { setCollapsed(false); setPromoOpen(true); } else setPromoOpen(!promoOpen); }} title={collapsed ? "促销活动" : ""}><DollarOutlined /><span>促销活动</span>{promoOpen ? <DownOutlined /> : <RightOutlined />}</button>
+        {promoOpen && !collapsed && <div className="real-sidebar-children">
           <button className={view === "promoJoin" ? "active" : ""} onClick={() => go("promoJoin")}>参加促销</button>
           <button className={view === "promoAuto" ? "active" : ""} onClick={() => go("promoAuto")}>自动踢促销</button>
         </div>}
@@ -681,7 +685,7 @@ function Sidebar({
       </nav>
       <div className="real-sidebar-footer">
         <button className="real-avatar-entry" onClick={() => go("account")}><img src={REAL_AVATAR} alt="1234" /></button>
-        <button className="real-collapse-entry">« <span>收起侧栏</span></button>
+        <button className="real-collapse-entry" onClick={() => setCollapsed(!collapsed)}>{collapsed ? "»" : "«"} {!collapsed && <span>收起侧栏</span>}</button>
       </div>
     </aside>
   );
@@ -692,6 +696,7 @@ export function WebErpDemo() {
   const [tabs, setTabs] = useState<ViewKey[]>(["dashboard"]);
   const [productsOpen, setProductsOpen] = useState(false);
   const [promoOpen, setPromoOpen] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
   const go = (next: ViewKey) => {
     setView(next);
@@ -746,8 +751,10 @@ export function WebErpDemo() {
           setProductsOpen={setProductsOpen}
           promoOpen={promoOpen}
           setPromoOpen={setPromoOpen}
+          collapsed={collapsed}
+          setCollapsed={setCollapsed}
         />
-        <div className="real-erp-main-layout">
+        <div className={`real-erp-main-layout ${collapsed ? "collapsed" : ""}`}>
           <div className="real-workspace-tabs">
             <div className="real-tabs-inner">
               <div className="real-tabs-scroll">
