@@ -14,48 +14,48 @@ import {
 const features = [
   {
     icon: Brain,
-    title: "人工智能转写",
-    description: "基于先进的机器学习模型，将语音高精度转换为文字，准确率可达 99.5%。",
+    title: "1688 货源采集",
+    description: "通过浏览器插件采集 1688 商品、图片和 SKU 数据，统一进入 ERP 采集工作台继续处理。",
   },
   {
     icon: MessageSquare,
-    title: "情绪分析",
-    description: "识别每一次对话中的客户情绪与满意度变化，帮助团队及时发现问题。",
+    title: "AI 商品编辑",
+    description: "围绕 Ozon 上架流程处理类目、标题、必填属性、俄语内容和商品信息，减少重复整理工作。",
   },
   {
     icon: TrendingUp,
-    title: "绩效洞察",
-    description: "通过通话时长、转化率等详细数据，持续追踪并优化团队表现。",
+    title: "Ozon 商品上架",
+    description: "从采集商品进入上架流程，结合店铺、仓库、SKU、价格、图片和库存信息完成 Ozon 商品发布。",
   },
   {
     icon: Target,
-    title: "关键词追踪",
-    description: "自动监控竞品提及、客户异议以及关键话题，快速捕捉重要信号。",
+    title: "AI 商品图生成",
+    description: "在 ERP 内生成 Ozon 商品主图与成套商品图，并保留生成任务、重试与结果管理能力。",
   },
   {
     icon: Shield,
-    title: "合规监测",
-    description: "自动检查话术执行情况并标记风险，帮助团队持续满足合规要求。",
+    title: "在线商品管理",
+    description: "集中管理已上架商品，支持同步、批量改价、批量库存、批量促销、归档与商品修复等操作。",
   },
   {
     icon: Zap,
-    title: "实时辅导",
-    description: "在通话过程中实时提供建议与提示，帮助团队提升沟通效果和成交结果。",
+    title: "Ozon 商品情报",
+    description: "在 Ozon 页面查看类目、佣金、销量、销售额、推广、流量、配送、退货、包装与跟卖等关键数据。",
   },
   {
     icon: BarChart3,
-    title: "自定义仪表盘",
-    description: "根据业务需求自由组合关键指标，打造属于你自己的数据看板。",
+    title: "选品与规则",
+    description: "把商品加入 ERP 选品池，并通过筛选条件、高亮规则和自动扫描辅助完成 Ozon 选品判断。",
   },
   {
     icon: Users,
-    title: "团队协作",
-    description: "在团队内部共享洞察、评论与优秀经验，让最佳实践快速复制。",
+    title: "多店铺管理",
+    description: "在一个 ERP 中连接和管理多个 Ozon 店铺，统一查看店铺商品、订单与运营工作流。",
   },
   {
     icon: Clock,
-    title: "自动生成摘要",
-    description: "每次对话结束后自动生成通话摘要与待办事项，减少人工整理时间。",
+    title: "订单与财务中心",
+    description: "统一处理 Ozon 订单，并结合采购成本、平台费用和订单数据查看业务利润与经营结果。",
   },
 ];
 
@@ -65,10 +65,10 @@ export function Features() {
       <div className="container mx-auto max-w-6xl px-4">
         <div className="text-center space-y-4 mb-16">
           <h2 className="text-3xl md:text-4xl lg:text-5xl">
-            高效提升团队表现所需的一切
+            覆盖 Ozon 运营核心流程
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            人工智能驱动的通话分析平台，为你提供完整的数据洞察能力，帮助你理解、优化并规模化提升每一次客户沟通。
+            从中国货源采集到 Ozon 店铺运营，把原本分散在浏览器、表格和多个工具里的工作集中到 OzonG ERP。
           </p>
         </div>
 
