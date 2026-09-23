@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { PointerEvent as ReactPointerEvent, WheelEvent as ReactWheelEvent } from "react";
+import "./ai-workflow-replica.css";
 
 type Point={x:number;y:number};
 type NodeKey="product"|"style"|"brief"|"plan"|"main"|"scene"|"detail"|"benefit1"|"benefit2"|"spec"|"package"|"marketing";
