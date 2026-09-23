@@ -192,7 +192,7 @@ export function AiWorkflowReplica(){
         {!running?<button className="run" disabled={!images.product.length} onClick={runMock}>▶ 运行工作流</button>:<button className="cancel" onClick={()=>setSlotStatus({})}>■ 取消任务</button>}
       </div>
     </div>
-    <div className="demo-ai-canvas" ref={canvasRef} onPointerDown={canvasPointerDown} onWheel={onWheel}>
+    <div className="demo-ai-canvas" ref={canvasRef} onPointerDown={canvasPointerDown} onWheel={onWheel} style={{backgroundSize:`${22*viewport.zoom}px ${22*viewport.zoom}px`,backgroundPosition:`${viewport.x}px ${viewport.y}px`}}>
       <div className="demo-world" style={{transform:`translate(${viewport.x}px,${viewport.y}px) scale(${viewport.zoom})`}}>
         <svg className="demo-edge-layer" width="1900" height="1200">{edges.map((e,i)=><path key={i} d={e.d} stroke={e.color}/>)}</svg>
         <InputNode kind="product" title="商品源图" accent="#3b82f6" note="🔒 商品身份来源 · 决定商品本体、包装、Logo 与真实文字"/>
