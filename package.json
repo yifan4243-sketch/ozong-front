@@ -50,7 +50,8 @@
     "recharts": "2.15.2",
     "sonner": "2.0.3",
     "tailwind-merge": "3.2.0",
-    "vaul": "1.1.2"
+    "vaul": "1.1.2",
+    "@ant-design/icons": "5.6.1"
   },
   "devDependencies": {
     "@tailwindcss/vite": "4.1.12",
