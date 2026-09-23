@@ -58,6 +58,10 @@ import { PromotionJoinReplica } from "./PromotionJoinReplica";
 import { PromotionAutoReplica } from "./PromotionAutoReplica";
 import { ShopsReplica } from "./ShopsReplica";
 import { SelectionReplica } from "./SelectionReplica";
+import { FinanceReplica } from "./FinanceReplica";
+import { WatermarkReplica } from "./WatermarkReplica";
+import { MembershipReplica } from "./MembershipReplica";
+import { AccountReplica, UserCreditsReplica, ExtensionDevicesReplica } from "./SettingsReplicas";
 import "./web-erp-demo.css";
 
 type ViewKey =
@@ -214,50 +218,15 @@ const categoryRows = [
 
 function SelectionView() { return <SelectionReplica />; }
 
-function FinanceView() {
-  return (
-    <PageFrame className="real-finance-page">
-      <section className="real-finance-summary"><div className="heading"><div><h1>财务中心</h1><p>统计已签收订单的收支情况，支持按结算日期筛选。</p></div><button>口径说明</button></div><div className="equation">
-        {[["销售所得","₽ 428,650","income"],["采购成本","¥ 12,860","cost"],["Ozon 费用","₽ 86,430","fee"],["其他支出","₽ 12,480","other"],["估算利润","¥ 24,638","profit"]].map((m,i)=><span className="eq-wrap" key={m[0]}><article className={m[2]}><small>{m[0]}</small><b>{m[1]}</b>{i===4&&<em>利润率 31.6%</em>}</article>{i<4&&<strong>−</strong>}</span>)}
-      </div></section>
-      <section className="real-finance-filters"><button>全部店铺 <DownOutlined /></button><div>签收日期　2026-09-01　至　2026-09-23</div><div className="wide"><SearchOutlined /> 订单号 / SKU / 货号</div><button>财务状态 <DownOutlined /></button><button>成本状态 <DownOutlined /></button><label>估算规则 <b>5</b>%</label><button className="primary">查询</button><button>重置</button><button>导出 Excel</button><button><SyncOutlined /> 同步数据</button></section>
-      <section className="real-finance-table"><div className="real-finance-row head"><span>订单 / 商品</span><span>销售所得</span><span>采购成本</span><span>平台费用</span><span>物流</span><span>估算利润</span></div>{sampleProducts.slice(0,5).map((p,i)=><div className="real-finance-row" key={p.sku}><span><b>47619{i}82-000{i+1}-1</b><small>{p.name}</small></span><span>₽ {1399+i*340}</span><span>¥ {18+i*7}.80</span><span>₽ {220+i*44}</span><span>₽ {180+i*32}</span><span className="profit">¥ {82+i*29}.40</span></div>)}</section>
-    </PageFrame>
-  );
-}
+function FinanceView() { return <FinanceReplica />; }
 
 function AiImageView() { return <AiWorkflowReplica />; }
 
-function WatermarksView() {
-  return (
-    <PageFrame className="real-watermark-page">
-      <section className="real-watermark-card">
-        <header><div><h1>水印管理 <i>图片水印</i></h1><p>集中管理当前账号的品牌水印，为后续商品图片处理做好模板准备。</p></div><button className="primary"><PlusOutlined /> 新增水印</button></header>
-        <div className="real-watermark-filter"><div><SearchOutlined /> 搜索模板名称</div><div>2026-09-01　至　2026-09-23</div><button className="primary">查询</button><button>重置</button><span></span><button><DeleteOutlined /> 批量删除</button><button><ReloadOutlined /></button></div>
-        <div className="real-watermark-table"><div className="real-watermark-row head"><span>□</span><span>序号</span><span>模板名称</span><span>预览</span><span>位置</span><span>设置</span><span>创建时间</span><span>操作</span></div>{[["品牌Logo-右下","右下","宽度 18% / 不透明度 72%"],["店铺角标","左上","宽度 14% / 不透明度 88%"],["促销水印","右上","宽度 22% / 不透明度 65%"]].map((r,i)=><div className="real-watermark-row" key={r[0]}><span>□</span><span>{i+1}</span><span><b>{r[0]}</b><small>ozong-{i+1}.png · 48KB</small></span><span><i className="wm-preview">OzonG</i></span><span><i className="status-chip gray">{r[1]}</i></span><span>{r[2]}</span><span>2026-09-{18+i}</span><span><button>查看</button><button>编辑</button><button className="danger-link">删除</button></span></div>)}</div>
-      </section>
-    </PageFrame>
-  );
-}
+function WatermarksView() { return <WatermarkReplica />; }
 
-function MembershipView() {
-  return (
-    <PageFrame className="real-membership-page">
-      <section className="real-membership-current"><div><small>OZONG MEMBERSHIP</small><h1>年卡会员</h1><p>当前会员有效期至 2027-08-19</p></div><div><b>2/3<small>登录设备</small></b><b>6/10<small>店铺数量</small></b><b>330天<small>剩余时间</small></b></div></section>
-      <section className="real-membership-plans"><header><div><span>会员套餐</span><h2>选择适合你的 OzonG 会员</h2></div><p>会员只限制使用时限、同时登录设备数和店铺数；其余 ERP 业务功能不额外设置会员配额。</p></header><div className="plan-grid">{[["体验会员","7","1","1"],["月卡会员","30","2","3"],["季度会员","90","3","6"],["年卡会员","365","5","10"]].map((p,i)=><article className={i===3?"gold":""} key={p[0]}><span>{i===3?"GOLD":"OZONG"}</span><h3>{p[0]}</h3><strong>{p[1]} 天</strong><p>✓ {p[2]} 台设备同时登录</p><p>✓ {p[3]} 个店铺</p><p>✓ 全部 ERP 功能开放</p><button>{i===3?"当前套餐":"查看方案"}</button></article>)}</div></section>
-    </PageFrame>
-  );
-}
+function MembershipView() { return <MembershipReplica />; }
 
-function AccountView({ type }: { type: "account" | "users" | "extensions" }) {
-  if (type === "users") {
-    return <PageFrame className="real-settings-page"><section className="real-settings-head"><div><h1>用户与额度</h1><p>管理员手工充值或调整 AI 生图额度；每笔变更都会保留审计记录。</p></div><div className="search-box">搜索用户名 <SearchOutlined /></div></section><div className="real-settings-table"><div className="row head"><span>用户</span><span>角色</span><span>额度</span><span>状态</span><span>操作</span></div>{[["admin","管理员","956 点可用"],["operator01","运营","320 点可用"],["designer","设计","188 点可用"]].map(r=><div className="row" key={r[0]}><span><b>{r[0]}</b></span><span>{r[1]}</span><span><b>{r[2]}</b><small>总额度 1200 · 冻结 0</small></span><span><i className="status-chip success">启用</i></span><span><button>调整额度</button><button>流水</button></span></div>)}</div></PageFrame>;
-  }
-  if (type === "extensions") {
-    return <PageFrame className="real-settings-page"><section className="real-settings-head"><div><h1>浏览器插件</h1><p>管理已连接 ERP 的 Auto-OZON 浏览器。撤销后，该设备会立即无法查询店铺或继续同步情报。</p></div><button>刷新</button></section><div className="real-security-tip"><SafetyCertificateOutlined /><b>隐私边界</b><span>Seller Cookie 始终留在浏览器；ERP 只接收白名单采集任务的必要结果，不保存 Cookie。</span></div><div className="real-settings-table"><div className="row head"><span>设备</span><span>插件版本</span><span>最近在线</span><span>状态</span><span>操作</span></div>{[["Chrome · Windows","0.0.19","刚刚"],["Edge · Windows","0.0.19","8 分钟前"]].map(r=><div className="row" key={r[0]}><span><b>{r[0]}</b></span><span>{r[1]}</span><span>{r[2]}</span><span><i className="status-chip success">已连接</i></span><span><button className="danger-link">撤销设备</button></span></div>)}</div></PageFrame>;
-  }
-  return <PageFrame className="real-account-page"><div className="real-account-layout"><aside><button className="active"><UserOutlined /> 修改资料</button><button><LockOutlined /> 修改密码</button><button><DesktopOutlined /> 设备管理</button></aside><section><header><div><h1>修改资料</h1><p>更新昵称、头像和个人账户信息。</p></div></header><div className="profile-avatar"><img src={REAL_AVATAR} alt="" /><div><b>1234</b><button>更换头像</button></div></div><label>昵称<div>1234</div></label><label>登录账号<div className="disabled">ozong_user_1234</div></label><div className="account-stats"><span>账号类型<b>客户</b></span><span>授权状态<b>年卡会员</b></span><span>AI 生图点数<b>956</b></span></div><button className="save">保存修改</button></section></div></PageFrame>;
-}
+function AccountView({ type, go }: { type: "account" | "users" | "extensions"; go: (view: ViewKey) => void }) { if (type === "users") return <UserCreditsReplica />; if (type === "extensions") return <ExtensionDevicesReplica />; return <AccountReplica go={go} />; }
 
 function Sidebar({
   view,
@@ -386,9 +355,9 @@ export function WebErpDemo() {
       case "aiImage": return <AiImageView />;
       case "watermarks": return <WatermarksView />;
       case "membership": return <MembershipView />;
-      case "users": return <AccountView type="users" />;
-      case "extensions": return <AccountView type="extensions" />;
-      case "account": return <AccountView type="account" />;
+      case "users": return <AccountView type="users" go={go} />;
+      case "extensions": return <AccountView type="extensions" go={go} />;
+      case "account": return <AccountView type="account" go={go} />;
     }
   };
 
