@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { AppstoreOutlined, BarChartOutlined, CalendarOutlined, CarOutlined, CrownOutlined, FireOutlined, PieChartOutlined, SafetyCertificateOutlined, TrophyOutlined } from "@ant-design/icons";
+import "./selection-replica.css";
 
 type PeriodKey="week"|"month"|"quarter"|"year";
 const categories=[
