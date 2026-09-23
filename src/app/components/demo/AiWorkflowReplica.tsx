@@ -83,21 +83,23 @@ export function AiWorkflowReplica(){
     return()=>{window.removeEventListener("pointermove",move);window.removeEventListener("pointerup",up)};
   },[dragging,viewport.zoom]);
 
-  function fitView(){
+  function fitPositions(pos:Record<NodeKey,Point>){
     const el=canvasRef.current;if(!el)return;
-    const keys=Object.keys(positions) as NodeKey[];
-    const minX=Math.min(...keys.map(k=>positions[k].x));
-    const minY=Math.min(...keys.map(k=>positions[k].y));
-    const maxX=Math.max(...keys.map(k=>positions[k].x+SIZE[k].w));
-    const maxY=Math.max(...keys.map(k=>positions[k].y+SIZE[k].h));
+    const keys=Object.keys(pos) as NodeKey[];
+    const minX=Math.min(...keys.map(k=>pos[k].x));
+    const minY=Math.min(...keys.map(k=>pos[k].y));
+    const maxX=Math.max(...keys.map(k=>pos[k].x+SIZE[k].w));
+    const maxY=Math.max(...keys.map(k=>pos[k].y+SIZE[k].h));
     const pad=34;
     const z=clamp(Math.min((el.clientWidth-pad*2)/(maxX-minX),(el.clientHeight-pad*2)/(maxY-minY)),.45,1.5);
     setViewport({zoom:z,x:(el.clientWidth-(maxX-minX)*z)/2-minX*z,y:(el.clientHeight-(maxY-minY)*z)/2-minY*z});
   }
+  function fitView(){fitPositions(positions)}
   function resetLayout(){
-    setPositions(cloneDefault());
+    const defaults=cloneDefault();
+    setPositions(defaults);
     try{localStorage.removeItem("ozong-ai-workflow-layout-demo-v1")}catch{}
-    setTimeout(fitView,20);
+    window.setTimeout(()=>fitPositions(defaults),20);
   }
   function zoomBy(delta:number,center?:{x:number;y:number}){
     const el=canvasRef.current;if(!el)return;
@@ -145,6 +147,8 @@ export function AiWorkflowReplica(){
   function newConversation(){
     setImages({product:[],style:[]});setPrompt("补充商品事实、核心卖点或希望强调的场景…");setSlotStatus({});
   }
+  useEffect(()=>{const timer=window.setTimeout(()=>fitPositions(positions),30);return()=>window.clearTimeout(timer)},[]);
+
   function handleUpload(kind:keyof ImagesState){
     const input=document.createElement("input");input.type="file";input.accept="image/jpeg,image/jpg,image/png,image/webp";input.multiple=true;
     input.onchange=()=>input.files&&addFiles(kind,input.files);input.click();
@@ -180,7 +184,7 @@ export function AiWorkflowReplica(){
       <div className="demo-tb-left"><span className="demo-tb-title">OzonG AI Workflow</span><span className="demo-tb-sub">统一生图</span><span className="demo-tb-save">● {running?"生成中":"已保存"}</span></div>
       <div className="demo-tb-mid">
         <button onClick={newConversation}>＋ 新建</button><button onClick={()=>setHistoryOpen(true)}>历史记录</button><button onClick={resetLayout}>自动布局</button><i></i>
-        <button className="ico" onClick={()=>zoomBy(-.1)}>−</button><span className="zoom">{Math.round(viewport.zoom*100)}%</span><button className="ico" onClick={()=>zoomBy(.1)}>＋</button><button onClick={fitView}>适应画布</button>
+        <button className="ico" onClick={()=>zoomBy(-.1)}>−</button><span className="zoom">{Math.round(viewport.zoom*100)}%</span><button className="ico" onClick={()=>zoomBy(.1)}>＋</button><button onClick={()=>fitView()}>适应画布</button>
       </div>
       <div className="demo-tb-right">
         <div className="demo-kind-toggle"><button className={generationKind==="main"?"active":""} disabled={running} onClick={()=>setGenerationKind("main")}>单主图</button><button className={generationKind==="set"?"active":""} disabled={running} onClick={()=>setGenerationKind("set")}>8图套图</button></div>
