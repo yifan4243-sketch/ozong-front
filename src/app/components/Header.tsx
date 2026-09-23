@@ -10,21 +10,21 @@ export function Header() {
       <div className="container flex h-16 items-center justify-between px-4 mx-auto max-w-6xl">
         <div className="flex items-center space-x-2">
           <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-            <span className="text-primary-foreground">智</span>
+            <span className="text-primary-foreground">O</span>
           </div>
-          <span className="text-xl">智能通话分析</span>
+          <span className="text-xl">OzonG ERP</span>
         </div>
         
         <nav className="hidden md:flex items-center space-x-8">
-          <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">功能</a>
-          <a href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">价格</a>
-          <a href="#testimonials" className="text-muted-foreground hover:text-foreground transition-colors">客户评价</a>
+          <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">核心功能</a>
+          <a href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">版本方案</a>
+          <a href="#testimonials" className="text-muted-foreground hover:text-foreground transition-colors">应用场景</a>
           <a href="#faq" className="text-muted-foreground hover:text-foreground transition-colors">常见问题</a>
         </nav>
 
         <div className="hidden md:flex items-center space-x-4">
-          <Button variant="ghost">登录</Button>
-          <Button>开始免费试用</Button>
+          <Button variant="ghost">登录 ERP</Button>
+          <Button>了解产品</Button>
         </div>
 
         <button
@@ -39,12 +39,12 @@ export function Header() {
       {isMenuOpen && (
         <div className="md:hidden border-t bg-background">
           <nav className="flex flex-col space-y-4 p-4">
-            <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">功能</a>
-            <a href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">价格</a>
-            <a href="#testimonials" className="text-muted-foreground hover:text-foreground transition-colors">客户评价</a>
+            <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">核心功能</a>
+            <a href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">版本方案</a>
+            <a href="#testimonials" className="text-muted-foreground hover:text-foreground transition-colors">应用场景</a>
             <a href="#faq" className="text-muted-foreground hover:text-foreground transition-colors">常见问题</a>
-            <Button variant="ghost" className="justify-start">登录</Button>
-            <Button className="justify-start">开始免费试用</Button>
+            <Button variant="ghost" className="justify-start">登录 ERP</Button>
+            <Button className="justify-start">了解产品</Button>
           </nav>
         </div>
       )}
