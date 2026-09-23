@@ -33,6 +33,15 @@
   border-right:1px solid #eef2f7;
   box-shadow:8px 0 28px rgba(15,23,42,.04);
 }
+.real-erp-sidebar.collapsed{width:68px;flex-basis:68px}
+.real-erp-sidebar.collapsed .real-sidebar-logo{justify-content:center;padding:0}
+.real-erp-sidebar.collapsed .real-sidebar-logo>b{display:none}
+.real-erp-sidebar.collapsed .real-sidebar-menu{align-items:center;padding-left:8px;padding-right:8px}
+.real-erp-sidebar.collapsed .real-sidebar-item{width:40px;grid-template-columns:1fr;justify-items:center;padding:0}
+.real-erp-sidebar.collapsed .real-sidebar-item>span,.real-erp-sidebar.collapsed .real-sidebar-item>.anticon:last-child{display:none}
+.real-erp-sidebar.collapsed .real-sidebar-footer{padding-left:8px;padding-right:8px}
+.real-erp-sidebar.collapsed .real-collapse-entry{width:40px}
+.real-erp-main-layout.collapsed{--erp-sidebar-width:68px}
 .real-sidebar-logo{
   min-height:62px;border:0;border-bottom:1px solid #f1f5f9;background:transparent;
   display:flex;align-items:center;padding:0 18px;gap:8px;cursor:pointer;flex-shrink:0;
