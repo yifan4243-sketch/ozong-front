@@ -69,7 +69,9 @@ export function FAQ() {
 
         <div className="text-center mt-12">
           <p className="text-muted-foreground mb-4">还有其他问题？</p>
-          <Button variant="outline">联系 OzonG 团队</Button>
+          <Button variant="outline" asChild>
+            <a href="#contact">联系 OzonG 团队</a>
+          </Button>
         </div>
       </div>
     </section>
