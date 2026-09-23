@@ -55,6 +55,7 @@ import { ListingReplica } from "./ListingReplica";
 import { Source1688Replica } from "./Source1688Replica";
 import { OrdersReplica } from "./OrdersReplica";
 import { PromotionJoinReplica } from "./PromotionJoinReplica";
+import { PromotionAutoReplica } from "./PromotionAutoReplica";
 import { ShopsReplica } from "./ShopsReplica";
 import { SelectionReplica } from "./SelectionReplica";
 import "./web-erp-demo.css";
@@ -195,17 +196,7 @@ function OrdersView() { return <OrdersReplica />; }
 
 function PromotionJoinView() { return <PromotionJoinReplica />; }
 
-function PromotionAutoView() {
-  const [enabled, setEnabled] = useState(false);
-  return (
-    <PageFrame className="real-auto-promo-page">
-      <section className="real-auto-promo-shell">
-        <header><h1>自动踢促销</h1><p>开启后首次扫描在 2 小时后执行，之后每 2 小时扫描一次；系统只处理 Ozon 标记为自动加入的商品。</p></header>
-        <div className="real-auto-table"><div className="head"><span>店铺名称</span><span>启用状态</span></div><div><strong>测试</strong><button className={enabled?"switch-pill on":"switch-pill"} onClick={()=>setEnabled(!enabled)}><i></i>{enabled?"开启":"关闭"}</button></div></div>
-      </section>
-    </PageFrame>
-  );
-}
+function PromotionAutoView() { return <PromotionAutoReplica />; }
 
 function ShopsView() { return <ShopsReplica />; }
 
