@@ -198,7 +198,7 @@ export function AiWorkflowReplica(){
       <div className="demo-node-body">
         {!list.length?<button className={kind==="product"?"demo-upload product":"demo-upload style"} onClick={()=>handleUpload(kind)} onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();addFiles(kind,e.dataTransfer.files)}}>
           <strong>＋</strong><b>{kind==="product"?"上传商品源图":"上传风格参考"}</b><small>{optional?"可选 · 最多5张":"最多5张 · JPG PNG WEBP · 10MB"}</small>
-        </button>:<div className="demo-thumb-grid">{list.map((url,i)=><span className="demo-thumb" key={url}><img src={url}/><button onClick={()=>setImages(s=>({...s,[kind]:s[kind].filter((_,idx)=>idx!==i)}))}>×</button>{kind==="product"&&i===0&&<em>主参考</em>}</span>)}{list.length<5&&<button className="demo-thumb-add" onClick={()=>handleUpload(kind)}>+</button>}</div>}
+        </button>:<div className="demo-thumb-grid">{list.map((url,i)=><span className="demo-thumb" key={url}><img src={url} draggable={false}/><button onClick={()=>setImages(s=>({...s,[kind]:s[kind].filter((_,idx)=>idx!==i)}))}>×</button>{kind==="product"&&i===0&&<em>主参考</em>}</span>)}{list.length<5&&<button className="demo-thumb-add" onClick={()=>handleUpload(kind)}>+</button>}</div>}
         <div className={kind==="product"?"demo-note product":"demo-note style"}>{note}</div>
       </div>
     </article>
