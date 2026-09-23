@@ -49,6 +49,10 @@ import {
 } from "@ant-design/icons";
 import { AiWorkflowReplica } from "./AiWorkflowReplica";
 import { DashboardReplica } from "./DashboardReplica";
+import { ProductsReplica } from "./ProductsReplica";
+import { CollectionReplica } from "./CollectionReplica";
+import { ListingReplica } from "./ListingReplica";
+import { Source1688Replica } from "./Source1688Replica";
 import { SelectionReplica } from "./SelectionReplica";
 import "./web-erp-demo.css";
 
@@ -176,141 +180,13 @@ function PageFrame({ children, className = "" }: { children: ReactNode; classNam
   return <div className={`real-erp-page ${className}`}>{children}</div>;
 }
 
-function OnlineProductsView() {
-  const [status, setStatus] = useState("所有");
-  const counts = [["所有", 366], ["销售中", 29], ["准备出售", 248], ["错误", 299], ["已下架", 0], ["已归档", 1382]];
-  return (
-    <PageFrame className="real-products-page">
-      <section className="real-products-shell">
-        <div className="real-product-filter-row">
-          <button>全部店铺 <DownOutlined /></button>
-          <div>搜索商品名称</div>
-          <div>输入货号或 SKU</div>
-          <span className="spacer"></span>
-          <button className="primary">查询</button>
-          <button className="create"><PlusOutlined /> 新建商品</button>
-          <button><ReloadOutlined /> 同步操作 <DownOutlined /></button>
-          <button className="disabled">批量操作 <DownOutlined /></button>
-          <button className="square"><ReloadOutlined /></button>
-        </div>
+function OnlineProductsView() { return <ProductsReplica />; }
 
-        <div className="real-product-status-grid">
-          {counts.map(([label, value]) => (
-            <button key={label as string} className={status === label ? "active" : ""} onClick={() => setStatus(label as string)}>
-              <span>{label}</span><b>{value}</b>
-            </button>
-          ))}
-        </div>
+function CollectionView() { return <CollectionReplica />; }
 
-        <div className="real-products-table-scroll">
-          <div className="real-products-table">
-            <div className="real-products-row head">
-              <span>□</span><span>商品信息</span><span>类目佣金</span><span>店铺</span><span>状态</span><span>价格</span><span>库存</span><span>重量</span><span>更新时间</span><span>操作</span>
-            </div>
-            {sampleProducts.map((row, index) => (
-              <div className="real-products-row" key={row.sku}>
-                <span>□</span>
-                <span className="product-info">
-                  <i className={`mock-product-img img-${index % 4}`}>{index % 2 ? "🖊️" : "👖"}</i>
-                  <b>{row.name}</b>
-                  <small>货号 {row.offer}　SKU {row.sku}</small>
-                </span>
-                <span className="commission"><em>佣金率:14%</em><em>佣金:28.00元</em><em>收单:2.00元</em></span>
-                <span>测试</span>
-                <span><i className="status-chip green">销售中</i></span>
-                <span className="price-stack"><b>{row.price}</b><s>{index ? "400.00元" : "600.00元"}</s><em>不利价格指数</em></span>
-                <span>{row.stock} <EditOutlined /></span>
-                <span><b>{row.weight}</b></span>
-                <span>2026-09-10<small>13:35:41</small></span>
-                <span><button className="edit-btn">编辑</button><MoreOutlined /></span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <footer className="real-table-footer"><strong>共 366 条记录，当前页 10 条记录</strong><div><button disabled><LeftOutlined /></button><button className="on">1</button><button>2</button><button>3</button><button>4</button><button>5</button><span>•••</span><button>37</button><button><RightOutlined /></button><button>10 条/页 <DownOutlined /></button></div></footer>
-      </section>
-    </PageFrame>
-  );
-}
+function ListingView() { return <ListingReplica />; }
 
-function CollectionView() {
-  return (
-    <PageFrame className="real-collection-page">
-      <section className="real-collection-panel">
-        <header className="real-collection-toolbar">
-          <div><div className="title-line"><h1>采集箱</h1><b>19 件</b></div><p>核对采集的商品信息，选择需要上架的商品，或进行批量删除。</p></div>
-          <div className="actions"><span>□ 全选</span><i></i><span>已选 <b>0</b> 项</span><button disabled><DeleteOutlined /> 删除</button><button><ReloadOutlined /> 刷新</button></div>
-        </header>
-        <div className="real-collection-table">
-          <div className="real-collection-row head"><span>□</span><span>商品信息</span><span>SKU</span><span>来源平台</span><span>采集时间 ↓</span><span>价格</span><span>操作</span></div>
-          {sampleProducts.map((row, index) => (
-            <div className="real-collection-row" key={row.sku}>
-              <span>□</span>
-              <span className="collection-product"><i className={`mock-product-img img-${index % 4}`}>{["🧻","🧥","🎮","🔦"][index % 4]}</i><b>{row.name}</b></span>
-              <span>{row.sku}</span><span className="ozon-source">OZON <small>RU</small></span><span>2026-09-{index ? "22" : "23"} 11:{47 - index * 2}:13</span><span className="pink-price">{["83,17 ¥","103,28 ¥","37,94 ¥","86,17 ¥"][index % 4]}</span>
-              <span className="collection-actions"><button><LinkOutlined /> 原链接</button><button className="purple"><UploadOutlined /> 上架</button></span>
-            </div>
-          ))}
-        </div>
-      </section>
-    </PageFrame>
-  );
-}
-
-function ListingView() {
-  return (
-    <PageFrame className="real-listing-page">
-      <section className="real-listing-head"><div><h1>上架记录</h1><p>一键上架与编辑上架共用同一任务队列；离开页面不会中断处理。</p></div><button>刷新</button></section>
-      <section className="real-listing-table-card">
-        <div className="real-listing-row head"><span>主图</span><span>商品</span><span>店铺</span><span>状态</span><span>结果</span><span>创建时间</span><span>操作</span></div>
-        {sampleProducts.slice(0, 5).map((row, index) => (
-          <div className={`real-listing-row ${index === 1 ? "highlight" : ""}`} key={row.sku}>
-            <span><i className={`mock-product-img img-${index % 4}`}>{index < 2 ? "🎒" : "🔎"}</i></span>
-            <span><b>{row.name}</b><small>SKU {row.sku} · 货号 {row.offer}</small></span>
-            <span>测试</span>
-            <span><i className={index < 3 ? "status-chip red" : "status-chip success"}>{index < 3 ? "上架失败" : "上架成功"}</i></span>
-            <span className={index < 3 ? "result-error" : "result-success"}>{index < 3 ? "商品校验失败；商品校验失败" : `Ozon 商品 ID 6340${index}78236`}</span>
-            <span>2026-09-{index < 1 ? "16" : "15"} 23:{25 - index}:28</span>
-            <span>{index < 3 ? <button>重试</button> : null}</span>
-          </div>
-        ))}
-        <div className="load-more"><button>加载更多</button></div>
-      </section>
-    </PageFrame>
-  );
-}
-
-function Source1688View() {
-  const [selected, setSelected] = useState<number[]>([]);
-  const cards = [
-    { id: 1, title: "欧式户外花园天使复古花盆庭院阳台装饰工艺品创意摆件美式艺术", price: "—", pics: 4, sku: 1, icon: "🗿" },
-    { id: 2, title: "25新款时尚复古牛仔腋下包大容量丹宁洗水托特欧美辣妹手提斜挎包", price: "—", pics: 5, sku: 2, icon: "👜" },
-  ];
-  return (
-    <PageFrame className="real-source-page">
-      <section className="real-source-hero">
-        <div className="source-title"><small>货源采集工作台</small><h1><span>1688</span> → <b>Ozon</b></h1><p>浏览器插件采集的 1688 商品统一进入这里，和 Ozon 在线商品分开管理。</p></div>
-        <div className="source-controls"><label>生成图/视频封面 <i>8 张图 · 24点 · 16s MP4</i><span className="switch"></span></label><button>上架店铺　测试 <DownOutlined /></button><button>上架设置</button><button>刷新</button><button className="purple">打开 1688</button></div>
-      </section>
-      <section className="real-source-summary"><article><span>已采集商品</span><b>2</b></article><article><span>来源平台</span><b>1688</b></article></section>
-      <section className="real-source-list">
-        <div className="real-source-list-head"><div><h2>1688 商品</h2><p>SKU 已在采集阶段完成筛选；类目、必填项、包装估算、定价和 Ozon JSON 由系统自动处理。</p></div><div><span>□ 全选　 已选 {selected.length} 项</span><button disabled>删除</button><button className="purple">批量上架至 Ozon</button></div></div>
-        <div className="real-source-card-grid">
-          {cards.map((card) => (
-            <article className="real-source-card" key={card.id}>
-              <button className={selected.includes(card.id) ? "select on" : "select"} onClick={() => setSelected((v) => v.includes(card.id) ? v.filter((x) => x !== card.id) : [...v, card.id])}>{selected.includes(card.id) ? "✓" : ""}</button>
-              <div className="source-photo"><span>{card.icon}</span><b>1688</b></div>
-              <h3>{card.title}</h3><small>货源 ID：{card.id === 1 ? "1052537880354" : "917088483865"}</small>
-              <div className="source-meta"><span>价格<b>{card.price}</b></span><span>图片<b>{card.pics} 张</b></span><span>SKU<b>{card.sku}</b></span></div>
-              <time>08-23 {card.id === 1 ? "12:19" : "00:16"}</time>
-              <footer><button>查看货源</button><button className="purple">已上架 Ozon</button></footer>
-            </article>
-          ))}
-        </div>
-      </section>
-    </PageFrame>
-  );
-}
+function Source1688View() { return <Source1688Replica />; }
 
 function OrdersView() {
   const [status, setStatus] = useState("所有订单");
