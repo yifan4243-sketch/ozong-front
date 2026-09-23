@@ -1,6 +1,6 @@
 import { Button } from "./ui/button";
-import { Play, BarChart3, Brain, Zap } from "lucide-react";
-import { ImageWithFallback } from "./figma/ImageWithFallback";
+import { Play, Brain, Zap } from "lucide-react";
+import { WebErpDemo } from "./demo/WebErpDemo";
 
 export function Hero() {
   return (
@@ -31,9 +31,9 @@ export function Hero() {
               </a>
             </Button>
             <Button variant="outline" size="lg" className="text-lg px-8 py-6" asChild>
-              <a href="https://erp.ozongerp.com/login">
+              <a href="#web-erp-demo">
                 <Play className="w-5 h-5 mr-2" />
-                进入 ERP
+                体验网页端演示
               </a>
             </Button>
           </div>
@@ -53,26 +53,10 @@ export function Hero() {
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="mt-16 relative">
-          <div className="bg-gradient-to-r from-primary/20 to-accent/20 rounded-xl p-8 backdrop-blur-sm border">
-            <ImageWithFallback
-              src="https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=600"
-              alt="OzonG ERP 产品工作台"
-              className="w-full rounded-lg shadow-2xl"
-            />
-          </div>
-          
-          <div className="absolute -bottom-6 -left-6 bg-white rounded-lg shadow-lg p-4 border">
-            <div className="flex items-center space-x-3">
-              <BarChart3 className="w-8 h-8 text-primary" />
-              <div>
-                <div className="text-sm">核心链路</div>
-                <div className="text-xl">1688 → Ozon</div>
-              </div>
-            </div>
-          </div>
-        </div>
+      <div id="web-erp-demo" className="mt-20 px-2 md:px-4 scroll-mt-24">
+        <WebErpDemo />
       </div>
     </section>
   );
