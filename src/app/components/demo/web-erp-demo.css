@@ -40,7 +40,11 @@
 .real-erp-sidebar.collapsed .real-sidebar-item{width:40px;grid-template-columns:1fr;justify-items:center;padding:0}
 .real-erp-sidebar.collapsed .real-sidebar-item>span,.real-erp-sidebar.collapsed .real-sidebar-item>.anticon:last-child{display:none}
 .real-erp-sidebar.collapsed .real-sidebar-footer{padding-left:8px;padding-right:8px}
-.real-erp-sidebar.collapsed .real-collapse-entry{width:40px}
+.real-erp-sidebar.collapsed .real-account-menu-wrap{position:relative;display:flex;justify-content:center}
+.real-account-dropdown{position:absolute;left:48px;bottom:0;width:190px;padding:8px;border:1px solid #e5eaf3;border-radius:10px;background:#fff;box-shadow:0 16px 38px rgba(15,23,42,.16);z-index:40}
+.real-account-summary{padding:7px 9px 9px;border-bottom:1px solid #eef2f7;margin-bottom:5px;display:grid;gap:2px}.real-account-summary b{font-size:12px}.real-account-summary span{font-size:10px;color:#8b95a7}
+.real-account-dropdown button{width:100%;height:34px;border:0;border-radius:7px;background:#fff;color:#475569;display:flex;align-items:center;gap:8px;padding:0 9px;font-size:10px;text-align:left}.real-account-dropdown button:hover{background:#f6f8ff;color:#5b4bff}.real-account-dropdown>i{display:block;height:1px;background:#eef2f7;margin:5px 0}
+.real-collapse-entry{width:40px}
 .real-erp-main-layout.collapsed{--erp-sidebar-width:68px}
 .real-sidebar-logo{
   min-height:62px;border:0;border-bottom:1px solid #f1f5f9;background:transparent;
