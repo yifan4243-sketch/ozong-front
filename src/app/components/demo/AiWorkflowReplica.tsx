@@ -43,7 +43,7 @@ export function AiWorkflowReplica(){
   const [historyOpen,setHistoryOpen]=useState(false);
   const [planOpen,setPlanOpen]=useState(false);
   const [notice,setNotice]=useState("");
-  const [dragging,setDragging]=useState<{kind:"canvas";startX:number;startY:number;baseX:number;baseY:number}|{kind:"node";key:NodeKey;startX:number;startY:number;base:Point}|null>(null);
+  const dragRef=useRef<({kind:"canvas";pointerId:number;startX:number;startY:number;baseX:number;baseY:number}|{kind:"node";pointerId:number;key:NodeKey;startX:number;startY:number;base:Point})|null>(null);\n  const [dragKind,setDragKind]=useState<"canvas"|"node"|null>(null);
   const running=Object.values(slotStatus).some(v=>v==="running");
   const enabledSlots=generationKind==="main"?["main"]:SLOT_META.map(x=>x[0]);
   const completed=enabledSlots.every(k=>slotStatus[k]==="succeeded");
@@ -65,25 +65,12 @@ export function AiWorkflowReplica(){
     }catch{}
   },[]);
   useEffect(()=>{
-    try{localStorage.setItem("ozong-ai-workflow-layout-demo-v1",JSON.stringify(positions))}catch{}
+    const timer=window.setTimeout(()=>{
+      try{localStorage.setItem("ozong-ai-workflow-layout-demo-v1",JSON.stringify(positions))}catch{}
+    },300);
+    return()=>window.clearTimeout(timer);
   },[positions]);
 
-  useEffect(()=>{
-    if(!dragging)return;
-    const move=(e:PointerEvent)=>{
-      if(dragging.kind==="canvas"){
-        setViewport(v=>({...v,x:dragging.baseX+(e.clientX-dragging.startX),y:dragging.baseY+(e.clientY-dragging.startY)}));
-      }else{
-        const dx=(e.clientX-dragging.startX)/viewport.zoom;
-        const dy=(e.clientY-dragging.startY)/viewport.zoom;
-        setPositions(p=>({...p,[dragging.key]:{x:dragging.base.x+dx,y:dragging.base.y+dy}}));
-      }
-    };
-    const up=()=>setDragging(null);
-    window.addEventListener("pointermove",move);
-    window.addEventListener("pointerup",up,{once:true});
-    return()=>{window.removeEventListener("pointermove",move);window.removeEventListener("pointerup",up)};
-  },[dragging,viewport.zoom]);
 
   function fitPositions(pos:Record<NodeKey,Point>){
     const el=canvasRef.current;if(!el)return;
@@ -121,14 +108,39 @@ export function AiWorkflowReplica(){
   function canvasPointerDown(e:ReactPointerEvent<HTMLDivElement>){
     if(e.button!==0)return;
     if((e.target as HTMLElement).closest(".demo-flow-node"))return;
-    setDragging({kind:"canvas",startX:e.clientX,startY:e.clientY,baseX:viewport.x,baseY:viewport.y});
+    e.preventDefault();
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+    dragRef.current={kind:"canvas",pointerId:e.pointerId,startX:e.clientX,startY:e.clientY,baseX:viewport.x,baseY:viewport.y};
+    setDragKind("canvas");
   }
   function nodePointerDown(key:NodeKey,e:ReactPointerEvent){
     if(e.button!==0)return;
     const target=e.target as HTMLElement;
     if(target.closest("button,input,textarea"))return;
+    e.preventDefault();
     e.stopPropagation();
-    setDragging({kind:"node",key,startX:e.clientX,startY:e.clientY,base:{...positions[key]}});
+    canvasRef.current?.setPointerCapture?.(e.pointerId);
+    dragRef.current={kind:"node",pointerId:e.pointerId,key,startX:e.clientX,startY:e.clientY,base:{...positions[key]}};
+    setDragKind("node");
+  }
+  function canvasPointerMove(e:ReactPointerEvent<HTMLDivElement>){
+    const drag=dragRef.current;
+    if(!drag||drag.pointerId!==e.pointerId)return;
+    e.preventDefault();
+    if(drag.kind==="canvas"){
+      setViewport(v=>({...v,x:drag.baseX+(e.clientX-drag.startX),y:drag.baseY+(e.clientY-drag.startY)}));
+    }else{
+      const dx=(e.clientX-drag.startX)/viewport.zoom;
+      const dy=(e.clientY-drag.startY)/viewport.zoom;
+      setPositions(p=>({...p,[drag.key]:{x:drag.base.x+dx,y:drag.base.y+dy}}));
+    }
+  }
+  function canvasPointerUp(e:ReactPointerEvent<HTMLDivElement>){
+    const drag=dragRef.current;
+    if(!drag||drag.pointerId!==e.pointerId)return;
+    try{e.currentTarget.releasePointerCapture?.(e.pointerId)}catch{}
+    dragRef.current=null;
+    setDragKind(null);
   }
   function addFiles(kind:keyof ImagesState,files:FileList|File[]){
     const valid=Array.from(files).filter(f=>f.type.startsWith("image/")).slice(0,5);
@@ -204,7 +216,7 @@ export function AiWorkflowReplica(){
         {!running?<button className="run" disabled={!images.product.length} onClick={runMock}>▶ 运行工作流</button>:<button className="cancel" onClick={()=>setSlotStatus({})}>■ 取消任务</button>}
       </div>
     </div>
-    <DemoToast text={notice}/><div className="demo-ai-canvas" ref={canvasRef} onPointerDown={canvasPointerDown} onWheel={onWheel} style={{backgroundSize:`${22*viewport.zoom}px ${22*viewport.zoom}px`,backgroundPosition:`${viewport.x}px ${viewport.y}px`}}>
+    <DemoToast text={notice}/><div className={`demo-ai-canvas ${dragKind?"is-dragging":""}`} ref={canvasRef} onPointerDown={canvasPointerDown} onPointerMove={canvasPointerMove} onPointerUp={canvasPointerUp} onPointerCancel={canvasPointerUp} onWheel={onWheel} style={{backgroundSize:`${22*viewport.zoom}px ${22*viewport.zoom}px`,backgroundPosition:`${viewport.x}px ${viewport.y}px`}}>
       <div className="demo-world" style={{transform:`translate(${viewport.x}px,${viewport.y}px) scale(${viewport.zoom})`}}>
         <svg className="demo-edge-layer" width="1900" height="1200">{edges.map((e,i)=><path key={i} d={e.d} stroke={e.color}/>)}</svg>
         <InputNode kind="product" title="商品源图" accent="#3b82f6" note="🔒 商品身份来源 · 决定商品本体、包装、Logo 与真实文字"/>
