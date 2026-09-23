@@ -5,54 +5,54 @@ import { Check, Zap } from "lucide-react";
 
 const plans = [
   {
-    name: "入门版",
-    price: "$29",
-    period: "每位用户/月",
-    description: "适合刚开始使用通话分析的小型团队",
+    name: "基础版",
+    price: "定制",
+    period: "按实际开通方案",
+    description: "适合开始使用 OzonG ERP 管理店铺与商品的卖家",
     features: [
-      "每月最多分析 100 通电话",
-      "基础语音转写",
-      "情绪分析",
-      "标准数据看板",
-      "邮件支持",
-      "数据保留 7 天"
+      "Ozon 店铺接入与管理",
+      "在线商品管理",
+      "订单列表与业务数据",
+      "浏览器插件协同",
+      "商品同步与基础运营",
+      "账户与店铺数据管理"
     ],
     isPopular: false,
   },
   {
     name: "专业版",
-    price: "$79",
-    period: "每位用户/月",
-    description: "面向正在增长的销售与客服团队，提供更完整的高级能力",
+    price: "定制",
+    period: "按实际开通方案",
+    description: "面向需要完整货源、AI 与运营工作流的 Ozon 卖家",
     features: [
-      "每月最多分析 500 通电话",
-      "高级人工智能语音转写",
-      "实时辅导",
-      "自定义数据看板",
-      "关键词追踪",
-      "合规监测",
-      "优先支持",
-      "数据保留 30 天",
-      "开放接口访问"
+      "1688 货源采集工作台",
+      "AI 商品编辑",
+      "AI 商品图生成",
+      "Ozon 商品情报",
+      "选品与筛选规则",
+      "批量改价与库存",
+      "批量促销与商品修复",
+      "订单与财务中心",
+      "浏览器插件完整工作流"
     ],
     isPopular: true,
   },
   {
-    name: "企业版",
+    name: "团队版",
     price: "定制",
-    period: "专属报价",
-    description: "为大型组织提供可定制的企业级解决方案",
+    period: "按团队需求配置",
+    description: "适合多店铺、多成员协作和规模化运营的团队",
     features: [
-      "不限通话数量",
-      "高级人工智能模型",
-      "定制系统集成",
-      "专属客户成功经理",
-      "自定义合规规则",
-      "高级数据分析",
-      "7×24 小时电话支持",
-      "不限数据保留期限",
-      "单点登录与企业身份认证",
-      "本地化部署"
+      "多 Ozon 店铺集中管理",
+      "用户与额度管理",
+      "商品与订单统一工作台",
+      "1688 → Ozon 上架流程",
+      "AI 商品与图片能力",
+      "选品与商品情报",
+      "批量运营能力",
+      "运营与利润数据",
+      "账户级配置管理",
+      "持续版本更新"
     ],
     isPopular: false,
   },
@@ -64,10 +64,10 @@ export function Pricing() {
       <div className="container mx-auto max-w-6xl px-4">
         <div className="text-center space-y-4 mb-16">
           <h2 className="text-3xl md:text-4xl lg:text-5xl">
-            简单透明的价格方案
+            按你的运营规模选择版本
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            根据团队规模和实际需求选择合适方案，所有方案均包含 14 天免费试用。
+            不同版本对应不同业务能力与使用规模，具体开通价格、额度和服务内容以正式方案为准。
           </p>
         </div>
 
@@ -77,7 +77,7 @@ export function Pricing() {
               {plan.isPopular && (
                 <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary">
                   <Zap className="w-3 h-3 mr-1" />
-                  最受欢迎
+                  核心能力
                 </Badge>
               )}
               
@@ -108,7 +108,7 @@ export function Pricing() {
                   variant={plan.isPopular ? "default" : "outline"}
                   size="lg"
                 >
-                  {plan.price === "定制" ? "联系销售" : "开始免费试用"}
+                  {plan.price === "定制" ? "咨询开通" : "立即使用"}
                 </Button>
               </CardContent>
             </Card>
@@ -116,23 +116,23 @@ export function Pricing() {
         </div>
 
         <div className="text-center mt-12 space-y-4">
-          <p className="text-muted-foreground">所有方案均包含：</p>
+          <p className="text-muted-foreground">所有版本均围绕：</p>
           <div className="flex flex-wrap justify-center gap-6 text-sm">
             <div className="flex items-center space-x-2">
               <Check className="w-4 h-4 text-green-500" />
-              <span>14 天免费试用</span>
+              <span>Ozon 店铺运营</span>
             </div>
             <div className="flex items-center space-x-2">
               <Check className="w-4 h-4 text-green-500" />
-              <span>无配置费用</span>
+              <span>浏览器插件协同</span>
             </div>
             <div className="flex items-center space-x-2">
               <Check className="w-4 h-4 text-green-500" />
-              <span>随时取消</span>
+              <span>后端安全保存店铺密钥</span>
             </div>
             <div className="flex items-center space-x-2">
               <Check className="w-4 h-4 text-green-500" />
-              <span>99.9% 服务可用性保障</span>
+              <span>持续版本迭代</span>
             </div>
           </div>
         </div>
