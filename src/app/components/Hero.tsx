@@ -10,42 +10,42 @@ export function Hero() {
           <div className="space-y-4">
             <div className="inline-flex items-center bg-primary/10 text-primary px-3 py-1 rounded-full border">
               <Brain className="w-4 h-4 mr-2" />
-              <span className="text-sm">人工智能驱动的通话洞察</span>
+              <span className="text-sm">为 Ozon 跨境运营打造的智能 ERP</span>
             </div>
             
             <h1 className="text-4xl md:text-6xl lg:text-7xl tracking-tight">
-              将每一次通话转化为
-              <span className="text-primary"> 可执行的业务洞察</span>
+              从 1688 货源到 Ozon 上架
+              <span className="text-primary"> 一套系统完成</span>
             </h1>
             
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-              利用人工智能分析每一次客户对话，发现潜在机会，并通过实时洞察与自动化辅导提升团队表现。
+              OzonG ERP 将货源采集、AI 商品处理、商品图生成、Ozon 上架、在线商品、订单、选品和运营数据集中到一个工作台。
             </p>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" className="text-lg px-8 py-6">
               <Zap className="w-5 h-5 mr-2" />
-              开始免费试用
+              了解 OzonG ERP
             </Button>
             <Button variant="outline" size="lg" className="text-lg px-8 py-6">
               <Play className="w-5 h-5 mr-2" />
-              观看演示
+              观看产品演示
             </Button>
           </div>
 
           <div className="flex items-center justify-center space-x-8 text-sm text-muted-foreground">
             <div className="flex items-center">
               <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-              无需复杂配置
+              1688 货源采集
             </div>
             <div className="flex items-center">
               <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-              14 天免费试用
+              AI 商品处理
             </div>
             <div className="flex items-center">
               <div className="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
-              随时取消
+              Ozon 店铺运营
             </div>
           </div>
         </div>
@@ -54,7 +54,7 @@ export function Hero() {
           <div className="bg-gradient-to-r from-primary/20 to-accent/20 rounded-xl p-8 backdrop-blur-sm border">
             <ImageWithFallback
               src="https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=600"
-              alt="通话分析仪表盘"
+              alt="OzonG ERP 产品工作台"
               className="w-full rounded-lg shadow-2xl"
             />
           </div>
@@ -63,8 +63,8 @@ export function Hero() {
             <div className="flex items-center space-x-3">
               <BarChart3 className="w-8 h-8 text-primary" />
               <div>
-                <div className="text-sm">转化率</div>
-                <div className="text-xl">+32%</div>
+                <div className="text-sm">核心链路</div>
+                <div className="text-xl">1688 → Ozon</div>
               </div>
             </div>
           </div>
