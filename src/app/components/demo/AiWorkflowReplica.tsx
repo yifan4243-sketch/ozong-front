@@ -43,7 +43,8 @@ export function AiWorkflowReplica(){
   const [historyOpen,setHistoryOpen]=useState(false);
   const [planOpen,setPlanOpen]=useState(false);
   const [notice,setNotice]=useState("");
-  const dragRef=useRef<({kind:"canvas";pointerId:number;startX:number;startY:number;baseX:number;baseY:number}|{kind:"node";pointerId:number;key:NodeKey;startX:number;startY:number;base:Point})|null>(null);\n  const [dragKind,setDragKind]=useState<"canvas"|"node"|null>(null);
+  const dragRef=useRef<({kind:"canvas";pointerId:number;startX:number;startY:number;baseX:number;baseY:number}|{kind:"node";pointerId:number;key:NodeKey;startX:number;startY:number;base:Point})|null>(null);
+  const [dragKind,setDragKind]=useState<"canvas"|"node"|null>(null);
   const running=Object.values(slotStatus).some(v=>v==="running");
   const enabledSlots=generationKind==="main"?["main"]:SLOT_META.map(x=>x[0]);
   const completed=enabledSlots.every(k=>slotStatus[k]==="succeeded");
