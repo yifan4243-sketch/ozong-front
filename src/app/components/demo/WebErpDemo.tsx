@@ -652,6 +652,7 @@ function Sidebar({
   collapsed: boolean;
   setCollapsed: (value: boolean) => void;
 }) {
+  const [accountOpen, setAccountOpen] = useState(false);
   const productActive = ["products", "collection", "listing"].includes(view);
   const promoActive = ["promoJoin", "promoAuto"].includes(view);
   const itemClass = (key: ViewKey) => view === key ? "real-sidebar-item active" : "real-sidebar-item";
@@ -684,7 +685,16 @@ function Sidebar({
         <button className={itemClass("watermarks")} onClick={() => go("watermarks")}><PictureOutlined /><span>水印管理</span></button>
       </nav>
       <div className="real-sidebar-footer">
-        <button className="real-avatar-entry" onClick={() => go("account")}><img src={REAL_AVATAR} alt="1234" /></button>
+        <div className="real-account-menu-wrap">
+          <button className="real-avatar-entry" onClick={() => setAccountOpen(!accountOpen)} aria-label="1234"><img src={REAL_AVATAR} alt="1234" /></button>
+          {accountOpen && <div className="real-account-dropdown">
+            <div className="real-account-summary"><b>1234</b><span>剩余使用：330 天</span></div>
+            <button onClick={() => { go("users"); setAccountOpen(false); }}><TeamOutlined /> 用户与额度</button>
+            <button onClick={() => { go("extensions"); setAccountOpen(false); }}><SafetyCertificateOutlined /> 浏览器插件</button>
+            <i></i>
+            <button onClick={() => setAccountOpen(false)}>退出登录</button>
+          </div>}
+        </div>
         <button className="real-collapse-entry" onClick={() => setCollapsed(!collapsed)}>{collapsed ? "»" : "«"} {!collapsed && <span>收起侧栏</span>}</button>
       </div>
     </aside>
