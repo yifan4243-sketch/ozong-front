@@ -1,51 +1,19 @@
-import { useMemo, useState } from "react";
-import type { ReactNode } from "react";
+import { useState } from "react";
 import {
-  AppstoreOutlined,
   ArrowRightOutlined,
   BarChartOutlined,
-  CalendarOutlined,
-  CarOutlined,
-  CheckCircleOutlined,
-  CrownOutlined,
-  DeleteOutlined,
-  DesktopOutlined,
   DollarOutlined,
   DownOutlined,
-  EditOutlined,
-  ExclamationCircleOutlined,
-  FileDoneOutlined,
-  FileTextOutlined,
-  FireOutlined,
   HomeOutlined,
-  InboxOutlined,
-  LeftOutlined,
-  LinkOutlined,
-  LockOutlined,
-  MoreOutlined,
   OrderedListOutlined,
   PictureOutlined,
-  PieChartOutlined,
-  PlusOutlined,
-  ReloadOutlined,
   RightOutlined,
   RobotOutlined,
-  RocketOutlined,
   SafetyCertificateOutlined,
-  SearchOutlined,
-  SendOutlined,
-  SettingOutlined,
   ShopOutlined,
   ShoppingCartOutlined,
   ShoppingOutlined,
-  SyncOutlined,
   TeamOutlined,
-  ThunderboltOutlined,
-  TrophyOutlined,
-  UploadOutlined,
-  UserOutlined,
-  WarningOutlined,
-  WalletOutlined,
 } from "@ant-design/icons";
 import { AiWorkflowReplica } from "./AiWorkflowReplica";
 import { DashboardReplica } from "./DashboardReplica";
@@ -83,8 +51,6 @@ type ViewKey =
   | "users"
   | "extensions";
 
-type TrendKey = "7d" | "30d" | "90d";
-
 const REAL_LOGO = "https://raw.githubusercontent.com/yifan4243-sketch/ozon-erp/dev-hotfix/frontend/public/logo.png";
 const REAL_AVATAR = "https://raw.githubusercontent.com/yifan4243-sketch/ozon-erp/dev-hotfix/frontend/public/default-user-avatar.png";
 
@@ -100,87 +66,13 @@ const viewTitles: Record<ViewKey, string> = {
   shops: "店铺管理",
   selection: "选品",
   finance: "财务中心",
-  aiImage: "AI生图",
+  aiImage: "AI 商品图生成",
   watermarks: "水印管理",
   membership: "会员中心",
   account: "账户中心",
   users: "用户与额度",
   extensions: "浏览器插件",
 };
-
-const sampleProducts = [
-  { name: "Набор шариковых ручек, 4 штуки, синие, 0.7 мм", offer: "ozg-260909-519098-03", sku: "5743999143", price: "200.00元", stock: 100, weight: "13g" },
-  { name: "Ручки шариковые синие 10 шт 0.7 мм", offer: "ozg-260909-511678-04", sku: "5743996564", price: "200.00元", stock: 100, weight: "40g" },
-  { name: "Набор цветных шариковых ручек 10 цветов", offer: "ozg-260909-509462-02", sku: "5743990580", price: "200.00元", stock: 100, weight: "50g" },
-  { name: "Комплект одежды школьный для детей", offer: "ozg-260908-567901-10", sku: "5736228976", price: "300.00元", stock: 100, weight: "645g" },
-  { name: "Дождевик Спецодежда / Плащи и дождевики", offer: "C-123-284.2", sku: "5367925035", price: "103,28 ¥", stock: 36, weight: "515g" },
-  { name: "Игровые беспроводные контроллеры 2,4G", offer: "C-287-456.52", sku: "4993872000", price: "37,94 ¥", stock: 42, weight: "420g" },
-];
-
-const trendData: Record<TrendKey, { sales: number[]; orders: number[]; labels: string[] }> = {
-  "7d": {
-    sales: [8420, 11280, 9680, 15120, 13860, 18640, 21280],
-    orders: [72, 94, 81, 116, 108, 139, 151],
-    labels: ["09-17", "09-18", "09-19", "09-20", "09-21", "09-22", "09-23"],
-  },
-  "30d": {
-    sales: [6200, 7800, 9300, 8700, 12100, 11000, 13800, 15200, 14400, 16000, 18500, 17100, 19600, 20800, 18900, 22400, 21600, 23800, 25100, 24300, 26700, 25900, 28100, 29300, 27600, 30500, 31800, 29600, 33400, 34800],
-    orders: [54, 61, 74, 70, 88, 83, 96, 102, 98, 107, 116, 112, 124, 131, 119, 138, 135, 146, 153, 149, 161, 157, 169, 176, 168, 183, 190, 181, 197, 205],
-    labels: ["08-25", "08-30", "09-04", "09-09", "09-14", "09-19", "09-23"],
-  },
-  "90d": {
-    sales: Array.from({ length: 90 }, (_, i) => 6500 + i * 310 + Math.sin(i / 3) * 3500 + (i % 11) * 260),
-    orders: Array.from({ length: 90 }, (_, i) => 48 + i * 1.5 + Math.sin(i / 4) * 18 + (i % 9)),
-    labels: ["06-26", "07-10", "07-24", "08-07", "08-21", "09-04", "09-23"],
-  },
-};
-
-function cn(n: number) {
-  return new Intl.NumberFormat("zh-CN").format(Math.round(n));
-}
-
-function LineChart({ range }: { range: TrendKey }) {
-  const data = trendData[range];
-  const width = 640;
-  const height = 320;
-  const left = 54;
-  const right = 616;
-  const top = 28;
-  const bottom = 282;
-  const max = Math.max(...data.sales);
-  const maxOrders = Math.max(...data.orders);
-  const points = (values: number[], localMax: number) =>
-    values
-      .map((value, index) => {
-        const x = left + (index / Math.max(1, values.length - 1)) * (right - left);
-        const y = bottom - (value / Math.max(1, localMax)) * (bottom - top);
-        return `${x.toFixed(1)},${y.toFixed(1)}`;
-      })
-      .join(" ");
-  const ticks = data.labels.map((label, index) => ({
-    label,
-    x: left + (index / Math.max(1, data.labels.length - 1)) * (right - left),
-  }));
-  return (
-    <svg viewBox="0 0 640 320" className="real-trend-svg" preserveAspectRatio="none">
-      {[0, 1, 2, 3, 4].map((row) => {
-        const y = top + (row / 4) * (bottom - top);
-        return <line key={row} x1={left} x2={right} y1={y} y2={y} className="real-grid-line" />;
-      })}
-      <polyline points={points(data.sales, max)} className="real-sales-line" />
-      <polyline points={points(data.orders, maxOrders)} className="real-orders-line" />
-      {ticks.map((tick) => (
-        <text key={tick.label} x={tick.x} y={306} textAnchor="middle" className="real-x-label">
-          {tick.label}
-        </text>
-      ))}
-    </svg>
-  );
-}
-
-function IconBox({ tone, children }: { tone: string; children: ReactNode }) {
-  return <span className={`real-icon-box ${tone}`}>{children}</span>;
-}
 
 function DashboardView({ go }: { go: (view: ViewKey) => void }) { return <DashboardReplica go={go} />; }
 
