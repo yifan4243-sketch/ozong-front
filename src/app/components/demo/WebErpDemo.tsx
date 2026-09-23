@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from "react";\nimport type { ReactNode } from "react";
 import {
   ArrowRightOutlined,
   BarChartOutlined,
