@@ -107,8 +107,11 @@ export function Pricing() {
                   className="w-full" 
                   variant={plan.isPopular ? "default" : "outline"}
                   size="lg"
+                  asChild
                 >
-                  {plan.price === "定制" ? "咨询开通" : "立即使用"}
+                  <a href="#contact">
+                    {plan.price === "定制" ? "咨询开通" : "立即使用"}
+                  </a>
                 </Button>
               </CardContent>
             </Card>
