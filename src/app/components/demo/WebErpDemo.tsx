@@ -53,6 +53,9 @@ import { ProductsReplica } from "./ProductsReplica";
 import { CollectionReplica } from "./CollectionReplica";
 import { ListingReplica } from "./ListingReplica";
 import { Source1688Replica } from "./Source1688Replica";
+import { OrdersReplica } from "./OrdersReplica";
+import { PromotionJoinReplica } from "./PromotionJoinReplica";
+import { ShopsReplica } from "./ShopsReplica";
 import { SelectionReplica } from "./SelectionReplica";
 import "./web-erp-demo.css";
 
@@ -188,57 +191,9 @@ function ListingView() { return <ListingReplica />; }
 
 function Source1688View() { return <Source1688Replica />; }
 
-function OrdersView() {
-  const [status, setStatus] = useState("所有订单");
-  const counts = [["所有订单",291],["等待备货",0],["等待发运",0],["运输中",0],["已签收",158],["已取消",133]];
-  const rows = [
-    ["Dandy Ambulance трансформер 20 см, свет и звук, S1.","0146328704-0023-1","¥75.00","已签收"],
-    ["Видеоглазок для входной двери с WI-FI, умный...","0131670595-0370-1","¥400.00","已取消"],
-    ["Dandy Ambulance трансформер 20 см, свет и звук, S1.","01103533932-0188-1","¥75.00","已签收"],
-    ["Набор инструментов 399 предметов GOODKING...","145656659-0347-1","¥733.00","已取消"],
-    ["Резец по дереву","0159578246-0065-1","¥131.00","已签收"],
-  ];
-  return (
-    <PageFrame className="real-orders-page">
-      <section className="real-orders-shell">
-        <div className="real-orders-filters"><button>全部店铺 <DownOutlined /></button><button>全部状态 <DownOutlined /></button><div>请输入订单号</div><div className="wide">搜索商品、货号、SKU</div><button className="date">2026-03-18 → 2026-09-23</button><button className="primary">查询</button><button className="green">拉取新订单</button><button>更多操作 <DownOutlined /></button><button disabled>批量操作 <DownOutlined /></button></div>
-        <div className="real-order-status-grid">{counts.map(([label,value])=><button key={label as string} className={status===label?"active":""} onClick={()=>setStatus(label as string)}><span>{label}</span><b>{value}</b></button>)}</div>
-        <div className="real-orders-table-scroll">
-          <div className="real-orders-table">
-            <div className="real-orders-row head"><span>□</span><span>商品信息</span><span>订单信息</span><span>店铺</span><span>订单金额</span><span>履约状态</span><span>下单时间</span><span>操作</span></div>
-            {rows.map((row,index)=><div className={`real-orders-row ${index===1?"highlight":""}`} key={row[1]}><span>□</span><span className="order-product"><i className={`mock-product-img img-${index%4}`}>🎁</i><b>{row[0]}</b><small>货号：Q-12.8-26.46　SKU：4486313693　 数量 1</small><em>✎ 补充货源信息</em></span><span><b>{row[1]}</b><small>仓库：厦门CEL陆运</small><small>发运方式：CEL Standard Extra Small</small></span><span>测试</span><span><b>{row[2]}</b></span><span><i className={row[3]==="已签收"?"status-chip success":"status-chip gray"}>{row[3]}</i></span><span>2026-06-{13-index}<small>00:{24-index*3}:09</small></span><span><button>查看详情</button></span></div>)}
-          </div>
-        </div>
-        <footer className="real-table-footer"><strong>共 291 条记录，当前页 10 条记录</strong><div><button disabled><LeftOutlined /></button><button className="on">1</button><button>2</button><span>•••</span><button>30</button><button><RightOutlined /></button><button>10 条/页 <DownOutlined /></button></div></footer>
-      </section>
-    </PageFrame>
-  );
-}
+function OrdersView() { return <OrdersReplica />; }
 
-function PromotionJoinView() {
-  const [tab, setTab] = useState<"可参加商品"|"已参加商品">("可参加商品");
-  const rows = [
-    ["Складная детская ванночка и подстав...","₽ 399.80","₽ 324.00","0"],
-    ["Селфи-монитор мобильного телефон...","₽ 125.00","₽ 94.00","0"],
-    ["Селфи-монитор мобильного телефон...","₽ 122.00","₽ 92.00","0"],
-    ["ДЖИП на радиоуправлении LC 80","₽ 507.77","₽ 399.00","0"],
-  ];
-  return (
-    <PageFrame className="real-promo-page">
-      <section className="real-promo-shell">
-        <header><h1>参加促销</h1><p>管理商品参加 Ozon 活动的关系；修改会先退出旧关系，再按新参数重新加入。</p></header>
-        <div className="real-promo-filter"><button>测试 <DownOutlined /></button><button className="activity">Эластичный бустинг. Без ограничения срока де... <DownOutlined /></button><div>商品名称 / 货号 / SKU</div><button className="primary"><SearchOutlined /> 查询</button><button><ReloadOutlined /> 同步活动</button></div>
-        <div className="real-promo-tabs"><button className={tab==="可参加商品"?"active":""} onClick={()=>setTab("可参加商品")}>可参加商品</button><button className={tab==="已参加商品"?"active":""} onClick={()=>setTab("已参加商品")}>已参加商品</button></div>
-        <div className="selected-line">已选 0 项 <button disabled>批量参加</button></div>
-        <div className="real-promo-table">
-          <div className="real-promo-row head"><span>□</span><span>商品</span><span>原价</span><span>建议活动价</span><span>库存</span><span>操作</span></div>
-          {rows.map((row,index)=><div className="real-promo-row" key={row[0]+index}><span>□</span><span className="promo-product"><i className={`mock-product-img img-${index%4}`}>🛁</i><b>{row[0]}</b><small>货号 C-89-114.34 · SKU 3621328314</small></span><span>{row[1]}</span><span>{row[2]}</span><span>{row[3]}</span><span><button className="purple">参加</button></span></div>)}
-        </div>
-        <div className="promo-pagination">‹ <b>1</b> 2　3　›</div>
-      </section>
-    </PageFrame>
-  );
-}
+function PromotionJoinView() { return <PromotionJoinReplica />; }
 
 function PromotionAutoView() {
   const [enabled, setEnabled] = useState(false);
@@ -252,21 +207,7 @@ function PromotionAutoView() {
   );
 }
 
-function ShopsView() {
-  return (
-    <PageFrame className="real-shops-page">
-      <section className="real-shops-shell">
-        <div className="real-shop-filters"><label>店铺分组<button>全部分组 <DownOutlined /></button></label><label>店铺名称<div>请输入店铺名称</div></label><label>Client ID<div>请输入 Client ID</div></label><label>国家<button>全部国家 <DownOutlined /></button></label><label>授权状态<button>全部状态 <DownOutlined /></button></label><button className="primary">查询</button><button>重置</button></div>
-        <div className="real-shop-actions"><div><button className="purple"><PlusOutlined /> 新增店铺</button><button><PlusOutlined /> 新增分组</button><button><DeleteOutlined /> 批量操作 <DownOutlined /></button></div><div><button><SyncOutlined /> 同步店铺</button><button>⇩ 导出</button><button><ReloadOutlined /></button></div></div>
-        <div className="real-shop-table">
-          <div className="real-shop-row head"><span>□</span><span>序号</span><span>店铺信息</span><span>平台</span><span>授权到期时间</span><span>产品数量</span><span>货币</span><span>默认仓库</span><span>合作仓库</span><span>状态</span><span>Cookie状态</span><span>分组</span><span>操作</span></div>
-          <div className="real-shop-row"><span>□</span><span>1</span><span className="shop-name"><b>测试</b><small>Client ID: 4151485</small></span><span className="ozon-logo">ozon</span><span><i className="status-chip success">永久</i></span><span className="blue-number">29</span><span>CNY</span><span><button>添加默认仓库</button></span><span className="blue-number">4个</span><span><i className="status-chip success">已授权</i></span><span><i className="status-chip success">正常</i></span><span><button className="group-select"><DownOutlined /></button></span><span className="shop-ops"><button>编辑</button><button>删除</button></span></div>
-        </div>
-        <footer className="real-shop-footer"><strong>共 1 条记录，当前页 1 条记录</strong><div>‹ <b>1</b> › <button>10 条/页 <DownOutlined /></button></div></footer>
-      </section>
-    </PageFrame>
-  );
-}
+function ShopsView() { return <ShopsReplica />; }
 
 const categoryRows = [
   ["住宅和花园","8624.84万","864.17亿","15.93%","11.32%"],
