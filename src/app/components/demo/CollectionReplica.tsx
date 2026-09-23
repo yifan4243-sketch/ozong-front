@@ -47,7 +47,7 @@ export function CollectionReplica(){
       <span className="ops"><button onClick={()=>window.open(`https://www.ozon.ru/product/${item.sku}/`,"_blank","noopener,noreferrer")}><LinkOutlined/> 原链接</button><button className="primary" disabled={opening===item.id} onClick={()=>listing(item.id)}><UploadOutlined/> {opening===item.id?"打开中…":"上架"}</button></span>
     </div>)}
    </div>
-   {total>6&&<div className="collection-pagination"><button className="active">1</button><button onClick={()=>flash("已切换到第 2 页示例")}>2</button><button onClick={()=>flash("已切换到第 3 页示例")}>3</button></div>}
+   {total>24&&<div className="collection-pagination"><button className="active">1</button><button onClick={()=>flash("已切换到第 2 页示例")}>2</button><button onClick={()=>flash("已切换到第 3 页示例")}>3</button></div>}
   </section>
   <DemoModal open={deleteOpen} title={`确认删除已选的 ${selected.length} 个采集商品？`} onClose={()=>setDeleteOpen(false)} onOk={remove} okText="确认删除" danger>
     <p className="collection-confirm-copy">只会删除 ERP 采集箱记录，不会影响 OZON 原商品或在线商品。</p>
