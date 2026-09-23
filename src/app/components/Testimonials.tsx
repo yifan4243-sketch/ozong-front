@@ -4,51 +4,51 @@ import { Star } from "lucide-react";
 
 const testimonials = [
   {
-    name: "莎拉·约翰逊",
-    role: "销售副总裁",
-    company: "泰科流科技",
+    name: "1688 采集上架",
+    role: "货源工作流",
+    company: "1688 → Ozon",
     avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b47c?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150",
-    content: "智能通话分析彻底改变了我们的销售流程。仅仅 3 个月，我们的转化率就提升了 35%，人工智能给出的洞察非常准确。",
+    content: "采集 1688 商品与 SKU 后直接进入 ERP，继续完成商品处理、上架设置和 Ozon 发布，不再依赖多份中间表格。",
     rating: 5,
   },
   {
-    name: "迈克尔·陈",
-    role: "客户成功经理",
-    company: "增长实验室",
+    name: "AI 商品编辑",
+    role: "商品工作流",
+    company: "Ozon 上架",
     avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150",
-    content: "实时辅导功能非常实用。新员工过去需要几个月才能达到成熟销售的水平，现在几周就能做到。",
+    content: "围绕 Ozon 商品结构处理类目、标题、必填项和商品内容，让采集后的货源更快进入可检查、可发布的商品状态。",
     rating: 5,
   },
   {
-    name: "艾米丽·罗德里格斯",
-    role: "质量负责人",
-    company: "专业服务公司",
+    name: "AI 商品图",
+    role: "图片工作流",
+    company: "商品素材",
     avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150",
-    content: "以前合规检查需要大量人工时间，现在已经实现自动化，而且能实时发现问题，对我们的业务非常重要。",
+    content: "在 ERP 内完成商品主图与成套商品图生成，并通过任务记录、重试和结果管理衔接商品上架流程。",
     rating: 5,
   },
   {
-    name: "大卫·金",
-    role: "销售总监",
-    company: "规模增长解决方案",
+    name: "在线商品管理",
+    role: "日常运营",
+    company: "批量处理",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150",
-    content: "数据分析帮助我们识别出高绩效员工与其他人的关键差异，现在我们能把他们的成功方法复制到整个团队。",
+    content: "同步店铺在线商品后，可集中执行批量改价、库存、促销、归档和修复操作，减少逐个商品处理的重复步骤。",
     rating: 5,
   },
   {
-    name: "丽莎·汤普森",
-    role: "运营经理",
-    company: "客户至上公司",
+    name: "Ozon 商品情报",
+    role: "选品分析",
+    company: "浏览器插件",
     avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150",
-    content: "使用情绪分析后，客户满意度明显提升。很多问题在升级之前，我们就已经能够提前识别并处理。",
+    content: "在 Ozon 商品页直接查看销量、销售额、佣金、推广、流量、配送、退货、尺寸重量和跟卖等关键运营数据。",
     rating: 5,
   },
   {
-    name: "詹姆斯·威尔逊",
-    role: "培训经理",
-    company: "呼叫中心精英",
+    name: "多店铺运营",
+    role: "店铺管理",
+    company: "OzonG ERP",
     avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?ixlib=rb-4.0.3&auto=format&fit=crop&w=150&h=150",
-    content: "借助自动化辅导洞察，新员工培训速度提升了 60%。平台可以根据成功对话模式持续优化培训效果。",
+    content: "把多个 Ozon 店铺接入同一个 ERP，统一查看商品、订单和运营数据，让不同店铺的日常工作保持在同一套流程中。",
     rating: 5,
   },
 ];
@@ -59,10 +59,10 @@ export function Testimonials() {
       <div className="container mx-auto max-w-6xl px-4">
         <div className="text-center space-y-4 mb-16">
           <h2 className="text-3xl md:text-4xl lg:text-5xl">
-            深受行业领先企业信赖
+            覆盖 Ozon 卖家的核心工作流
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            看看其他企业如何利用人工智能通话分析推动业务增长，并持续改善客户体验。
+            OzonG ERP 围绕真实运营场景连接货源、商品、图片、店铺、订单和数据，让每个环节都能继续向下一步流转。
           </p>
         </div>
 
