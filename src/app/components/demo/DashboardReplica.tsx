@@ -105,7 +105,7 @@ function DemoSelect<T extends string|number>({
 function TrendPlot({range,shop}:{range:TrendKey;shop:string}){
   const [hovered,setHovered]=useState<number|null>(null);
   const base=TREND[range];
-  const factor=shop==="1"?.42:shop==="2"?.34:shop==="3"?.24:1;
+  const factor = shop === "1" ? 0.42 : shop === "2" ? 0.34 : shop === "3" ? 0.24 : 1;
   const d={labels:base.labels,sales:base.sales.map(v=>Math.round(v*factor)),orders:base.orders.map(v=>Math.round(v*factor))};
   const sales=chartPoints(d.sales),orders=chartPoints(d.orders);
   const ticks=tickIndexes(d.sales.length);
