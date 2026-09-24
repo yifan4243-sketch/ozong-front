@@ -3,19 +3,19 @@ import { DesktopOutlined, LockOutlined, SafetyCertificateOutlined, UserOutlined 
 import { DemoModal, DemoToast } from "./ReplicaCommon";
 import "./settings-replica.css";
 
-const AVATAR="https://raw.githubusercontent.com/yifan4243-sketch/ozon-erp/dev-hotfix/frontend/public/default-user-avatar.png";
+const AVATAR="data:image/svg+xml;charset=UTF-8,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#5B4BFF"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient></defs><rect width="96" height="96" rx="48" fill="url(#g)"/><text x="48" y="59" text-anchor="middle" font-family="Arial" font-size="34" font-weight="700" fill="white">A01</text></svg>');
 
 type Go=(v:any)=>void;
 type LoginDevice={id:number,name:string,current:boolean,login:string,seen:string,ip:string,hint:string};
 const DEVICES:LoginDevice[]=[
-{id:1,name:"Chrome · Windows",current:true,login:"2026-09-23 09:12:18",seen:"刚刚",ip:"192.168.1.24",hint:"Chrome 153 / Windows 11"},
-{id:2,name:"Edge · Windows",current:false,login:"2026-09-22 18:26:41",seen:"8 分钟前",ip:"192.168.1.18",hint:"Edge 153 / Windows 11"},
-{id:3,name:"Chrome · macOS",current:false,login:"2026-09-19 12:04:09",seen:"2 天前",ip:"10.0.0.36",hint:"Chrome / macOS"},
+{id:1,name:"Chrome · Windows",current:true,login:"2026-09-24 08:42:18",seen:"刚刚",ip:"192.168.8.21",hint:"Chrome 153 / Windows 11"},
+{id:2,name:"Edge · Windows",current:false,login:"2026-09-23 19:16:41",seen:"26 分钟前",ip:"192.168.8.36",hint:"Edge 153 / Windows 11"},
+{id:3,name:"Chrome · macOS",current:false,login:"2026-09-21 12:04:09",seen:"2 天前",ip:"10.10.0.18",hint:"Chrome / macOS"},
 ];
 
 export function AccountReplica({go}:{go:Go}){
  const [section,setSection]=useState<"profile"|"password"|"devices">("profile");
- const [displayName,setDisplayName]=useState("1234"); const [avatar,setAvatar]=useState(AVATAR); const inputRef=useRef<HTMLInputElement|null>(null);
+ const [displayName,setDisplayName]=useState("演示账号 A01"); const [avatar,setAvatar]=useState(AVATAR); const inputRef=useRef<HTMLInputElement|null>(null);
  const [current,setCurrent]=useState(""); const [next,setNext]=useState(""); const [confirm,setConfirm]=useState("");
  const [devices,setDevices]=useState(DEVICES); const [confirmRemove,setConfirmRemove]=useState<LoginDevice|null>(null); const [logoutAll,setLogoutAll]=useState(false); const [toast,setToast]=useState("");
  const flash=(t:string)=>{setToast(t);setTimeout(()=>setToast(""),1500)};
@@ -24,14 +24,14 @@ export function AccountReplica({go}:{go:Go}){
  const remove=()=>{if(confirmRemove&&!confirmRemove.current)setDevices(v=>v.filter(d=>d.id!==confirmRemove.id));setConfirmRemove(null);flash("设备已移除")};
  const logoutOthers=()=>{setDevices(v=>v.filter(d=>d.current));setLogoutAll(false);flash("其他设备已退出登录")};
  return <div className="account-page-source"><DemoToast text={toast}/><section className="account-shell-source">
-  <aside className="account-nav-source"><div className="account-identity-source"><img src={avatar}/><div><b>{displayName}</b><span>@ozong_user_1234</span></div></div>
+  <aside className="account-nav-source"><div className="account-identity-source"><img src={avatar}/><div><b>{displayName}</b><span>@demo_user_a01</span></div></div>
    <button className={section==="profile"?"active":""} onClick={()=>setSection("profile")}><UserOutlined/><span>修改资料</span></button>
    <button className={section==="password"?"active":""} onClick={()=>setSection("password")}><LockOutlined/><span>修改密码</span></button>
    <button className={section==="devices"?"active":""} onClick={()=>setSection("devices")}><DesktopOutlined/><span>设备管理</span></button>
    <button onClick={()=>go("extensions")}><SafetyCertificateOutlined/><span>浏览器插件</span></button>
   </aside>
   <section className="account-content-source">
-   {section==="profile"&&<><header><h1>个人资料</h1><p>维护当前租户账号的显示信息。登录账号不可修改。</p></header><div className="profile-card-source"><div className="avatar-editor-source"><img src={avatar}/><div><b>头像</b><p>支持 JPG、PNG、WEBP，文件不超过 1MB。</p><div><button onClick={()=>inputRef.current?.click()}>更换头像</button><button className="danger" onClick={()=>setAvatar(AVATAR)}>移除头像</button></div><input hidden ref={inputRef} type="file" accept="image/png,image/jpeg,image/webp" onChange={e=>avatarFile(e.target.files?.[0])}/></div></div><div className="profile-form-source"><label>昵称 *<input value={displayName} maxLength={30} onChange={e=>setDisplayName(e.target.value)}/></label><label>登录账号<input disabled value="ozong_user_1234"/><small>登录账号作为账户唯一身份，不支持自助修改。</small></label><div className="readonly-grid-source"><span>账号类型<b>客户</b></span><span>注册时间<b>2026-04-17 12:26</b></span><span>授权状态<b>剩余 330 天</b></span><span>AI 生图点数<b>956</b></span></div><button className="primary" onClick={()=>displayName.trim()?flash("个人资料已保存"):flash("昵称不能为空")}>保存修改</button></div></div></>}
+   {section==="profile"&&<><header><h1>个人资料</h1><p>维护当前租户账号的显示信息。登录账号不可修改。</p></header><div className="profile-card-source"><div className="avatar-editor-source"><img src={avatar}/><div><b>头像</b><p>支持 JPG、PNG、WEBP，文件不超过 1MB。</p><div><button onClick={()=>inputRef.current?.click()}>更换头像</button><button className="danger" onClick={()=>setAvatar(AVATAR)}>移除头像</button></div><input hidden ref={inputRef} type="file" accept="image/png,image/jpeg,image/webp" onChange={e=>avatarFile(e.target.files?.[0])}/></div></div><div className="profile-form-source"><label>昵称 *<input value={displayName} maxLength={30} onChange={e=>setDisplayName(e.target.value)}/></label><label>登录账号<input disabled value="demo_user_a01"/><small>登录账号作为账户唯一身份，不支持自助修改。</small></label><div className="readonly-grid-source"><span>账号类型<b>客户</b></span><span>注册时间<b>2026-08-08 10:30</b></span><span>授权状态<b>剩余 214 天</b></span><span>AI 生图点数<b>1280</b></span></div><button className="primary" onClick={()=>displayName.trim()?flash("个人资料已保存"):flash("昵称不能为空")}>保存修改</button></div></div></>}
    {section==="password"&&<><header><h1>修改密码</h1><p>修改密码后，其他网页登录会话的刷新凭证将失效。</p></header><div className="security-card-source"><div className="password-tip-source"><b>ⓘ 密码安全要求</b><span>新密码至少 8 位，并同时包含字母和数字；不能与当前密码相同，也不能包含登录账号。</span></div><div className="password-form-source"><label>当前密码 *<input type="password" value={current} onChange={e=>setCurrent(e.target.value)} placeholder="请输入当前密码"/></label><label>新密码 *<input type="password" value={next} onChange={e=>setNext(e.target.value)} placeholder="至少 8 位，包含字母和数字"/></label><label>确认新密码 *<input type="password" value={confirm} onChange={e=>setConfirm(e.target.value)} placeholder="请再次输入新密码"/></label><button className="primary" onClick={savePassword}>确认修改</button></div></div></>}
    {section==="devices"&&<><header className="device-head-source"><div><h1>登录设备</h1><p>设备额度表示可同时保持登录的浏览器数量。新设备登录时，会自动挤下最早登录的设备。</p></div><button onClick={()=>{setDevices([...DEVICES]);flash("登录设备已刷新")}}>刷新</button></header><div className="device-quota-source"><div><span>同时登录设备</span><b>{devices.length} / 5</b></div><div className="progress-source"><i style={{width:Math.min(100,devices.length/5*100)+"%"}}></i></div><button className="danger" disabled={devices.length<=1} onClick={()=>setLogoutAll(true)}>退出其他所有设备</button></div><div className="device-list-source">{devices.map(d=><article key={d.id}><span className="device-icon-source"><DesktopOutlined/></span><div><div className="device-title-source"><b>{d.name}</b>{d.current&&<i>当前设备</i>}</div><div className="device-meta-source"><span><b>登录时间</b>{d.login}</span><span><b>最近活跃</b>{d.seen}</span><span><b>登录 IP</b>{d.ip}</span><span><b>设备标识</b>{d.hint}</span></div></div><div>{d.current?<span className="current-note-source">当前浏览器</span>:<button className="danger" onClick={()=>setConfirmRemove(d)}>移除</button>}</div></article>)}</div></>}
   </section>
@@ -42,7 +42,12 @@ export function AccountReplica({go}:{go:Go}){
 }
 
 type User={id:number;username:string;role:string,balance:number,reserved:number,active:boolean};
-const USERS:User[]=[{id:1,username:"admin",role:"管理员",balance:956,reserved:0,active:true},{id:2,username:"operator01",role:"运营",balance:320,reserved:12,active:true},{id:3,username:"designer",role:"设计",balance:188,reserved:0,active:true},{id:4,username:"old_operator",role:"运营",balance:26,reserved:0,active:false}];
+const USERS:User[]=[
+{id:1,username:"demo_admin",role:"管理员",balance:1280,reserved:24,active:true},
+{id:2,username:"ops_alpha",role:"运营",balance:620,reserved:12,active:true},
+{id:3,username:"designer_demo",role:"设计",balance:460,reserved:0,active:true},
+{id:4,username:"ops_archived",role:"运营",balance:80,reserved:0,active:false}
+];
 export function UserCreditsReplica(){
  const [users,setUsers]=useState(USERS); const [keyword,setKeyword]=useState(""); const [applied,setApplied]=useState(""); const [adjust,setAdjust]=useState<User|null>(null); const [amount,setAmount]=useState(0); const [reason,setReason]=useState(""); const [ledgerUser,setLedgerUser]=useState<User|null>(null); const [toast,setToast]=useState("");
  const flash=(t:string)=>{setToast(t);setTimeout(()=>setToast(""),1500)}; const visible=useMemo(()=>users.filter(u=>!applied||u.username.toLowerCase().includes(applied.toLowerCase())),[users,applied]);
