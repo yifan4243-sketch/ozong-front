@@ -213,7 +213,7 @@ export function AiWorkflowReplica(){
       </div>
       <div className="demo-tb-right">
         <div className="demo-kind-toggle"><button className={generationKind==="main"?"active":""} disabled={running} onClick={()=>setGenerationKind("main")}>单主图</button><button className={generationKind==="set"?"active":""} disabled={running} onClick={()=>setGenerationKind("set")}>8图套图</button></div>
-        <span>生图点数：<b>956</b></span><span>预计消耗：{estimate}点</span><button disabled={!completed} onClick={downloadAll}>↓ 下载全部</button>
+        <span>生图点数：<b>1280</b></span><span>预计消耗：{estimate}点</span><button disabled={!completed} onClick={downloadAll}>↓ 下载全部</button>
         {!running?<button className="run" disabled={!images.product.length} onClick={runMock}>▶ 运行工作流</button>:<button className="cancel" onClick={()=>setSlotStatus({})}>■ 取消任务</button>}
       </div>
     </div>
@@ -240,7 +240,7 @@ export function AiWorkflowReplica(){
       </div>
       <div className="demo-canvas-hint">拖动画布 · 拖动节点 · 滚轮缩放</div>
     </div>
-    {historyOpen&&<div className="demo-drawer"><header><b>历史记录</b><button onClick={()=>setHistoryOpen(false)}>×</button></header><div className="demo-drawer-body"><article><b>今天 14:26 · 8图套图</b><span>已完成 · 24 点</span></article><article><b>昨天 19:08 · 单主图</b><span>已完成 · 3 点</span></article></div></div>}
+    {historyOpen&&<div className="demo-drawer"><header><b>历史记录</b><button onClick={()=>setHistoryOpen(false)}>×</button></header><div className="demo-drawer-body"><article><b>今天 11:42 · 8图套图</b><span>已完成 · 24 点</span></article><article><b>昨天 16:18 · 单主图</b><span>已完成 · 3 点</span></article></div></div>}
     {planOpen&&<div className="demo-drawer"><header><b>PromptPlan v3 计划详情</b><button onClick={()=>setPlanOpen(false)}>×</button></header><div className="demo-drawer-body"><h4>规划引擎</h4><p>模式 <b>{generationKind==="main"?"Ozon 单主图":"Ozon 8图套图"}</b></p><p>任务 <b>{generationKind==="main"?1:8} 个</b></p><p>商品保真 <b className="green">已锁定 ✓</b></p></div></div>}
   </div>
 }
