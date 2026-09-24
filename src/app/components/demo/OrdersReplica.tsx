@@ -5,7 +5,7 @@ import "./orders-replica.css";
 
 type Status="awaiting_packaging"|"awaiting_deliver"|"delivering"|"delivered"|"cancelled";
 type Order={id:number;name:string;offer:string;sku:string;orderNo:string;warehouse:string;provider:string;shop:string;total:string;status:Status;date:string;clock:string;icon:string;source?:string};
-const INITIAL:Order[]=[
+const SEED_ORDERS:Order[]=[
 {id:1,name:"Органайзер для кухни многоярусный",offer:"DEMO-HOME-001",sku:"7714205101",orderNo:"DEMO-240924-1001",warehouse:"CEL 华南仓",provider:"CEL Standard Small",shop:"星桥家居",total:"₽899.00",status:"awaiting_packaging",date:"2026-09-24",clock:"10:18:42",icon:"🧺"},
 {id:2,name:"Светодиодная настольная лампа с регулировкой",offer:"DEMO-DIGI-001",sku:"7714205201",orderNo:"DEMO-240924-1002",warehouse:"CEL 华东仓",provider:"CEL Standard Medium",shop:"北辰数码",total:"₽1299.00",status:"awaiting_deliver",date:"2026-09-24",clock:"09:52:10",icon:"💡"},
 {id:3,name:"Набор цветных маркеров для творчества, 24 цвета",offer:"DEMO-STORE-001",sku:"7714205301",orderNo:"DEMO-240923-1003",warehouse:"CEL 华南仓",provider:"CEL Standard Extra Small",shop:"远航百货",total:"₽679.00",status:"delivering",date:"2026-09-23",clock:"21:36:05",icon:"🖍️"},
@@ -15,6 +15,65 @@ const INITIAL:Order[]=[
 {id:7,name:"Корзина для белья складная с ручками",offer:"DEMO-HOME-003",sku:"7714205103",orderNo:"DEMO-240921-1007",warehouse:"CEL 华南仓",provider:"CEL Standard Medium",shop:"星桥家居",total:"₽1099.00",status:"delivering",date:"2026-09-21",clock:"14:25:17",icon:"🧺"},
 {id:8,name:"Портативный увлажнитель воздуха USB",offer:"DEMO-STORE-003",sku:"7714205303",orderNo:"DEMO-240921-1008",warehouse:"CEL 华东仓",provider:"CEL Standard Small",shop:"远航百货",total:"₽599.00",status:"awaiting_packaging",date:"2026-09-21",clock:"09:14:02",icon:"💧"},
 ];
+
+const ORDER_TARGETS:Record<Status,number>={awaiting_packaging:24,awaiting_deliver:17,delivering:63,delivered:251,cancelled:29};
+const ORDER_TEMPLATES=[
+ ["Настенная полка для ванной без сверления","DEMO-GEN-0001","7714210001","🧴",799],
+ ["Складной органайзер для одежды","DEMO-GEN-0002","7714210002","📦",629],
+ ["Ночник с датчиком движения USB","DEMO-GEN-0003","7714210003","💡",429],
+ ["Набор кухонных контейнеров, 6 шт.","DEMO-GEN-0004","7714210004","🥡",949],
+ ["Автомобильный органайзер на сиденье","DEMO-GEN-0005","7714210005","🚘",719],
+ ["Набор кистей для рисования, 12 шт.","DEMO-GEN-0006","7714210006","🖌️",359],
+ ["Подставка для ноутбука складная","DEMO-GEN-0007","7714210007","💻",1099],
+ ["Многоразовый ролик для удаления шерсти","DEMO-GEN-0008","7714210008","🐾",329],
+ ["Комплект дорожных косметичек","DEMO-GEN-0009","7714210009","🧳",589],
+ ["Настольный увлажнитель воздуха","DEMO-GEN-0010","7714210010","💧",649],
+] as const;
+const ORDER_SHOPS=["星桥家居","远航百货","北辰数码"] as const;
+const ORDER_WAREHOUSES=["CEL 华南仓","CEL 华东仓","CEL 华北仓"] as const;
+const ORDER_PROVIDERS=["CEL Standard Extra Small","CEL Standard Small","CEL Standard Medium"] as const;
+
+function demoOrderDate(offset:number){
+  const d=new Date(Date.UTC(2026,8,24));
+  d.setUTCDate(d.getUTCDate()-offset);
+  return d.toISOString().slice(0,10);
+}
+function buildDemoOrders():Order[]{
+  const result=[...SEED_ORDERS];
+  let serial=1;
+  (Object.keys(ORDER_TARGETS) as Status[]).forEach(status=>{
+    const existing=result.filter(r=>r.status===status).length;
+    for(let i=existing;i<ORDER_TARGETS[status];i++){
+      const tpl=ORDER_TEMPLATES[(serial-1)%ORDER_TEMPLATES.length];
+      const price=tpl[4]+((serial%7)*20);
+      result.push({
+        id:SEED_ORDERS.length+serial,
+        name:tpl[0],
+        offer:`DEMO-ORD-${String(serial).padStart(4,"0")}`,
+        sku:String(7714220000+serial),
+        orderNo:`DEMO-${demoOrderDate((serial-1)%72).replaceAll("-","")}-${String(2000+serial)}`,
+        warehouse:ORDER_WAREHOUSES[(serial-1)%ORDER_WAREHOUSES.length],
+        provider:ORDER_PROVIDERS[(serial-1)%ORDER_PROVIDERS.length],
+        shop:ORDER_SHOPS[(serial-1)%ORDER_SHOPS.length],
+        total:`₽${price.toFixed(2)}`,
+        status,
+        date:demoOrderDate((serial-1)%72),
+        clock:`${String(8+(serial*3)%14).padStart(2,"0")}:${String((serial*7)%60).padStart(2,"0")}:${String((serial*11)%60).padStart(2,"0")}`,
+        icon:tpl[3],
+      });
+      serial++;
+    }
+  });
+  return result;
+}
+const INITIAL:Order[]=buildDemoOrders();
+
+function orderPageItems(total:number,current:number):(number|"…")[]{
+  if(total<=7)return Array.from({length:total},(_,i)=>i+1);
+  if(current<=4)return [1,2,3,4,5,"…",total];
+  if(current>=total-3)return [1,"…",total-4,total-3,total-2,total-1,total];
+  return [1,"…",current-1,current,current+1,"…",total];
+}
 const statusText:Record<Status,string>={awaiting_packaging:"等待备货",awaiting_deliver:"等待发运",delivering:"运输中",delivered:"已签收",cancelled:"已取消"};
 export function OrdersReplica(){
  const [orders,setOrders]=useState(INITIAL);
@@ -41,14 +100,26 @@ export function OrdersReplica(){
  const [pageSize,setPageSize]=useState(10);
  const [moreOrderId,setMoreOrderId]=useState<number|null>(null);
  const flash=(t:string)=>{setToast(t);setTimeout(()=>setToast(""),1500)};
- const metrics=[["all","所有订单",384],["awaiting_packaging","等待备货",24],["awaiting_deliver","等待发运",17],["delivering","运输中",63],["delivered","已签收",251],["cancelled","已取消",29]] as const;
- const visible=useMemo(()=>orders.filter(r=>{
-  const sf=(activeStatus!=="all"?activeStatus:applied.status);
-  if(sf&&r.status!==sf)return false;if(applied.shop!=="all"&&r.shop!==applied.shop)return false;
+ const scoped=useMemo(()=>orders.filter(r=>{
+  if(applied.shop!=="all"&&r.shop!==applied.shop)return false;
   if(applied.orderNo&&!r.orderNo.includes(applied.orderNo))return false;
-  const q=applied.search.toLowerCase();if(q&&!r.name.toLowerCase().includes(q)&&!r.offer.toLowerCase().includes(q)&&!r.sku.includes(q))return false;return true;
- }),[orders,activeStatus,applied]);
- const all=visible.length>0&&visible.every(r=>selected.includes(r.id));
+  const q=applied.search.toLowerCase();if(q&&!r.name.toLowerCase().includes(q)&&!r.offer.toLowerCase().includes(q)&&!r.sku.includes(q))return false;
+  const parts=dateRange.split(" → ");
+  if(parts.length===2&&parts[0]&&parts[1]&&(r.date<parts[0]||r.date>parts[1]))return false;
+  return true;
+ }),[orders,applied,dateRange]);
+ const metricCounts=useMemo(()=>{
+   const out:Record<string,number>={all:scoped.length,awaiting_packaging:0,awaiting_deliver:0,delivering:0,delivered:0,cancelled:0};
+   scoped.forEach(r=>{out[r.status]=(out[r.status]||0)+1});
+   return out;
+ },[scoped]);
+ const metrics=[["all","所有订单",metricCounts.all],["awaiting_packaging","等待备货",metricCounts.awaiting_packaging],["awaiting_deliver","等待发运",metricCounts.awaiting_deliver],["delivering","运输中",metricCounts.delivering],["delivered","已签收",metricCounts.delivered],["cancelled","已取消",metricCounts.cancelled]] as const;
+ const visible=useMemo(()=>activeStatus==="all"?scoped:scoped.filter(r=>r.status===activeStatus),[scoped,activeStatus]);
+ const totalPages=Math.max(1,Math.ceil(visible.length/pageSize));
+ const safePage=Math.min(page,totalPages);
+ const pagedRows=useMemo(()=>visible.slice((safePage-1)*pageSize,safePage*pageSize),[visible,safePage,pageSize]);
+ const pages=orderPageItems(totalPages,safePage);
+ const all=pagedRows.length>0&&pagedRows.every(r=>selected.includes(r.id));
  const applySearch=()=>{setApplied({shop,status:statusFilter,orderNo,search});setActiveStatus(statusFilter||"all");setSelected([])};
  const setMetric=(key:string)=>{setActiveStatus(key);setStatusFilter(key==="all"?"":key);setSelected([])};
  const batch=(type:string)=>{if(type==="cancel"){setBatchOpen(false);setCancelOpen(true);return}flash(type==="prepare"?"已提交批量备货任务":type==="print"?"已打开批量面单打印预览":"已批量标记发货");setBatchOpen(false)};
@@ -66,12 +137,12 @@ export function OrdersReplica(){
   </section>
   <section className="order-metrics-source">{metrics.map(m=><button key={m[0]} className={activeStatus===m[0]?"active":""} onClick={()=>setMetric(m[0])}><span>{m[1]}</span><b>{m[2]}</b></button>)}</section>
   <section className="orders-table-card-source"><div className="orders-scroll-source"><div className="orders-table-source">
-   <div className="orders-row-source head"><span><input type="checkbox" checked={all} onChange={()=>setSelected(all?[]:visible.map(r=>r.id))}/></span><span>商品信息</span><span>订单信息</span><span>店铺</span><span>订单金额</span><span>履约状态</span><span>下单时间</span><span>操作</span></div>
-   {visible.map((r,i)=><div className={"orders-row-source "+(selected.includes(r.id)?"selected":"")} key={r.id}><span><input type="checkbox" checked={selected.includes(r.id)} onChange={()=>setSelected(v=>v.includes(r.id)?v.filter(x=>x!==r.id):[...v,r.id])}/></span>
+   <div className="orders-row-source head"><span><input type="checkbox" checked={all} onChange={()=>setSelected(all?selected.filter(id=>!pagedRows.some(r=>r.id===id)):[...new Set([...selected,...pagedRows.map(r=>r.id)])])}/></span><span>商品信息</span><span>订单信息</span><span>店铺</span><span>订单金额</span><span>履约状态</span><span>下单时间</span><span>操作</span></div>
+   {pagedRows.map((r,i)=><div className={"orders-row-source "+(selected.includes(r.id)?"selected":"")} key={r.id}><span><input type="checkbox" checked={selected.includes(r.id)} onChange={()=>setSelected(v=>v.includes(r.id)?v.filter(x=>x!==r.id):[...v,r.id])}/></span>
     <span className="order-product-source"><i>{r.icon}</i><b>{r.name}</b><small>货号：{r.offer}　SKU：{r.sku}　 <strong>数量 1</strong></small><button onClick={()=>setSource(r)}><EditOutlined/> {r.source||"补充货源信息"}</button></span>
     <span className="order-info-source"><b>{r.orderNo}</b><small>仓库：{r.warehouse}</small><small>发运方式：{r.provider}</small></span><span><b>{r.shop}</b></span><span><b>{r.total}</b></span><span><i className={"order-status-source "+(r.status==="delivered"?"teal":r.status==="cancelled"?"gray":"orange")}>{statusText[r.status]}</i>{r.status==="cancelled"&&<small>卖家未按时发货</small>}</span><span>{r.date}<small>{r.clock}</small></span><span className="order-row-actions"><button className="detail-btn" onClick={()=>setDetail(r)}>查看详情</button><div className="dropdown-wrap"><button className="row-more" onClick={()=>setMoreOrderId(moreOrderId===r.id?null:r.id)}><MoreOutlined/></button>{moreOrderId===r.id&&<div className="dropdown-menu-source order-row-menu"><button onClick={()=>{setMoreOrderId(null);setDetail(r)}}>订单详情</button><button onClick={()=>{setMoreOrderId(null);flash("已打开标签打印预览")}}>打印标签</button>{r.status!=="cancelled"&&<button className="danger" onClick={()=>{setSelected([r.id]);setMoreOrderId(null);setCancelOpen(true)}}>取消货件</button>}</div>}</div></span>
    </div>)}
-  </div></div><footer className="orders-pagination-source"><span>共 384 条记录，当前页 {visible.length} 条记录</span><div><button disabled={page<=1} onClick={()=>setPage(Math.max(1,page-1))}>‹</button><button className={page===1?"active":""} onClick={()=>setPage(1)}>1</button><button className={page===2?"active":""} onClick={()=>setPage(2)}>2</button><span>…</span><button className={page===30?"active":""} onClick={()=>setPage(30)}>30</button><button disabled={page>=30} onClick={()=>setPage(Math.min(30,page+1))}>›</button><select value={pageSize} onChange={e=>{setPageSize(Number(e.target.value));setPage(1)}}><option value={10}>10 条/页</option><option value={20}>20 条/页</option><option value={50}>50 条/页</option></select></div></footer></section>
+  </div></div><footer className="orders-pagination-source"><span>共 {visible.length} 条记录，当前页 {pagedRows.length} 条记录</span><div><button disabled={safePage<=1} onClick={()=>setPage(Math.max(1,safePage-1))}>‹</button>{pages.map((p,i)=>p==="…"?<span key={"dots-"+i}>…</span>:<button key={p} className={safePage===p?"active":""} onClick={()=>setPage(p)}>{p}</button>)}<button disabled={safePage>=totalPages} onClick={()=>setPage(Math.min(totalPages,safePage+1))}>›</button><select value={pageSize} onChange={e=>{setPageSize(Number(e.target.value));setPage(1)}}><option value={10}>10 条/页</option><option value={20}>20 条/页</option><option value={50}>50 条/页</option></select></div></footer></section>
   <DemoModal open={pullOpen} title="选择拉取店铺" width={420} onClose={()=>setPullOpen(false)} onOk={()=>doStoreAction("pull")} okText="开始拉取"><StorePicker selected={selectedStores} setSelected={setSelectedStores} pull/></DemoModal>
   <DemoModal open={syncOpen} title="选择同步店铺" width={420} onClose={()=>setSyncOpen(false)} onOk={()=>doStoreAction("sync")} okText="确定同步"><StorePicker selected={selectedStores} setSelected={setSelectedStores}/></DemoModal>
   <DemoModal open={!!source} title="货源采购档案" width={760} onClose={()=>setSource(null)} onOk={()=>{setSource(null);flash("货源采购档案已保存")}} okText="保存档案">{source&&<div className="source-order-modal"><aside><i>{source.icon}</i><b>{source.name}</b><span>货号 {source.offer}</span><span>SKU {source.sku}</span></aside><section><h3>采购来源</h3><label>货源地址<input defaultValue="https://detail.1688.com/offer/..." /></label><div><label>货源价格<input defaultValue="28.80"/></label><label>采购单号<input placeholder="采购订单编号"/></label></div><h3>履约备注</h3><div><label>采购快递<input placeholder="采购快递单号"/></label><label>货源备注<textarea placeholder="货源备注信息"/></label></div></section></div>}</DemoModal>
