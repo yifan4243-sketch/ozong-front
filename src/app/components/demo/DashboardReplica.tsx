@@ -21,14 +21,24 @@ type Notice = { id:number; title:string; body:string; time:string; type:"success
 type Alert = { id:number; title:string; count:number; type:"warning"|"danger" };
 
 
+function beijingDateParts(offsetDays=0){
+  const now=new Date();
+  const bj=new Date(now.toLocaleString("en-US",{timeZone:"Asia/Shanghai"}));
+  bj.setDate(bj.getDate()+offsetDays);
+  return bj;
+}
 function makeLabels(days:number){
-  const end = new Date("2026-09-24T12:00:00+08:00");
   return Array.from({length:days},(_,i)=>{
-    const d=new Date(end.getTime()-(days-i-1)*86400000);
+    const d=beijingDateParts(-(days-i-1));
     const m=String(d.getMonth()+1).padStart(2,"0");
     const day=String(d.getDate()).padStart(2,"0");
     return `${m}-${day}`;
   });
+}
+function dashboardDateText(){
+  const d=beijingDateParts();
+  const weekdays=["星期日","星期一","星期二","星期三","星期四","星期五","星期六"];
+  return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日${weekdays[d.getDay()]}`;
 }
 const TREND:Record<TrendKey,{sales:number[];orders:number[];labels:string[]}>={
   "7d":{sales:Array(7).fill(0),orders:Array(7).fill(0),labels:makeLabels(7)},
@@ -140,6 +150,9 @@ export function DashboardReplica({go}:{go:(v:any)=>void}){
     {id:4,title:"财务同步完成",body:"已同步 0 笔订单、20 条财务流水。",time:"9 天前",type:"success",read:false},
     {id:5,title:"财务同步完成，存在异常",body:"已同步 0 笔订单、0 条财务流水。",time:"10 天前",type:"warning",read:false},
   ]);
+  const [unreadCount,setUnreadCount]=useState(49);
+  const [loadedOlder,setLoadedOlder]=useState(false);
+  const [toast,setToast]=useState("");
   const [alerts,setAlerts]=useState<Alert[]>([
     {id:1,title:"商品库存偏低",count:1,type:"warning"},
     {id:2,title:"商品图片异常",count:18,type:"warning"},
@@ -149,7 +162,32 @@ export function DashboardReplica({go}:{go:(v:any)=>void}){
   const [settingsOpen,setSettingsOpen]=useState(false);
   const [stockThreshold,setStockThreshold]=useState(5);
 
-  const unread=notices.filter(n=>!n.read).length;
+  const showToast=(text:string)=>{
+    setToast(text);
+    window.setTimeout(()=>setToast(""),1600);
+  };
+  const markNotice=(id:number)=>{
+    setNotices(ns=>ns.map(n=>{
+      if(n.id!==id||n.read)return n;
+      setUnreadCount(v=>Math.max(0,v-1));
+      return {...n,read:true};
+    }));
+  };
+  const markAllNotices=()=>{
+    setNotices(ns=>ns.map(n=>({...n,read:true})));
+    setUnreadCount(0);
+  };
+  const loadOlderNotices=(event:React.UIEvent<HTMLDivElement>)=>{
+    if(loadedOlder)return;
+    const el=event.currentTarget;
+    if(el.scrollTop+el.clientHeight<el.scrollHeight-12)return;
+    setLoadedOlder(true);
+    setNotices(ns=>[...ns,
+      {id:6,title:"财务同步完成，存在异常",body:"已同步 0 笔订单、0 条财务流水。",time:"10 天前",type:"warning",read:true},
+      {id:7,title:"商品同步完成",body:"店铺商品数据已完成同步。",time:"12 天前",type:"success",read:true},
+    ]);
+  };
+
   const ranking=useMemo(()=>[
     {name:"测试",sales:0,orders:0},
   ],[rankingDays]);
@@ -163,10 +201,11 @@ export function DashboardReplica({go}:{go:(v:any)=>void}){
   ] as const;
 
   return <div className="dash-source-page">
+      {toast&&<div className="dash-message-toast">{toast}</div>}
       <div className="dash-source-shell">
         <section className="dash-hero-grid">
           <div className="dash-welcome">
-            <div><h1>欢迎回来，1234</h1><p>今天是 2026年9月24日星期四，祝您工作顺利！</p></div>
+            <div><h1>欢迎回来，1234</h1><p>今天是 {dashboardDateText()}，祝您工作顺利！</p></div>
             <div className="dash-cubes"><i className="main"></i><i className="a"></i><i className="b"></i><i className="shadow"></i></div>
           </div>
           <button className="dash-ai" onClick={()=>go("aiImage")}>
@@ -215,16 +254,16 @@ export function DashboardReplica({go}:{go:(v:any)=>void}){
                 ["AI 生成商品图","批量生成高质量图",<ThunderboltOutlined/>,"purple","aiImage"],
                 ["店铺授权","管理店铺授权状态",<SafetyCertificateOutlined/>,"green","shops"],
                 ["发布商品","发布到 Ozon 平台",<SendOutlined/>,"orange","products"],
-                ["生成记录","查看历史生成记录",<FileDoneOutlined/>,"blue","listing"],
-                ["成本统计","查看成本消耗情况",<BarChartOutlined/>,"purple","finance"],
-              ].map((x:any)=><button type="button" onClick={()=>go(x[4])} key={x[0]}><span className={x[3]}>{x[2]}</span><i><b>{x[0]}</b><em>{x[1]}</em></i></button>)}
+                ["生成记录","查看历史生成记录",<FileDoneOutlined/>,"blue","coming"],
+                ["成本统计","查看成本消耗情况",<BarChartOutlined/>,"purple","coming"],
+              ].map((x:any)=><button type="button" onClick={()=>x[4]==="coming"?showToast(`${x[0]} 功能建设中`):go(x[4])} key={x[0]}><span className={x[3]}>{x[2]}</span><i><b>{x[0]}</b><em>{x[1]}</em></i></button>)}
             </div>
           </article>
 
           <article className="dash-card notice-card">
-            <div className="section-head"><h2>系统通知 {unread>0&&<small>{44+unread} 条未读</small>}</h2><button type="button" disabled={!unread} onClick={()=>setNotices(ns=>ns.map(n=>({...n,read:true})))}>全部已读</button></div>
-            <div className="notice-list">
-              {notices.map(n=><button type="button" className={n.read?"notice":"notice unread"} key={n.id} onClick={()=>setNotices(ns=>ns.map(x=>x.id===n.id?{...x,read:true}:x))}>
+            <div className="section-head"><h2>系统通知 {unreadCount>0&&<small>{unreadCount} 条未读</small>}</h2><button type="button" disabled={!unreadCount} onClick={markAllNotices}>全部已读</button></div>
+            <div className="notice-list" onScroll={loadOlderNotices}>
+              {notices.map(n=><button type="button" className={n.read?"notice":"notice unread"} key={n.id} onClick={()=>markNotice(n.id)}>
                 <span className={n.type}>{n.type==="success"?<CheckCircleOutlined/>:<WarningOutlined/>}</span>
                 <i><b>{n.title}</b><em>{n.body}</em></i><time>{n.time}</time>
               </button>)}
@@ -255,7 +294,7 @@ export function DashboardReplica({go}:{go:(v:any)=>void}){
               {alerts.length?alerts.map(a=><div className="alert" key={a.id}>
                 <span className={a.type}><ExclamationCircleOutlined/></span>
                 <i><b>{a.title}</b><em>当前影响 {a.count} 项</em></i>
-                <div><button onClick={()=>go("products")}>查看</button><button onClick={()=>setAlerts(v=>v.filter(x=>x.id!==a.id))}>24小时后提醒</button></div>
+                <div><button onClick={()=>go("products")}>查看</button><button onClick={()=>{setAlerts(v=>v.filter(x=>x.id!==a.id));showToast("该提醒将在 24 小时后再次显示")}}>24小时后提醒</button></div>
               </div>):<p className="empty">暂无待处理异常</p>}
             </div>
           </article>
