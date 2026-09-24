@@ -3,8 +3,8 @@
 
 .erp-demo-frame.real-version{
   position:relative;
-  width:calc(100vw - 36px);
-  max-width:1680px;
+  width:calc(100vw - 8px);
+  max-width:1720px;
   margin:0 auto;
   font-family:Inter,"PingFang SC","Microsoft YaHei",Arial,sans-serif;
   color:#0f172a;
