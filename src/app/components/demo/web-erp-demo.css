@@ -3,7 +3,8 @@
 
 .erp-demo-frame.real-version{
   position:relative;
-  width:min(1500px,calc(100vw - 36px));
+  width:calc(100vw - 36px);
+  max-width:1680px;
   margin:0 auto;
   font-family:Inter,"PingFang SC","Microsoft YaHei",Arial,sans-serif;
   color:#0f172a;
@@ -85,8 +86,8 @@
 .real-sidebar-children button:hover{color:#5b4bff;background:#f7f6ff}
 .real-sidebar-children button.active{color:#5b4bff;background:#eeecff;font-weight:900}
 .real-sidebar-footer{flex-shrink:0;padding:10px 8px 18px;display:flex;flex-direction:column;align-items:center;gap:4px}
-.real-avatar-entry{width:40px;height:40px;border:0;border-radius:10px;background:#fff;display:grid;place-items:center;cursor:pointer}
-.real-avatar-entry img{width:30px;height:30px;border-radius:50%;object-fit:cover}
+.real-avatar-entry{width:40px;height:40px;border:0;border-radius:10px;background:#fff;display:grid;place-items:center;cursor:pointer;color:#2563eb}
+.real-avatar-entry .real-avatar-robot{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(180deg,#f5fbff,#e8f1ff);border:1px solid #dbeafe;box-shadow:0 4px 12px rgba(37,99,235,.10);font-size:17px}
 .real-collapse-entry{width:100%;height:36px;border:0;border-radius:8px;background:transparent;color:#64748b;display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;cursor:pointer}
 .real-collapse-entry:hover{color:#5b4bff;background:#f6f8ff}
 
