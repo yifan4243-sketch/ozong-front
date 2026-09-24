@@ -5,15 +5,16 @@ import "./promotion-replica.css";
 
 type P={id:number;name:string;offer:string;sku:string;price:number;actionPrice:number;stock:number;icon:string;mode?:"AUTO"|"MANUAL"};
 const CANDIDATES:P[]=[
-{id:1,name:"Складная детская ванночка и подстав...",offer:"C-133-284.2",sku:"3617646423",price:399.8,actionPrice:324,stock:0,icon:"🛁"},
-{id:2,name:"Селфи-монитор мобильного телефон...",offer:"C-89-114.34",sku:"3621328314",price:125,actionPrice:94,stock:0,icon:"📱"},
-{id:3,name:"Селфи-монитор мобильного телефон...",offer:"C-89-114.34A",sku:"3621335285",price:122,actionPrice:92,stock:0,icon:"📱"},
-{id:4,name:"ДЖИП на радиоуправлении LC 80",offer:"C-287-456.52",sku:"3630010217",price:507.77,actionPrice:399,stock:0,icon:"🚙"},
-{id:5,name:"Набор шариковых ручек",offer:"Q-12-38.46",sku:"4486313693",price:189,actionPrice:149,stock:30,icon:"🖊️"},
+{id:1,name:"Органайзер для кухни многоярусный",offer:"DEMO-HOME-001",sku:"7714205101",price:899,actionPrice:719,stock:42,icon:"🧺"},
+{id:2,name:"Автомобильный держатель телефона 360°",offer:"DEMO-DIGI-002",sku:"7714205202",price:459,actionPrice:369,stock:58,icon:"🚗"},
+{id:3,name:"Набор цветных маркеров для творчества, 24 цвета",offer:"DEMO-STORE-001",sku:"7714205301",price:679,actionPrice:539,stock:91,icon:"🖍️"},
+{id:4,name:"Набор вакуумных пакетов для хранения, 12 шт.",offer:"DEMO-HOME-002",sku:"7714205102",price:549,actionPrice:439,stock:76,icon:"📦"},
+{id:5,name:"Портативный увлажнитель воздуха USB",offer:"DEMO-STORE-003",sku:"7714205303",price:599,actionPrice:469,stock:37,icon:"💧"},
 ];
 const PARTICIPATING:P[]=[
-{id:11,name:"Органайзер для кухни",offer:"OZG-2609-01",sku:"5743990011",price:699,actionPrice:549,stock:42,icon:"🧺",mode:"MANUAL"},
-{id:12,name:"Автомобильный держатель",offer:"OZG-2609-02",sku:"5743990012",price:399,actionPrice:319,stock:68,icon:"🚗",mode:"AUTO"},
+{id:11,name:"Светодиодная настольная лампа с регулировкой",offer:"DEMO-DIGI-001",sku:"7714205201",price:1299,actionPrice:999,stock:33,icon:"💡",mode:"MANUAL"},
+{id:12,name:"Электрический вспениватель молока USB",offer:"DEMO-STORE-002",sku:"7714205302",price:389,actionPrice:299,stock:64,icon:"🥛",mode:"AUTO"},
+{id:13,name:"Корзина для белья складная с ручками",offer:"DEMO-HOME-003",sku:"7714205103",price:1099,actionPrice:849,stock:12,icon:"🧺",mode:"AUTO"},
 ];
 
 export function PromotionJoinReplica(){
@@ -46,7 +47,7 @@ export function PromotionJoinReplica(){
  return <div className="promotion-page-source"><DemoToast text={toast}/>
   <section className="promotion-panel-source">
     <header><h1>参加促销</h1><p>管理商品参加 Ozon 活动的关系；修改会先退出旧关系，再按新参数重新加入。</p></header>
-    <div className="promo-filter-source"><select><option>测试</option></select><select className="action"><option>Эластичный бустинг. Без ограничения срока действия</option><option>秋季超级大促</option></select><input value={keyword} onChange={e=>setKeyword(e.target.value)} onKeyDown={e=>e.key==="Enter"&&setApplied(keyword)} placeholder="商品名称 / 货号 / SKU"/><button className="primary" onClick={()=>setApplied(keyword)}><SearchOutlined/> 查询</button><button disabled={syncing} onClick={()=>{setSyncing(true);setTimeout(()=>{setSyncing(false);flash("促销活动已同步")},700)}}><ReloadOutlined/> {syncing?"同步中…":"同步活动"}</button></div>
+    <div className="promo-filter-source"><select><option>星桥家居</option><option>远航百货</option><option>北辰数码</option></select><select className="action"><option>Осенний буст продаж · DEMO</option><option>家居焕新周 · 演示活动</option></select><input value={keyword} onChange={e=>setKeyword(e.target.value)} onKeyDown={e=>e.key==="Enter"&&setApplied(keyword)} placeholder="商品名称 / 货号 / SKU"/><button className="primary" onClick={()=>setApplied(keyword)}><SearchOutlined/> 查询</button><button disabled={syncing} onClick={()=>{setSyncing(true);setTimeout(()=>{setSyncing(false);flash("促销活动已同步")},700)}}><ReloadOutlined/> {syncing?"同步中…":"同步活动"}</button></div>
     <div className="promo-tabs-source"><button className={tab==="candidates"?"active":""} onClick={()=>{setTab("candidates");setSelected([])}}>可参加商品</button><button className={tab==="participating"?"active":""} onClick={()=>{setTab("participating");setSelected([])}}>已参加商品</button></div>
     <div className="promo-actions-source"><span>已选 {selected.length} 项</span>{tab==="candidates"&&<button className="primary" disabled={!selected.length} onClick={()=>setJoinOpen(true)}>批量参加</button>}</div>
     <div className="promo-table-source"><div className={"promo-row-source head "+(tab==="participating"?"participating":"")}><span>{tab==="candidates"?<input type="checkbox" checked={all} onChange={()=>setSelected(all?[]:visible.map(r=>r.id))}/>:null}</span><span>商品</span><span>原价</span><span>{tab==="candidates"?"建议活动价":"活动价"}</span><span>库存</span>{tab==="participating"&&<span>加入方式</span>}<span>操作</span></div>
