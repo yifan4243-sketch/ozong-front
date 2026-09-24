@@ -168,11 +168,9 @@ export function DashboardReplica({go}:{go:(v:any)=>void}){
     window.setTimeout(()=>setToast(""),1600);
   };
   const markNotice=(id:number)=>{
-    setNotices(ns=>ns.map(n=>{
-      if(n.id!==id||n.read)return n;
-      setUnreadCount(v=>Math.max(0,v-1));
-      return {...n,read:true};
-    }));
+    const current=notices.find(n=>n.id===id);
+    if(current&&!current.read)setUnreadCount(v=>Math.max(0,v-1));
+    setNotices(ns=>ns.map(n=>n.id===id?{...n,read:true}:n));
   };
   const markAllNotices=()=>{
     setNotices(ns=>ns.map(n=>({...n,read:true})));
