@@ -192,9 +192,9 @@ function Sidebar({
       </nav>
       <div className="real-sidebar-footer">
         <div className="real-account-menu-wrap">
-          <button className="real-avatar-entry" onClick={() => setAccountOpen(!accountOpen)} aria-label="1234"><span className="real-avatar-robot"><RobotOutlined /></span></button>
+          <button className="real-avatar-entry" onClick={() => setAccountOpen(!accountOpen)} aria-label="演示账号 A01"><span className="real-avatar-robot"><RobotOutlined /></span></button>
           {accountOpen && <div className="real-account-dropdown">
-            <div className="real-account-summary"><b>1234</b><span>剩余使用：330 天</span></div>
+            <div className="real-account-summary"><b>演示账号 A01</b><span>剩余使用：214 天</span></div>
             <button onClick={() => { go("users"); setAccountOpen(false); }}><TeamOutlined /> 用户与额度</button>
             <button onClick={() => { go("extensions"); setAccountOpen(false); }}><SafetyCertificateOutlined /> 浏览器插件</button>
             <i></i>
