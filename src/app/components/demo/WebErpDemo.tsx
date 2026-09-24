@@ -338,6 +338,7 @@ export function WebErpDemo() {
           </div>
           <div className="real-erp-page-container">{renderView()}</div>
         </div>
+        </div>
       </div>
     </div>
   );
