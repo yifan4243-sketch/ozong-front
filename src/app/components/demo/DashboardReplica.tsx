@@ -6,7 +6,6 @@ import {
   ExclamationCircleOutlined,
   FileDoneOutlined,
   FileTextOutlined,
-  RocketOutlined,
   SafetyCertificateOutlined,
   SendOutlined,
   ShopOutlined,
@@ -206,7 +205,7 @@ export function DashboardReplica({go}:{go:(v:any)=>void}){
                 ["同步商品","从 Ozon 同步商品",<SyncOutlined/>,"blue","products"],
                 ["AI 生成商品图","批量生成高质量图",<ThunderboltOutlined/>,"purple","aiImage"],
                 ["店铺授权","管理店铺授权状态",<SafetyCertificateOutlined/>,"green","shops"],
-                ["发布商品","发布到 Ozon 平台",<RocketOutlined/>,"orange","products"],
+                ["发布商品","发布到 Ozon 平台",<SendOutlined/>,"orange","products"],
                 ["生成记录","查看历史生成记录",<FileDoneOutlined/>,"blue","listing"],
                 ["成本统计","查看成本消耗情况",<BarChartOutlined/>,"purple","finance"],
               ].map((x:any)=><button type="button" onClick={()=>go(x[4])} key={x[0]}><span className={x[3]}>{x[2]}</span><i><b>{x[0]}</b><em>{x[1]}</em></i></button>)}
@@ -214,7 +213,7 @@ export function DashboardReplica({go}:{go:(v:any)=>void}){
           </article>
 
           <article className="dash-card notice-card">
-            <div className="section-head"><h2>系统通知 <small>49 条未读</small></h2><button type="button" disabled={!unread} onClick={()=>setNotices(ns=>ns.map(n=>({...n,read:true})))}>全部已读</button></div>
+            <div className="section-head"><h2>系统通知 {unread>0&&<small>{44+unread} 条未读</small>}</h2><button type="button" disabled={!unread} onClick={()=>setNotices(ns=>ns.map(n=>({...n,read:true})))}>全部已读</button></div>
             <div className="notice-list">
               {notices.map(n=><button type="button" className={n.read?"notice":"notice unread"} key={n.id} onClick={()=>setNotices(ns=>ns.map(x=>x.id===n.id?{...x,read:true}:x))}>
                 <span className={n.type}>{n.type==="success"?<CheckCircleOutlined/>:<WarningOutlined/>}</span>
