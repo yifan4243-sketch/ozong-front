@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import {
   BarChartOutlined,
   CheckCircleOutlined,
@@ -20,7 +20,6 @@ type TrendKey = "7d" | "30d" | "90d";
 type Notice = { id:number; title:string; body:string; time:string; type:"success"|"warning"; read:boolean };
 type Alert = { id:number; title:string; count:number; type:"warning"|"danger" };
 
-const DESIGN_WIDTH = 1760;
 
 function makeLabels(days:number){
   const end = new Date("2026-09-24T12:00:00+08:00");
@@ -70,6 +69,27 @@ function tickIndexes(length:number){
   return Array.from({length:7},(_,i)=>Math.round(i*(length-1)/6));
 }
 
+function DemoSelect<T extends string|number>({
+  value,options,onChange,className=""
+}:{value:T;options:Array<{value:T;label:string}>;onChange:(value:T)=>void;className?:string}){
+  const [open,setOpen]=useState(false);
+  const selected=options.find(o=>o.value===value)?.label ?? String(value);
+  return <div className={`dash-select ${className}`} tabIndex={0} onBlur={()=>setOpen(false)}>
+    <button type="button" className={open?"open":""} onClick={()=>setOpen(v=>!v)}>
+      <span>{selected}</span><i>⌄</i>
+    </button>
+    {open&&<div className="dash-select-menu">
+      {options.map(o=><button
+        type="button"
+        key={String(o.value)}
+        className={o.value===value?"active":""}
+        onMouseDown={e=>e.preventDefault()}
+        onClick={()=>{onChange(o.value);setOpen(false)}}
+      >{o.label}</button>)}
+    </div>}
+  </div>;
+}
+
 function TrendPlot({range}:{range:TrendKey}){
   const [hovered,setHovered]=useState<number|null>(null);
   const d=TREND[range];
@@ -110,8 +130,6 @@ function TrendPlot({range}:{range:TrendKey}){
 }
 
 export function DashboardReplica({go}:{go:(v:any)=>void}){
-  const viewportRef=useRef<HTMLDivElement|null>(null);
-  const [scale,setScale]=useState(.8);
   const [range,setRange]=useState<TrendKey>("7d");
   const [shop,setShop]=useState("0");
   const [rankingDays,setRankingDays]=useState(7);
@@ -131,16 +149,6 @@ export function DashboardReplica({go}:{go:(v:any)=>void}){
   const [settingsOpen,setSettingsOpen]=useState(false);
   const [stockThreshold,setStockThreshold]=useState(5);
 
-  useEffect(()=>{
-    const el=viewportRef.current;
-    if(!el)return;
-    const update=()=>setScale(Math.min(1,Math.max(.55,el.clientWidth/DESIGN_WIDTH)));
-    update();
-    const ro=new ResizeObserver(update);
-    ro.observe(el);
-    return()=>ro.disconnect();
-  },[]);
-
   const unread=notices.filter(n=>!n.read).length;
   const ranking=useMemo(()=>[
     {name:"测试",sales:0,orders:0},
@@ -154,8 +162,7 @@ export function DashboardReplica({go}:{go:(v:any)=>void}){
     ["店铺数量","1","↑ 0.0%","总数","blue",<ShopOutlined/>,"#ef4444",Array(7).fill(1)],
   ] as const;
 
-  return <div className="dash-scale-viewport" ref={viewportRef}>
-    <div className="dash-source-page" style={{width:DESIGN_WIDTH,zoom:scale} as any}>
+  return <div className="dash-source-page">
       <div className="dash-source-shell">
         <section className="dash-hero-grid">
           <div className="dash-welcome">
@@ -185,10 +192,12 @@ export function DashboardReplica({go}:{go:(v:any)=>void}){
                 <div className="legend">
                   <span className="sales">销售额(¥)</span>
                   <span className="orders">订单数</span>
-                  <select value={shop} onChange={e=>setShop(e.target.value)}>
-                    <option value="0">全部店铺</option>
-                    <option value="1">测试</option>
-                  </select>
+                  <DemoSelect
+                    value={shop}
+                    options={[{value:"0",label:"全部店铺"},{value:"1",label:"测试"}]}
+                    onChange={setShop}
+                    className="trend-shop-select"
+                  />
                 </div>
               </div>
               <div className="trend-tabs">
@@ -227,9 +236,12 @@ export function DashboardReplica({go}:{go:(v:any)=>void}){
           <article className="dash-card ranking-card">
             <div className="section-head">
               <h2>店铺销售排行</h2>
-              <select value={rankingDays} onChange={e=>setRankingDays(Number(e.target.value))}>
-                <option value="7">近7天</option><option value="30">近30天</option><option value="100">近100天</option>
-              </select>
+              <DemoSelect
+                value={rankingDays}
+                options={[{value:7,label:"近7天"},{value:30,label:"近30天"},{value:100,label:"近100天"}]}
+                onChange={setRankingDays}
+                className="ranking-range-select"
+              />
             </div>
             <div className="ranking-table">
               <div className="ranking-row head"><span>排名</span><span>店铺名称</span><span>销售额(¥)</span><span>订单数</span><span>操作</span></div>
