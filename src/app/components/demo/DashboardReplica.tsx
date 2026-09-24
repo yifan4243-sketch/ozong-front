@@ -41,10 +41,11 @@ function dashboardDateText(){
   const weekdays=["星期日","星期一","星期二","星期三","星期四","星期五","星期六"];
   return `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日${weekdays[d.getDay()]}`;
 }
+const demoSeries=(days:number,base:number,step:number,wave:number)=>Array.from({length:days},(_,i)=>Math.round(base+i*step+Math.sin(i*.72)*wave+Math.cos(i*.23)*wave*.35));
 const TREND:Record<TrendKey,{sales:number[];orders:number[];labels:string[]}>={
-  "7d":{sales:Array(7).fill(0),orders:Array(7).fill(0),labels:makeLabels(7)},
-  "30d":{sales:Array(30).fill(0),orders:Array(30).fill(0),labels:makeLabels(30)},
-  "90d":{sales:Array(90).fill(0),orders:Array(90).fill(0),labels:makeLabels(90)},
+  "7d":{sales:[12840,14620,13980,17150,16240,19860,22490],orders:[61,73,68,84,79,96,108],labels:makeLabels(7)},
+  "30d":{sales:demoSeries(30,8200,470,1550),orders:demoSeries(30,38,2.05,8),labels:makeLabels(30)},
+  "90d":{sales:demoSeries(90,6100,235,2250),orders:demoSeries(90,29,.92,11),labels:makeLabels(90)},
 };
 
 function fmt(n:number){return new Intl.NumberFormat("zh-CN").format(Math.round(n))}
@@ -145,20 +146,20 @@ export function DashboardReplica({go}:{go:(v:any)=>void}){
   const [shop,setShop]=useState("0");
   const [rankingDays,setRankingDays]=useState(7);
   const [notices,setNotices]=useState<Notice[]>([
-    {id:1,title:"财务同步完成",body:"已同步 0 笔订单、0 条财务流水。",time:"11 小时前",type:"success",read:false},
-    {id:2,title:"财务同步完成",body:"已同步 0 笔订单、0 条财务流水。",time:"11 小时前",type:"success",read:false},
-    {id:3,title:"财务同步完成",body:"已同步 0 笔订单、0 条财务流水。",time:"7 天前",type:"success",read:false},
-    {id:4,title:"财务同步完成",body:"已同步 0 笔订单、20 条财务流水。",time:"9 天前",type:"success",read:false},
-    {id:5,title:"财务同步完成，存在异常",body:"已同步 0 笔订单、0 条财务流水。",time:"10 天前",type:"warning",read:false},
+    {id:1,title:"订单同步完成",body:"星桥家居新增 18 笔订单，已写入订单中心。",time:"18 分钟前",type:"success",read:false},
+    {id:2,title:"商品同步完成",body:"远航百货已同步 126 个在线商品。",time:"1 小时前",type:"success",read:false},
+    {id:3,title:"财务同步完成",body:"已匹配 42 笔订单财务流水。",time:"3 小时前",type:"success",read:false},
+    {id:4,title:"库存预警",body:"北辰数码有 6 个商品低于安全库存。",time:"昨天",type:"warning",read:false},
+    {id:5,title:"商品资料待完善",body:"检测到 9 个商品缺少必要属性。",time:"2 天前",type:"warning",read:false},
   ]);
-  const [unreadCount,setUnreadCount]=useState(49);
+  const [unreadCount,setUnreadCount]=useState(12);
   const [loadedOlder,setLoadedOlder]=useState(false);
   const [toast,setToast]=useState("");
   const [alerts,setAlerts]=useState<Alert[]>([
-    {id:1,title:"商品库存偏低",count:1,type:"warning"},
-    {id:2,title:"商品图片异常",count:18,type:"warning"},
-    {id:3,title:"商品资料缺失",count:138,type:"warning"},
-    {id:4,title:"商品存在 Ozon 错误",count:6,type:"danger"},
+    {id:1,title:"商品库存偏低",count:6,type:"warning"},
+    {id:2,title:"商品图片异常",count:11,type:"warning"},
+    {id:3,title:"商品资料缺失",count:23,type:"warning"},
+    {id:4,title:"商品存在 Ozon 错误",count:4,type:"danger"},
   ]);
   const [settingsOpen,setSettingsOpen]=useState(false);
   const [stockThreshold,setStockThreshold]=useState(5);
@@ -182,21 +183,26 @@ export function DashboardReplica({go}:{go:(v:any)=>void}){
     if(el.scrollTop+el.clientHeight<el.scrollHeight-12)return;
     setLoadedOlder(true);
     setNotices(ns=>[...ns,
-      {id:6,title:"财务同步完成，存在异常",body:"已同步 0 笔订单、0 条财务流水。",time:"10 天前",type:"warning",read:true},
-      {id:7,title:"商品同步完成",body:"店铺商品数据已完成同步。",time:"12 天前",type:"success",read:true},
+      {id:6,title:"促销活动同步完成",body:"已刷新 7 个可参加活动。",time:"4 天前",type:"success",read:true},
+      {id:7,title:"店铺授权检查完成",body:"3 个演示店铺授权状态正常。",time:"6 天前",type:"success",read:true},
     ]);
   };
 
-  const ranking=useMemo(()=>[
-    {name:"测试",sales:0,orders:0},
-  ],[rankingDays]);
+  const ranking=useMemo(()=>{
+    const factor=rankingDays===7?1:rankingDays===30?3.7:11.4;
+    return [
+      {name:"星桥家居",sales:Math.round(86420.5*factor),orders:Math.round(312*factor)},
+      {name:"远航百货",sales:Math.round(63908.2*factor),orders:Math.round(241*factor)},
+      {name:"北辰数码",sales:Math.round(41275*factor),orders:Math.round(168*factor)},
+    ];
+  },[rankingDays]);
 
   const stats=[
-    ["今日销售额","¥ 0.00","↑ 0.0%","较昨日","blue",<DollarOutlined/>,"#3b82f6",Array(7).fill(0)],
-    ["本月销售额","¥ 0.00","↑ 0.0%","较上月同期","purple",<ShoppingCartOutlined/>,"#8b5cf6",Array(7).fill(0)],
-    ["今日订单数","0","↑ 0.0%","较昨日","green",<FileTextOutlined/>,"#34d399",Array(7).fill(0)],
-    ["待发货订单","0","↑ 0.0%","较昨日","orange",<SendOutlined/>,"#fb923c",Array(7).fill(0)],
-    ["店铺数量","1","↑ 0.0%","总数","blue",<ShopOutlined/>,"#ef4444",Array(7).fill(1)],
+    ["今日销售额","¥ 22,490.36","↑ 14.2%","较昨日","blue",<DollarOutlined/>,"#3b82f6",[12840,14620,13980,17150,16240,19860,22490]],
+    ["本月销售额","¥ 438,726.80","↑ 21.6%","较上月同期","purple",<ShoppingCartOutlined/>,"#8b5cf6",[248000,271000,296000,318000,351000,392000,438727]],
+    ["今日订单数","108","↑ 12.5%","较昨日","green",<FileTextOutlined/>,"#34d399",[61,73,68,84,79,96,108]],
+    ["待发货订单","31","↓ 8.8%","较昨日","orange",<SendOutlined/>,"#fb923c",[42,39,45,37,36,34,31]],
+    ["店铺数量","3","↑ 0.0%","总数","blue",<ShopOutlined/>,"#ef4444",[3,3,3,3,3,3,3]],
   ] as const;
 
   return <div className="dash-source-page">
@@ -204,7 +210,7 @@ export function DashboardReplica({go}:{go:(v:any)=>void}){
       <div className="dash-source-shell">
         <section className="dash-hero-grid">
           <div className="dash-welcome">
-            <div><h1>欢迎回来，1234</h1><p>今天是 {dashboardDateText()}，祝您工作顺利！</p></div>
+            <div><h1>欢迎回来，演示账号 A01</h1><p>今天是 {dashboardDateText()}，祝您工作顺利！</p></div>
             <div className="dash-cubes"><i className="main"></i><i className="a"></i><i className="b"></i><i className="shadow"></i></div>
           </div>
           <button className="dash-ai" onClick={()=>go("aiImage")}>
@@ -226,7 +232,7 @@ export function DashboardReplica({go}:{go:(v:any)=>void}){
               <span className="stat-change">{s[2]}</span>
               <span>{s[3]}</span>
             </div>
-            {i===4&&<div className="stat-extra">正常 1 / 异常 0</div>}
+            {i===4&&<div className="stat-extra">正常 3 / 异常 0</div>}
             <svg className="mini-chart" viewBox="0 0 150 42" preserveAspectRatio="none" aria-hidden="true">
               <path d={sparkPath([...s[7]])} fill="none" stroke={s[6]} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -243,7 +249,7 @@ export function DashboardReplica({go}:{go:(v:any)=>void}){
                   <span className="orders">订单数</span>
                   <DemoSelect
                     value={shop}
-                    options={[{value:"0",label:"全部店铺"},{value:"1",label:"测试"}]}
+                    options={[{value:"0",label:"全部店铺"},{value:"1",label:"星桥家居"},{value:"2",label:"远航百货"},{value:"3",label:"北辰数码"}]}
                     onChange={setShop}
                     className="trend-shop-select"
                   />
@@ -294,7 +300,7 @@ export function DashboardReplica({go}:{go:(v:any)=>void}){
             </div>
             <div className="ranking-table">
               <div className="ranking-row head"><span>排名</span><span>店铺名称</span><span>销售额(¥)</span><span>订单数</span><span>操作</span></div>
-              {ranking.map((r,i)=><div className="ranking-row" key={r.name}><span>{i+1}</span><span className="shop"><i>ozon</i>{r.name}</span><span>¥ 0.00</span><span>{r.orders}</span><button onClick={()=>go("orders")}>查看</button></div>)}
+              {ranking.map((r,i)=><div className="ranking-row" key={r.name}><span>{i+1}</span><span className="shop"><i>ozon</i>{r.name}</span><span>¥ {r.sales.toLocaleString("zh-CN",{minimumFractionDigits:2})}</span><span>{r.orders}</span><button onClick={()=>go("orders")}>查看</button></div>)}
             </div>
           </article>
 
