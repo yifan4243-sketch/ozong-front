@@ -12,7 +12,8 @@ const INITIAL:Product[]=[
 {id:4,name:"Автомобильный держатель телефона 360°",offer:"DEMO-DIGI-002",sku:"7714205202",commission:13,shop:"北辰数码",status:"准备出售",price:459,old:599,stock:58,weight:"210g",updated:"2026-09-24 09:46:20",icon:"🚗"},
 {id:5,name:"Набор цветных маркеров для творчества, 24 цвета",offer:"DEMO-STORE-001",sku:"7714205301",commission:14,shop:"远航百货",status:"准备出售",price:679,old:899,stock:91,weight:"460g",updated:"2026-09-24 09:21:54",icon:"🖍️"},
 {id:6,name:"Корзина для белья складная с ручками",offer:"DEMO-HOME-003",sku:"7714205103",commission:14,shop:"星桥家居",status:"错误",price:1099,old:1399,stock:12,weight:"740g",updated:"2026-09-23 18:17:33",icon:"🧺"},
-{id:7,name:"Электрический вспениватель молока USB",offer:"DEMO-STORE-002",sku:"7714205302",commission:12,shop:"远航百货",status:"已归档",price:389,old:499,stock:0,weight:"180g",updated:"2026-09-23 16:08:11",icon:"🥛"}
+{id:7,name:"Электрический вспениватель молока USB",offer:"DEMO-STORE-002",sku:"7714205302",commission:12,shop:"远航百货",status:"已归档",price:389,old:499,stock:0,weight:"180g",updated:"2026-09-23 16:08:11",icon:"🥛"},
+{id:8,name:"Портативный увлажнитель воздуха USB",offer:"DEMO-STORE-003",sku:"7714205303",commission:13,shop:"远航百货",status:"已下架",price:599,old:799,stock:0,weight:"260g",updated:"2026-09-23 14:42:36",icon:"💧"}
 ];
 type ModalKind="sync"|"price"|"stock"|"promotion"|"repair"|"archive"|null;
 
