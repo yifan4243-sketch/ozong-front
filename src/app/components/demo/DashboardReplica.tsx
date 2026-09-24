@@ -102,9 +102,11 @@ function DemoSelect<T extends string|number>({
   </div>;
 }
 
-function TrendPlot({range}:{range:TrendKey}){
+function TrendPlot({range,shop}:{range:TrendKey;shop:string}){
   const [hovered,setHovered]=useState<number|null>(null);
-  const d=TREND[range];
+  const base=TREND[range];
+  const factor=shop==="1"?.42:shop==="2"?.34:shop==="3"?.24:1;
+  const d={labels:base.labels,sales:base.sales.map(v=>Math.round(v*factor)),orders:base.orders.map(v=>Math.round(v*factor))};
   const sales=chartPoints(d.sales),orders=chartPoints(d.orders);
   const ticks=tickIndexes(d.sales.length);
   const active=hovered==null?null:{
@@ -259,7 +261,7 @@ export function DashboardReplica({go}:{go:(v:any)=>void}){
                 {(["7d","30d","90d"] as TrendKey[]).map(k=><button type="button" className={range===k?"active":""} onClick={()=>setRange(k)} key={k}>{k==="7d"?"近7天":k==="30d"?"近30天":"近90天"}</button>)}
               </div>
             </div>
-            <TrendPlot range={range}/>
+            <TrendPlot range={range} shop={shop}/>
           </article>
 
           <article className="dash-card quick-card">
