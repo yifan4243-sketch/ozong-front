@@ -222,13 +222,17 @@ export function WebErpDemo() {
     const host = stageRef.current;
     if (!host) return;
     const update = () => {
-      const width = Math.max(320, host.clientWidth);
+      const width = Math.max(1, host.clientWidth);
       setErpScale(Math.min(1, width / ERP_DESIGN_WIDTH));
     };
     update();
-    const observer = new ResizeObserver(update);
-    observer.observe(host);
-    return () => observer.disconnect();
+    if (typeof ResizeObserver !== "undefined") {
+      const observer = new ResizeObserver(update);
+      observer.observe(host);
+      return () => observer.disconnect();
+    }
+    window.addEventListener("resize", update);
+    return () => window.removeEventListener("resize", update);
   }, []);
 
   const go = (next: ViewKey) => {
