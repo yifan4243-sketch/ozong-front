@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import type { UIEvent } from "react";
 import {
   BarChartOutlined,
   CheckCircleOutlined,
@@ -177,7 +178,7 @@ export function DashboardReplica({go}:{go:(v:any)=>void}){
     setNotices(ns=>ns.map(n=>({...n,read:true})));
     setUnreadCount(0);
   };
-  const loadOlderNotices=(event:React.UIEvent<HTMLDivElement>)=>{
+  const loadOlderNotices=(event:UIEvent<HTMLDivElement>)=>{
     if(loadedOlder)return;
     const el=event.currentTarget;
     if(el.scrollTop+el.clientHeight<el.scrollHeight-12)return;
