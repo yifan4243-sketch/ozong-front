@@ -6,9 +6,9 @@ import "./watermark-replica.css";
 type Pos="top-left"|"top-center"|"top-right"|"center-left"|"center"|"center-right"|"bottom-left"|"bottom-center"|"bottom-right";
 type Wm={id:number;name:string;original:string,size:string,preview:string;position:Pos;width:number;opacity:number;created:string};
 const INITIAL:Wm[]=[
-{id:1,name:"品牌Logo-右下",original:"ozong-logo.png",size:"48.2 KB",preview:"OzonG",position:"bottom-right",width:18,opacity:72,created:"2026-09-18 14:31:26"},
-{id:2,name:"店铺角标",original:"store-corner.webp",size:"35.4 KB",preview:"SHOP",position:"top-left",width:14,opacity:88,created:"2026-09-19 11:06:02"},
-{id:3,name:"促销水印",original:"promo.png",size:"62.7 KB",preview:"SALE",position:"top-right",width:22,opacity:65,created:"2026-09-20 09:42:18"},
+{id:1,name:"星桥家居品牌标识",original:"xingqiao-logo.png",size:"52.6 KB",preview:"星桥",position:"bottom-right",width:18,opacity:74,created:"2026-09-21 10:18:26"},
+{id:2,name:"远航百货店铺角标",original:"yuanhang-badge.webp",size:"38.1 KB",preview:"远航",position:"top-left",width:15,opacity:86,created:"2026-09-22 15:06:44"},
+{id:3,name:"秋季活动促销水印",original:"autumn-sale.png",size:"67.9 KB",preview:"SALE",position:"top-right",width:21,opacity:68,created:"2026-09-23 09:32:18"},
 ];
 const POS:{value:Pos,label:string,short:string}[]=[
 {value:"top-left",label:"左上角",short:"左上"},{value:"top-center",label:"顶部居中",short:"上中"},{value:"top-right",label:"右上角",short:"右上"},
