@@ -6,13 +6,13 @@ import "./products-replica.css";
 type Status="销售中"|"准备出售"|"错误"|"已下架"|"已归档";
 type Product={id:number;name:string;offer:string;sku:string;commission:number;shop:string;status:Status;price:number;old:number;stock:number;weight:string;updated:string;icon:string};
 const INITIAL:Product[]=[
-{id:1,name:"Джинсы Для Мальчиков",offer:"ozg-260909-779620-01",sku:"5744100236",commission:14,shop:"测试",status:"销售中",price:300,old:600,stock:100,weight:"515g",updated:"2026-09-10 13:35:41",icon:"👖"},
-{id:2,name:"Набор шариковых ручек, 4 штуки, синие, 0.7 мм",offer:"ozg-260909-519098-03",sku:"5743999143",commission:14,shop:"测试",status:"销售中",price:200,old:400,stock:100,weight:"13g",updated:"2026-09-10 13:35:41",icon:"🖊️"},
-{id:3,name:"Ручки шариковые синие 10 шт 0.7 мм",offer:"ozg-260909-511678-04",sku:"5743996564",commission:14,shop:"测试",status:"销售中",price:200,old:400,stock:100,weight:"40g",updated:"2026-09-10 13:35:41",icon:"🖊️"},
-{id:4,name:"Набор цветных шариковых ручек 10 цветов",offer:"ozg-260909-509462-02",sku:"5743990580",commission:14,shop:"测试",status:"销售中",price:200,old:400,stock:100,weight:"50g",updated:"2026-09-10 13:35:41",icon:"🖊️"},
-{id:5,name:"Набор ручек шариковых 4 цвета, стержень 1,0 мм",offer:"ozg-260909-522083-01",sku:"5743258656",commission:12,shop:"测试",status:"准备出售",price:20,old:0,stock:100,weight:"15g",updated:"2026-09-10 13:35:41",icon:"🖊️"},
-{id:6,name:"Комплект одежды школьный для детей",offer:"ozg-260908-567901-10",sku:"5736228976",commission:14,shop:"测试",status:"错误",price:300,old:600,stock:100,weight:"645g",updated:"2026-09-10 13:35:41",icon:"👕"},
-{id:7,name:"Комплект одежды школьный для мальчиков",offer:"ozg-260908-571731-01",sku:"5736189291",commission:14,shop:"测试",status:"已归档",price:300,old:600,stock:0,weight:"680g",updated:"2026-09-09 18:21:14",icon:"🧥"}
+{id:1,name:"Органайзер для кухни многоярусный",offer:"DEMO-HOME-001",sku:"7714205101",commission:14,shop:"星桥家居",status:"销售中",price:899,old:1199,stock:42,weight:"620g",updated:"2026-09-24 10:42:18",icon:"🧺"},
+{id:2,name:"Набор вакуумных пакетов для хранения, 12 шт.",offer:"DEMO-HOME-002",sku:"7714205102",commission:14,shop:"星桥家居",status:"销售中",price:549,old:749,stock:76,weight:"380g",updated:"2026-09-24 10:35:06",icon:"📦"},
+{id:3,name:"Светодиодная настольная лампа с регулировкой",offer:"DEMO-DIGI-001",sku:"7714205201",commission:12,shop:"北辰数码",status:"销售中",price:1299,old:1599,stock:33,weight:"890g",updated:"2026-09-24 09:58:41",icon:"💡"},
+{id:4,name:"Автомобильный держатель телефона 360°",offer:"DEMO-DIGI-002",sku:"7714205202",commission:13,shop:"北辰数码",status:"准备出售",price:459,old:599,stock:58,weight:"210g",updated:"2026-09-24 09:46:20",icon:"🚗"},
+{id:5,name:"Набор цветных маркеров для творчества, 24 цвета",offer:"DEMO-STORE-001",sku:"7714205301",commission:14,shop:"远航百货",status:"准备出售",price:679,old:899,stock:91,weight:"460g",updated:"2026-09-24 09:21:54",icon:"🖍️"},
+{id:6,name:"Корзина для белья складная с ручками",offer:"DEMO-HOME-003",sku:"7714205103",commission:14,shop:"星桥家居",status:"错误",price:1099,old:1399,stock:12,weight:"740g",updated:"2026-09-23 18:17:33",icon:"🧺"},
+{id:7,name:"Электрический вспениватель молока USB",offer:"DEMO-STORE-002",sku:"7714205302",commission:12,shop:"远航百货",status:"已归档",price:389,old:499,stock:0,weight:"180g",updated:"2026-09-23 16:08:11",icon:"🥛"}
 ];
 type ModalKind="sync"|"price"|"stock"|"promotion"|"repair"|"archive"|null;
 
@@ -38,7 +38,7 @@ export function ProductsReplica(){
  const [pageSize,setPageSize]=useState(10);
  const [autoAction,setAutoAction]=useState(true);
  const flash=(t:string)=>{setToast(t);setTimeout(()=>setToast(""),1500)};
- const counts:Record<string,number>={所有:366,销售中:29,准备出售:248,错误:299,已下架:0,已归档:1382};
+ const counts:Record<string,number>={所有:428,销售中:186,准备出售:144,错误:27,已下架:31,已归档:40};
  const visible=useMemo(()=>rows.filter(r=>{
    if(status!=="所有"&&r.status!==status)return false;
    if(applied.shop!=="all"&&r.shop!==applied.shop)return false;
@@ -58,7 +58,7 @@ export function ProductsReplica(){
  return <div className="products-page-source"><DemoToast text={toast}/>
   <section className="products-shell-source">
    <div className="product-filter-source">
-    <select value={shop} onChange={e=>setShop(e.target.value)}><option value="all">全部店铺</option><option value="测试">测试</option></select>
+    <select value={shop} onChange={e=>setShop(e.target.value)}><option value="all">全部店铺</option><option value="星桥家居">星桥家居</option><option value="远航百货">远航百货</option><option value="北辰数码">北辰数码</option></select>
     <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="搜索商品名称"/>
     <input value={offer} onChange={e=>setOffer(e.target.value)} placeholder="输入货号或 SKU"/>
     <span></span>
@@ -83,7 +83,7 @@ export function ProductsReplica(){
    </div></div>
    <footer className="products-pagination-source"><strong>共 {counts[status]||0} 条记录，当前页 {visible.length} 条记录</strong><div><button disabled={page<=1} onClick={()=>setPage(Math.max(1,page-1))}>‹</button>{[1,2,3,4,5].map(p=><button key={p} className={page===p?"active":""} onClick={()=>setPage(p)}>{p}</button>)}<span>…</span><button className={page===37?"active":""} onClick={()=>setPage(37)}>37</button><button disabled={page>=37} onClick={()=>setPage(Math.min(37,page+1))}>›</button><select value={pageSize} onChange={e=>{setPageSize(Number(e.target.value));setPage(1)}}><option value={10}>10 条/页</option><option value={20}>20 条/页</option><option value={50}>50 条/页</option></select></div></footer>
   </section>
-  <DemoModal open={modal==="sync"} title="选择同步店铺" width={420} onClose={()=>setModal(null)} onOk={()=>{setModal(null);flash("已提交 "+syncStores.length+" 个店铺同步任务")}} okText="确定同步"><div className="sync-store-list-source">{[1,2].map(id=><label className={syncStores.includes(id)?"active":""} key={id}><input type="checkbox" checked={syncStores.includes(id)} onChange={()=>setSyncStores(v=>v.includes(id)?v.filter(x=>x!==id):[...v,id])}/><span><b>{id===1?"测试":"UyutHome 家居"}</b><small>ozon</small></span></label>)}</div></DemoModal>
+  <DemoModal open={modal==="sync"} title="选择同步店铺" width={420} onClose={()=>setModal(null)} onOk={()=>{setModal(null);flash("已提交 "+syncStores.length+" 个店铺同步任务")}} okText="确定同步"><div className="sync-store-list-source">{[{id:1,name:"星桥家居"},{id:2,name:"远航百货"},{id:3,name:"北辰数码"}].map(store=><label className={syncStores.includes(store.id)?"active":""} key={store.id}><input type="checkbox" checked={syncStores.includes(store.id)} onChange={()=>setSyncStores(v=>v.includes(store.id)?v.filter(x=>x!==store.id):[...v,store.id])}/><span><b>{store.name}</b><small>ozon</small></span></label>)}</div></DemoModal>
   <DemoModal open={modal==="price"} title="批量改价" width={520} onClose={()=>{setModal(null);setEditTarget(null)}} onOk={applyPrice} okText="确定修改"><div className="edit-grid-source"><label>售价<input type="number" value={price} onChange={e=>setPrice(Number(e.target.value))}/></label><label>划线价<input type="number" value={oldPrice} onChange={e=>setOldPrice(Number(e.target.value))}/></label><label>最低价<input placeholder="未设置"/></label><label>自动应用活动<button className={"mini-toggle "+(autoAction?"on":"")} onClick={()=>setAutoAction(!autoAction)}><i></i></button></label></div></DemoModal>
   <DemoModal open={modal==="stock"} title="批量修改库存" width={650} onClose={()=>{setModal(null);setEditTarget(null)}} onOk={applyStock} okText="确定"><div className="stock-toolbar-source"><select><option>测试仓库</option><option>默认仓库</option></select><input type="number" min="0" value={stockValue} onChange={e=>setStockValue(Number(e.target.value))}/><span>件</span></div></DemoModal>
   <DemoModal open={modal==="promotion"} title="批量促销" width={620} onClose={()=>setModal(null)} onOk={()=>{setModal(null);flash("已进入促销参数设置")}} okText="下一步"><p className="modal-copy-source">已选 {selected.length} 个商品。选择活动后可继续填写活动价与库存。</p><select className="modal-select-source"><option>秋季超级大促</option><option>弹性促销</option></select></DemoModal>
