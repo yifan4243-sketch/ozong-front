@@ -5,10 +5,11 @@ import "./source1688-replica.css";
 
 type Item={id:number;title:string;sourceId:string;icon:string;images:number;skus:number;status:"idle"|"processing"|"published"};
 const INITIAL:Item[]=[
-{id:1,title:"欧式户外花园天使复古花盆庭院阳台装饰工艺品创意摆件美式艺术",sourceId:"1052537880354",icon:"🗿",images:4,skus:1,status:"published"},
-{id:2,title:"25新款时尚复古牛仔腋下包大容量丹宁洗水托特欧美辣妹手提斜挎包",sourceId:"917088483865",icon:"👜",images:5,skus:2,status:"published"},
-{id:3,title:"厨房置物架落地多层可移动收纳架家用蔬菜架",sourceId:"992381770422",icon:"🧺",images:7,skus:4,status:"idle"},
-{id:4,title:"宠物除毛刷沙发衣物粘毛器可水洗清洁刷",sourceId:"881528441906",icon:"🐾",images:6,skus:3,status:"idle"},
+{id:1,title:"多功能厨房分层收纳架免打孔台面置物架",sourceId:"DEMO1688-240901",icon:"🧺",images:6,skus:3,status:"published"},
+{id:2,title:"USB充电感应夜灯卧室走廊人体感应小夜灯",sourceId:"DEMO1688-240902",icon:"💡",images:8,skus:4,status:"idle"},
+{id:3,title:"车载椅背收纳袋多功能汽车后座置物袋",sourceId:"DEMO1688-240903",icon:"🚘",images:7,skus:5,status:"idle"},
+{id:4,title:"透明真空压缩袋旅行衣物棉被收纳袋组合装",sourceId:"DEMO1688-240904",icon:"📦",images:9,skus:6,status:"published"},
+{id:5,title:"便携式USB迷你加湿器办公室桌面静音补水",sourceId:"DEMO1688-240905",icon:"💧",images:5,skus:2,status:"idle"},
 ];
 export function Source1688Replica(){
  const [items,setItems]=useState(INITIAL);
@@ -39,7 +40,7 @@ export function Source1688Replica(){
     <div><div className="source-kicker-source">货源采集工作台</div><h1><span>1688</span><i>→</i><b>Ozon</b></h1><p>浏览器插件采集的 1688 商品统一进入这里，和 Ozon 在线商品分开管理。</p></div>
     <div className="source-hero-actions">
       <div className={`media-toggle-source ${media?"active":""}`}><div><span>生成图/视频封面</span><small>8 张图 · 24 点 · 16s MP4</small></div><button className={`mini-switch ${media?"on":""}`} onClick={()=>setMedia(!media)}><i></i></button></div>
-      <label>上架店铺<select value={store} onChange={e=>setStore(e.target.value)}><option value="1">测试</option><option value="2">UyutHome 家居（默认）</option></select></label>
+      <label>上架店铺<select value={store} onChange={e=>setStore(e.target.value)}><option value="1">星桥家居（默认）</option><option value="2">远航百货</option><option value="3">北辰数码</option></select></label>
       <button onClick={()=>setSettings(true)}>上架设置</button><button onClick={refresh}><ReloadOutlined/> {loading?"刷新中":"刷新"}</button><button className="primary" onClick={()=>window.open("https://www.1688.com","_blank","noopener,noreferrer")}>打开 1688</button>
     </div>
    </section>
@@ -48,7 +49,7 @@ export function Source1688Replica(){
     <div className="source-list-head-source"><div><h2>1688 商品</h2><p>SKU 已在采集阶段完成筛选；类目、必填项、包装估算、定价和 Ozon JSON 由系统自动处理。</p></div><div><label><input type="checkbox" checked={all} ref={el=>{if(el)el.indeterminate=some}} onChange={()=>setSelected(all?[]:items.map(x=>x.id))}/> 全选</label><span>已选 {selected.length} 项</span><button className="danger" disabled={!selected.length} onClick={()=>setDeleteOpen(true)}>删除</button><button className="primary" disabled={!selected.length} onClick={()=>publish(selected)}>批量上架至 Ozon</button></div></div>
     {!items.length?<div className="source-empty-source"><b>1688 → Ozon</b><strong>还没有采集商品</strong><span>打开 1688 商品详情页，使用 Auto OZON 点击“采集到 OzonG”。</span></div>:<div className="source-product-grid-source">{items.map(item=><article className={`source-card-source ${selected.includes(item.id)?"selected":""}`} key={item.id}>
       <div className={`source-image-source ${item.status==="processing"?"processing":""}`}><span>{item.icon}</span>{item.status==="processing"&&<div className="source-processing"><i></i><b>正在准备上架</b><small>生成 Ozon 商品数据…</small></div>}<label><input type="checkbox" checked={selected.includes(item.id)} onChange={()=>toggle(item.id)}/></label><em>1688</em></div>
-      <div className="source-card-body-source"><h3 title={item.title}>{item.title}</h3><small>货源 ID：{item.sourceId}</small><div className="source-metrics-source"><span>价格<b>—</b></span><span>图片<b>{item.images} 张</b></span><span>SKU<b>{item.skus}</b></span></div><time>08-23 {item.id===1?"12:19":"00:16"}</time><footer><button onClick={()=>window.open("https://detail.1688.com","_blank","noopener,noreferrer")}>查看货源</button><button className="primary" disabled={item.status!=="idle"} onClick={()=>publish([item.id])}>{item.status==="published"?"已上架 Ozon":item.status==="processing"?"上架中…":"上架至 Ozon"}</button></footer></div>
+      <div className="source-card-body-source"><h3 title={item.title}>{item.title}</h3><small>货源 ID：{item.sourceId}</small><div className="source-metrics-source"><span>价格<b>—</b></span><span>图片<b>{item.images} 张</b></span><span>SKU<b>{item.skus}</b></span></div><time>09-24 {item.id===1?"11:28":item.id===2?"10:46":"09:35"}</time><footer><button onClick={()=>window.open("https://detail.1688.com","_blank","noopener,noreferrer")}>查看货源</button><button className="primary" disabled={item.status!=="idle"} onClick={()=>publish([item.id])}>{item.status==="published"?"已上架 Ozon":item.status==="processing"?"上架中…":"上架至 Ozon"}</button></footer></div>
     </article>)}</div>}
    </section>
    <DemoModal open={deleteOpen} title={`确认删除已选的 ${selected.length} 个货源商品？`} onClose={()=>setDeleteOpen(false)} onOk={remove} okText="确认删除" danger><p className="source-modal-copy">仅删除 ERP 中的 1688 货源记录，不会修改原 1688 商品。</p></DemoModal>
