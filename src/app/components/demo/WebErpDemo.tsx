@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import {
   ArrowRightOutlined,
@@ -53,6 +53,8 @@ type ViewKey =
   | "extensions";
 
 const REAL_LOGO = "https://raw.githubusercontent.com/yifan4243-sketch/ozon-erp/dev-hotfix/frontend/public/logo.png";
+const ERP_DESIGN_WIDTH = 1920;
+const ERP_DESIGN_HEIGHT = 869;
 
 const viewTitles: Record<ViewKey, string> = {
   dashboard: "概览",
@@ -212,6 +214,21 @@ export function WebErpDemo() {
   const [collapsed, setCollapsed] = useState(false);
   const [rechargeOpen, setRechargeOpen] = useState(false);
   const [rechargeCode, setRechargeCode] = useState("");
+  const stageRef = useRef<HTMLDivElement | null>(null);
+  const [erpScale, setErpScale] = useState(1500 / ERP_DESIGN_WIDTH);
+
+  useEffect(() => {
+    const host = stageRef.current;
+    if (!host) return;
+    const update = () => {
+      const width = Math.max(320, host.clientWidth);
+      setErpScale(Math.min(1, width / ERP_DESIGN_WIDTH));
+    };
+    update();
+    const observer = new ResizeObserver(update);
+    observer.observe(host);
+    return () => observer.disconnect();
+  }, []);
 
   const go = (next: ViewKey) => {
     setView(next);
@@ -262,7 +279,20 @@ export function WebErpDemo() {
 
   return (
     <div className="erp-demo-frame real-version">
-      <div className="real-erp-app">
+      <div
+        ref={stageRef}
+        className="real-erp-stage"
+        style={{ height: `${ERP_DESIGN_HEIGHT * erpScale}px` }}
+      >
+        <div
+          className="real-erp-app"
+          style={{
+            width: ERP_DESIGN_WIDTH,
+            height: ERP_DESIGN_HEIGHT,
+            transform: `scale(${erpScale})`,
+            transformOrigin: "top left",
+          }}
+        >
         <Sidebar
           view={view}
           go={go}
