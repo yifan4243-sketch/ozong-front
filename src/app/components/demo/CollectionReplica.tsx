@@ -5,12 +5,12 @@ import "./collection-replica.css";
 
 type Item={id:number;market:"ru"|"kz";sku:string;title:string;price:string;time:string;icon:string};
 const INITIAL:Item[]=[
-{id:1,market:"ru",sku:"5367925035",title:"Фотобумага A6, 36 лист., шт",price:"83,17 ¥",time:"2026-09-23 11:47:13",icon:"📄"},
-{id:2,market:"ru",sku:"5416727378",title:"Дождевик Спецодежда / Плащи и дождевики рабочие",price:"103,28 ¥",time:"2026-09-23 11:46:35",icon:"🧥"},
-{id:3,market:"ru",sku:"4993872000",title:"Игровые беспроводные контроллеры 2,4G 2 шт.",price:"37,94 ¥",time:"2026-09-22 22:12:06",icon:"🎮"},
-{id:4,market:"ru",sku:"5422524861",title:"Дождевик Костюм рабочий, Дождевик-костюм",price:"103,31 ¥",time:"2026-09-22 22:11:47",icon:"🧥"},
-{id:5,market:"ru",sku:"5699627526",title:"Кемпинговый фонарь аккумуляторный с зарядкой",price:"86,17 ¥",time:"2026-09-22 22:11:16",icon:"🔦"},
-{id:6,market:"ru",sku:"5743999143",title:"Набор шариковых ручек, 4 штуки, синие",price:"42,60 ¥",time:"2026-09-21 19:42:08",icon:"🖊️"},
+{id:1,market:"ru",sku:"7815306101",title:"Органайзер для ванной настенный без сверления",price:"112,40 ¥",time:"2026-09-24 11:18:42",icon:"🧴"},
+{id:2,market:"ru",sku:"7815306102",title:"Ночник светодиодный с датчиком движения",price:"68,90 ¥",time:"2026-09-24 10:56:13",icon:"💡"},
+{id:3,market:"ru",sku:"7815306103",title:"Набор контейнеров для хранения продуктов, 6 шт.",price:"95,60 ¥",time:"2026-09-24 09:43:26",icon:"🥡"},
+{id:4,market:"ru",sku:"7815306104",title:"Автомобильный органайзер на спинку сиденья",price:"79,30 ¥",time:"2026-09-23 21:15:08",icon:"🚘"},
+{id:5,market:"ru",sku:"7815306105",title:"Набор кистей для рисования, 12 размеров",price:"46,80 ¥",time:"2026-09-23 18:37:55",icon:"🖌️"},
+{id:6,market:"kz",sku:"7815306106",title:"Портативный увлажнитель воздуха USB",price:"88,20 ¥",time:"2026-09-23 16:22:40",icon:"💧"},
 ];
 
 export function CollectionReplica(){
@@ -20,7 +20,7 @@ export function CollectionReplica(){
  const [opening,setOpening]=useState<number|null>(null);
  const [toast,setToast]=useState("");
  const all=items.length>0&&items.every(x=>selected.includes(x.id));
- const total=19-(INITIAL.length-items.length);
+ const total=24-(INITIAL.length-items.length);
  const flash=(t:string)=>{setToast(t);window.setTimeout(()=>setToast(""),1400)};
  const toggle=(id:number)=>setSelected(v=>v.includes(id)?v.filter(x=>x!==id):[...v,id]);
  const remove=()=>{setItems(v=>v.filter(x=>!selected.includes(x.id)));setSelected([]);setDeleteOpen(false);flash("已删除采集箱记录")};
