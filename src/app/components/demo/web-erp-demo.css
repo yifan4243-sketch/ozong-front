@@ -60,7 +60,7 @@
 .real-sidebar-item{
   width:100%;height:38px;position:relative;border:0;border-radius:8px;background:transparent;
   color:#59657a;display:grid;grid-template-columns:18px minmax(0,1fr) 14px;align-items:center;
-  gap:8px;padding:0 10px;text-align:left;font-size:13px;font-weight:700;cursor:pointer;
+  gap:8px;padding:0 10px;text-align:left;font-size:13px;font-weight:600;cursor:pointer;
   transition:color .18s,background .18s,box-shadow .18s;
 }
 .real-sidebar-item>span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -81,7 +81,7 @@
 .real-sidebar-children{display:flex;flex-direction:column;gap:2px;padding:0 0 2px}
 .real-sidebar-children button{
   width:100%;height:34px;border:0;border-radius:8px;background:transparent;color:#667085;
-  text-align:left;padding:0 10px 0 34px;font-size:12px;font-weight:700;cursor:pointer;
+  text-align:left;padding:0 10px 0 34px;font-size:12px;font-weight:600;cursor:pointer;
 }
 .real-sidebar-children button:hover{color:#5b4bff;background:#f7f6ff}
 .real-sidebar-children button.active{color:#5b4bff;background:#eeecff;font-weight:900}
@@ -126,12 +126,8 @@
 .real-tab-item:hover .real-tab-close,.real-tab-item.active .real-tab-close{opacity:1}
 .real-tab-close:hover{background:rgba(239,68,68,.10);color:#ef4444}
 .real-tabs-right{margin-left:auto;display:flex;align-items:center;gap:9px;padding:0 8px;flex-shrink:0}
-.real-membership-badge{
-  border:0;height:28px;padding:0 16px;border-radius:999px;color:#4d3400;font-size:11px;font-weight:900;
-  background:linear-gradient(90deg,#9f6a00,#ffd76a,#b97a00);box-shadow:inset 0 1px 0 rgba(255,255,255,.55);cursor:pointer;
-}
-.real-credit-wallet{font-size:12px;color:#64748b}.real-credit-wallet b{font-size:14px;color:#4f46e5}
-.real-recharge-btn{height:30px;padding:0 14px;border:1px solid #dfe4ed;border-radius:9px;background:#fff;color:#111827;font-size:12px;cursor:pointer}
+.real-membership-badge{position:relative;isolation:isolate;height:30px;min-width:118px;max-width:190px;padding:0 13px;border:1px solid rgba(255,255,255,.58);border-radius:999px;display:inline-flex;align-items:center;justify-content:center;gap:7px;overflow:hidden;cursor:pointer;box-shadow:inset 0 1px 0 rgba(255,255,255,.72),0 4px 14px rgba(30,41,59,.12);font-size:12px;font-weight:800;white-space:nowrap;color:#52380b;background:linear-gradient(135deg,#9a6a13 0%,#dfb64f 24%,#fff0a8 48%,#d29b2b 72%,#8b5b0c 100%);transition:transform .18s ease,box-shadow .18s ease,filter .18s ease}.real-membership-badge::after{content:"";position:absolute;z-index:-1;top:-40%;bottom:-40%;left:-48%;width:34%;transform:skewX(-20deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),rgba(255,255,255,.82),rgba(255,255,255,.10),transparent);animation:real-vip-shine 3.6s ease-in-out infinite;pointer-events:none}.real-membership-badge:hover{transform:translateY(-1px);filter:saturate(1.06);box-shadow:inset 0 1px 0 rgba(255,255,255,.82),0 7px 18px rgba(30,41,59,.16)}.real-membership-badge .vip-mark{font-family:Georgia,"Times New Roman",serif;font-size:10px;letter-spacing:.06em;opacity:.9}.real-membership-badge .badge-label{overflow:hidden;text-overflow:ellipsis}@keyframes real-vip-shine{0%,18%{left:-48%;opacity:0}28%{opacity:1}50%{left:118%;opacity:.92}62%,100%{left:118%;opacity:0}}
+.real-credit-wallet{display:flex;align-items:center;gap:8px}.real-credit-label{color:#64748b;font-size:13px}.real-credit-label b{color:#4338ca}.real-recharge-wrap{position:relative}.real-recharge-btn{height:30px;padding:0 12px;border:1px solid #d9d9d9;border-radius:6px;background:#fff;color:#111827;font-size:12px;cursor:pointer}.real-recharge-pop{position:absolute;z-index:90;right:0;top:36px;width:240px;padding:12px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;box-shadow:0 14px 34px rgba(15,23,42,.16);text-align:center}.real-qr-demo{width:180px;height:180px;margin:0 auto;display:grid;place-items:center;border:10px solid #fff;background:repeating-conic-gradient(#111 0 25%,#fff 0 50%) 50%/14px 14px;box-shadow:0 0 0 1px #e5e7eb}.real-qr-demo span{padding:6px 8px;background:#fff;color:#111;font-size:12px;font-weight:800}.real-recharge-tip{margin-top:6px;color:#475569;font-size:13px}.real-recharge-rate{margin:2px 0 10px;color:#94a3b8;font-size:12px}.real-recharge-pop input{width:100%;height:32px;box-sizing:border-box;border:1px solid #d9d9d9;border-radius:6px;padding:0 9px;font-size:12px;outline:none}.real-recharge-pop input:focus{border-color:#6366f1;box-shadow:0 0 0 2px rgba(99,102,241,.10)}.real-redeem-btn{width:100%;height:32px;margin-top:8px;border:0;border-radius:6px;background:#5b4bff;color:#fff;font-size:12px;cursor:pointer}
 .real-erp-page-container{flex:1;min-height:0;overflow:hidden;background:#eef3ff}
 .real-erp-page{width:100%;height:100%;overflow-y:auto;overflow-x:hidden;box-sizing:border-box;background:#eef3ff}
 .real-erp-page::-webkit-scrollbar{width:7px}
