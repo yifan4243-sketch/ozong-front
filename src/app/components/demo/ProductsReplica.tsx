@@ -134,22 +134,22 @@ export function ProductsReplica(){
  const flash=(t:string)=>{setToast(t);setTimeout(()=>setToast(""),1500)};
  const onShopChange=(next:string)=>{
    setShop(next);
-   setApplied(current=>({...current,shop:next}));
+   setApplied({shop:next,search,offer});
    setPage(1);
    setSelected([]);
    setMoreId(null);
  };
- const scoped=useMemo(()=>rows.filter(r=>{
-   if(applied.shop!=="all"&&r.shop!==applied.shop)return false;
+ const shopRows=useMemo(()=>rows.filter(r=>applied.shop==="all"||r.shop===applied.shop),[rows,applied.shop]);
+ const scoped=useMemo(()=>shopRows.filter(r=>{
    const q=applied.search.trim().toLowerCase();if(q&&!r.name.toLowerCase().includes(q))return false;
    const o=applied.offer.trim().toLowerCase();if(o&&!r.offer.toLowerCase().includes(o)&&!r.sku.toLowerCase().includes(o))return false;
    return true;
- }),[rows,applied]);
+ }),[shopRows,applied.search,applied.offer]);
  const counts=useMemo<Record<string,number>>(()=>{
-   const out:Record<string,number>={所有:scoped.length,销售中:0,准备出售:0,错误:0,已下架:0,已归档:0};
-   scoped.forEach(r=>{out[r.status]=(out[r.status]||0)+1});
+   const out:Record<string,number>={所有:shopRows.length,销售中:0,准备出售:0,错误:0,已下架:0,已归档:0};
+   shopRows.forEach(r=>{out[r.status]=(out[r.status]||0)+1});
    return out;
- },[scoped]);
+ },[shopRows]);
  const visible=useMemo(()=>status==="所有"?scoped:scoped.filter(r=>r.status===status),[scoped,status]);
  const totalPages=Math.max(1,Math.ceil(visible.length/pageSize));
  const safePage=Math.min(page,totalPages);
