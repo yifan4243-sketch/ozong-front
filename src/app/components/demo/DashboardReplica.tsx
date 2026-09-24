@@ -270,6 +270,5 @@ export function DashboardReplica({go}:{go:(v:any)=>void}){
           </div>
         </div>}
       </div>
-    </div>
-  </div>;
+    </div>;
 }
