@@ -262,7 +262,6 @@ export function WebErpDemo() {
 
   return (
     <div className="erp-demo-frame real-version">
-      <div className="erp-demo-badge"><span></span>网页端交互演示 · 示例数据</div>
       <div className="real-erp-app">
         <Sidebar
           view={view}
