@@ -55,7 +55,7 @@ export function Hero() {
         </div>
       </div>
 
-      <div id="web-erp-demo" className="mt-20 px-0 scroll-mt-24">
+      <div id="web-erp-demo" className="mt-20 px-2 md:px-4 scroll-mt-24">
         <WebErpDemo />
       </div>
     </section>
