@@ -3,7 +3,7 @@ import { DemoToast } from "./ReplicaCommon";
 import "./promotion-auto-replica.css";
 
 export function PromotionAutoReplica(){
- const [stores,setStores]=useState([{id:1,name:"测试",enabled:false}]);
+ const [stores,setStores]=useState([{id:1,name:"星桥家居",enabled:true},{id:2,name:"远航百货",enabled:false},{id:3,name:"北辰数码",enabled:true}]);
  const [pending,setPending]=useState<number|null>(null);
  const [toast,setToast]=useState("");
  const toggle=(id:number)=>{
