@@ -154,7 +154,7 @@ export function DashboardReplica({go}:{go:(v:any)=>void}){
     {id:4,title:"库存预警",body:"北辰数码有 6 个商品低于安全库存。",time:"昨天",type:"warning",read:false},
     {id:5,title:"商品资料待完善",body:"检测到 9 个商品缺少必要属性。",time:"2 天前",type:"warning",read:false},
   ]);
-  const [unreadCount,setUnreadCount]=useState(12);
+  const unreadCount=notices.filter(n=>!n.read).length;
   const [loadedOlder,setLoadedOlder]=useState(false);
   const [toast,setToast]=useState("");
   const [alerts,setAlerts]=useState<Alert[]>([
@@ -172,12 +172,10 @@ export function DashboardReplica({go}:{go:(v:any)=>void}){
   };
   const markNotice=(id:number)=>{
     const current=notices.find(n=>n.id===id);
-    if(current&&!current.read)setUnreadCount(v=>Math.max(0,v-1));
     setNotices(ns=>ns.map(n=>n.id===id?{...n,read:true}:n));
   };
   const markAllNotices=()=>{
     setNotices(ns=>ns.map(n=>({...n,read:true})));
-    setUnreadCount(0);
   };
   const loadOlderNotices=(event:UIEvent<HTMLDivElement>)=>{
     if(loadedOlder)return;
