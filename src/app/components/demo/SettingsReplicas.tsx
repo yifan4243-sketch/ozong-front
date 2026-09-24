@@ -43,7 +43,7 @@ export function AccountReplica({go}:{go:Go}){
 
 type User={id:number;username:string;role:string,balance:number,reserved:number,active:boolean};
 const USERS:User[]=[
-{id:1,username:"demo_admin",role:"管理员",balance:1280,reserved:24,active:true},
+{id:1,username:"demo_admin",role:"管理员",balance:1280,reserved:0,active:true},
 {id:2,username:"ops_alpha",role:"运营",balance:620,reserved:12,active:true},
 {id:3,username:"designer_demo",role:"设计",balance:460,reserved:0,active:true},
 {id:4,username:"ops_archived",role:"运营",balance:80,reserved:0,active:false}
