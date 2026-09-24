@@ -323,10 +323,10 @@ export function WebErpDemo() {
               <div className="real-tabs-right">
                 <button className="real-membership-badge gold" onClick={() => go("membership")}>
                   <span className="vip-mark">VIP</span>
-                  <span className="badge-label">年卡会员(330天)</span>
+                  <span className="badge-label">年卡会员(214天)</span>
                 </button>
                 <div className="real-credit-wallet">
-                  <span className="real-credit-label">生图点数：<b>956</b></span>
+                  <span className="real-credit-label">生图点数：<b>1280</b></span>
                   <div className="real-recharge-wrap">
                     <button className="real-recharge-btn" onClick={() => setRechargeOpen(v => !v)}>充值</button>
                     {rechargeOpen && <div className="real-recharge-pop">
