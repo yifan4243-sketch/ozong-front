@@ -4,7 +4,7 @@ import { DemoModal, DemoToast } from "./ReplicaCommon";
 import "./collection-replica.css";
 
 type Item={id:number;market:"ru"|"kz";sku:string;title:string;price:string;time:string;icon:string};
-const INITIAL:Item[]=[
+const COLLECTION_SEEDS:Item[]=[
 {id:1,market:"ru",sku:"7815306101",title:"Органайзер для ванной настенный без сверления",price:"112,40 ¥",time:"2026-09-24 11:18:42",icon:"🧴"},
 {id:2,market:"ru",sku:"7815306102",title:"Ночник светодиодный с датчиком движения",price:"68,90 ¥",time:"2026-09-24 10:56:13",icon:"💡"},
 {id:3,market:"ru",sku:"7815306103",title:"Набор контейнеров для хранения продуктов, 6 шт.",price:"95,60 ¥",time:"2026-09-24 09:43:26",icon:"🥡"},
@@ -12,6 +12,33 @@ const INITIAL:Item[]=[
 {id:5,market:"ru",sku:"7815306105",title:"Набор кистей для рисования, 12 размеров",price:"46,80 ¥",time:"2026-09-23 18:37:55",icon:"🖌️"},
 {id:6,market:"kz",sku:"7815306106",title:"Портативный увлажнитель воздуха USB",price:"88,20 ¥",time:"2026-09-23 16:22:40",icon:"💧"},
 ];
+const COLLECTION_TITLES=[
+"Складной органайзер для одежды и белья",
+"Подставка для ноутбука алюминиевая складная",
+"Многоразовый ролик для удаления шерсти",
+"Комплект дорожных косметичек, 3 шт.",
+"Набор силиконовых кухонных принадлежностей",
+"Органайзер для кабелей и зарядных устройств",
+] as const;
+function buildCollectionItems():Item[]{
+  const result=[...COLLECTION_SEEDS];
+  for(let i=7;i<=24;i++){
+    const idx=i-7;
+    const title=COLLECTION_TITLES[idx%COLLECTION_TITLES.length];
+    const day=23-Math.floor(idx/6);
+    result.push({
+      id:i,
+      market:i%5===0?"kz":"ru",
+      sku:String(7815306100+i),
+      title:`${title} · ${Math.floor(idx/COLLECTION_TITLES.length)+1}`,
+      price:`${(52.4+(i*7.35)%94).toFixed(2).replace(".",",")} ¥`,
+      time:`2026-09-${String(day).padStart(2,"0")} ${String(8+(i%11)).padStart(2,"0")}:${String((i*9)%60).padStart(2,"0")}:00`,
+      icon:["📦","💻","🐾","🧳","🍳","🔌"][idx%6],
+    });
+  }
+  return result;
+}
+const INITIAL:Item[]=buildCollectionItems();
 
 export function CollectionReplica(){
  const [items,setItems]=useState(INITIAL);
@@ -20,7 +47,7 @@ export function CollectionReplica(){
  const [opening,setOpening]=useState<number|null>(null);
  const [toast,setToast]=useState("");
  const all=items.length>0&&items.every(x=>selected.includes(x.id));
- const total=24-(INITIAL.length-items.length);
+ const total=items.length;
  const flash=(t:string)=>{setToast(t);window.setTimeout(()=>setToast(""),1400)};
  const toggle=(id:number)=>setSelected(v=>v.includes(id)?v.filter(x=>x!==id):[...v,id]);
  const remove=()=>{setItems(v=>v.filter(x=>!selected.includes(x.id)));setSelected([]);setDeleteOpen(false);flash("已删除采集箱记录")};
