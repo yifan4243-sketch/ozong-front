@@ -46,18 +46,19 @@ function buildDemoOrders():Order[]{
     for(let i=existing;i<ORDER_TARGETS[status];i++){
       const tpl=ORDER_TEMPLATES[(serial-1)%ORDER_TEMPLATES.length];
       const price=tpl[4]+((serial%7)*20);
+      const dateOffset=serial<=106?0:1+((serial-107)%71);
       result.push({
         id:SEED_ORDERS.length+serial,
         name:tpl[0],
         offer:`DEMO-ORD-${String(serial).padStart(4,"0")}`,
         sku:String(7714220000+serial),
-        orderNo:`DEMO-${demoOrderDate((serial-1)%72).replaceAll("-","")}-${String(2000+serial)}`,
+        orderNo:`DEMO-${demoOrderDate(dateOffset).replaceAll("-","")}-${String(2000+serial)}`,
         warehouse:ORDER_WAREHOUSES[(serial-1)%ORDER_WAREHOUSES.length],
         provider:ORDER_PROVIDERS[(serial-1)%ORDER_PROVIDERS.length],
         shop:ORDER_SHOPS[(serial-1)%ORDER_SHOPS.length],
         total:`₽${price.toFixed(2)}`,
         status,
-        date:demoOrderDate((serial-1)%72),
+        date:demoOrderDate(dateOffset),
         clock:`${String(8+(serial*3)%14).padStart(2,"0")}:${String((serial*7)%60).padStart(2,"0")}:${String((serial*11)%60).padStart(2,"0")}`,
         icon:tpl[3],
       });
