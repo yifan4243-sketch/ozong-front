@@ -215,8 +215,13 @@ export function WebErpDemo() {
   const go = (next: ViewKey) => {
     setView(next);
     setTabs((current) => current.includes(next) ? current : [...current, next]);
-    if (["products", "collection", "listing"].includes(next)) setProductsOpen(true);
-    if (["promoJoin", "promoAuto"].includes(next)) setPromoOpen(true);
+    if (next === "dashboard") {
+      setProductsOpen(false);
+      setPromoOpen(false);
+    } else {
+      if (["products", "collection", "listing"].includes(next)) setProductsOpen(true);
+      if (["promoJoin", "promoAuto"].includes(next)) setPromoOpen(true);
+    }
   };
 
   const closeTab = (closing: ViewKey) => {
