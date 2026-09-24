@@ -6,15 +6,15 @@ import "./shops-replica.css";
 type ShopStatus="authorized"|"expired"|"inactive";
 type Shop={id:number;name:string;clientId:string;currency:string;country:"ru"|"cn";status:ShopStatus;products:number;warehouse:string;partners:number;group:string;avatar:string};
 const INITIAL:Shop[]=[
-{id:1,name:"测试",clientId:"4151485",currency:"CNY",country:"ru",status:"authorized",products:29,warehouse:"",partners:4,group:"",avatar:"测试"},
-{id:2,name:"UyutHome 家居",clientId:"2314887",currency:"CNY",country:"ru",status:"authorized",products:184,warehouse:"CEL-01",partners:3,group:"家居组",avatar:"UY"},
-{id:3,name:"北极星百货",clientId:"2265104",currency:"CNY",country:"ru",status:"expired",products:91,warehouse:"CEL-02",partners:2,group:"百货组",avatar:"北"}
+{id:1,name:"星桥家居",clientId:"6842051",currency:"CNY",country:"ru",status:"authorized",products:172,warehouse:"CEL-01 厦门仓",partners:4,group:"家居组",avatar:"星"},
+{id:2,name:"远航百货",clientId:"6842052",currency:"CNY",country:"ru",status:"authorized",products:143,warehouse:"CEL-02 义乌仓",partners:3,group:"百货组",avatar:"远"},
+{id:3,name:"北辰数码",clientId:"6842053",currency:"CNY",country:"ru",status:"authorized",products:113,warehouse:"CEL-03 深圳仓",partners:2,group:"数码组",avatar:"北"}
 ];
 type ModalKind="shop"|"group"|"warehouse"|"avatar"|"delete"|null;
 
 export function ShopsReplica(){
  const [shops,setShops]=useState(INITIAL);
- const [groups,setGroups]=useState(["家居组","百货组"]);
+ const [groups,setGroups]=useState(["家居组","百货组","数码组"]);
  const [filters,setFilters]=useState({group:"all",name:"",client:"",country:"all",status:"all"});
  const [applied,setApplied]=useState(filters);
  const [selected,setSelected]=useState<number[]>([]);
