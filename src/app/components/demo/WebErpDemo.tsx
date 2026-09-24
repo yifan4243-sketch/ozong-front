@@ -53,7 +53,6 @@ type ViewKey =
   | "extensions";
 
 const REAL_LOGO = "https://raw.githubusercontent.com/yifan4243-sketch/ozon-erp/dev-hotfix/frontend/public/logo.png";
-const REAL_AVATAR = "https://raw.githubusercontent.com/yifan4243-sketch/ozon-erp/dev-hotfix/frontend/public/default-user-avatar.png";
 
 const viewTitles: Record<ViewKey, string> = {
   dashboard: "概览",
@@ -190,7 +189,7 @@ function Sidebar({
       </nav>
       <div className="real-sidebar-footer">
         <div className="real-account-menu-wrap">
-          <button className="real-avatar-entry" onClick={() => setAccountOpen(!accountOpen)} aria-label="1234"><img src={REAL_AVATAR} alt="1234" /></button>
+          <button className="real-avatar-entry" onClick={() => setAccountOpen(!accountOpen)} aria-label="1234"><span className="real-avatar-robot"><RobotOutlined /></span></button>
           {accountOpen && <div className="real-account-dropdown">
             <div className="real-account-summary"><b>1234</b><span>剩余使用：330 天</span></div>
             <button onClick={() => { go("users"); setAccountOpen(false); }}><TeamOutlined /> 用户与额度</button>
