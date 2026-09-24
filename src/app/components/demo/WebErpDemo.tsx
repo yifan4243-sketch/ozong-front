@@ -210,6 +210,8 @@ export function WebErpDemo() {
   const [productsOpen, setProductsOpen] = useState(false);
   const [promoOpen, setPromoOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [rechargeOpen, setRechargeOpen] = useState(false);
+  const [rechargeCode, setRechargeCode] = useState("");
 
   const go = (next: ViewKey) => {
     setView(next);
@@ -277,7 +279,7 @@ export function WebErpDemo() {
             <div className="real-tabs-inner">
               <div className="real-tabs-scroll">
                 {tabs.map((tab) => (
-                  <button key={tab} className={`real-tab-item ${view === tab ? "active" : ""}`} onClick={() => setView(tab)}>
+                  <button key={tab} className={`real-tab-item ${view === tab ? "active" : ""}`} onClick={() => go(tab)}>
                     <span className="real-tab-dot"></span>
                     <span className="real-tab-title">{viewTitles[tab]}</span>
                     <span className="real-tab-close" onClick={(event) => { event.stopPropagation(); closeTab(tab); }}>×</span>
@@ -285,9 +287,23 @@ export function WebErpDemo() {
                 ))}
               </div>
               <div className="real-tabs-right">
-                <button className="real-membership-badge" onClick={() => go("membership")}>VIP　年卡会员(330天)</button>
-                <span className="real-credit-wallet">生图点数：<b>956</b></span>
-                <button className="real-recharge-btn" onClick={() => go("membership")}>充值</button>
+                <button className="real-membership-badge gold" onClick={() => go("membership")}>
+                  <span className="vip-mark">VIP</span>
+                  <span className="badge-label">年卡会员(330天)</span>
+                </button>
+                <div className="real-credit-wallet">
+                  <span className="real-credit-label">生图点数：<b>956</b></span>
+                  <div className="real-recharge-wrap">
+                    <button className="real-recharge-btn" onClick={() => setRechargeOpen(v => !v)}>充值</button>
+                    {rechargeOpen && <div className="real-recharge-pop">
+                      <div className="real-qr-demo" aria-label="充值二维码演示"><span>微信充值</span></div>
+                      <div className="real-recharge-tip">请添加管理员微信进行充值</div>
+                      <div className="real-recharge-rate">1人民币=10点生图点数</div>
+                      <input value={rechargeCode} onChange={e => setRechargeCode(e.target.value)} placeholder="生图充值激活码" />
+                      <button className="real-redeem-btn" onClick={() => { if (rechargeCode.trim()) { setRechargeCode(""); setRechargeOpen(false); } }}>确认兑换</button>
+                    </div>}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
