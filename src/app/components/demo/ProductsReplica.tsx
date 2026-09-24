@@ -5,7 +5,7 @@ import "./products-replica.css";
 
 type Status="销售中"|"准备出售"|"错误"|"已下架"|"已归档";
 type Product={id:number;name:string;offer:string;sku:string;commission:number;shop:string;status:Status;price:number;old:number;stock:number;weight:string;updated:string;icon:string};
-const INITIAL:Product[]=[
+const SEED_PRODUCTS:Product[]=[
 {id:1,name:"Органайзер для кухни многоярусный",offer:"DEMO-HOME-001",sku:"7714205101",commission:14,shop:"星桥家居",status:"销售中",price:899,old:1199,stock:42,weight:"620g",updated:"2026-09-24 10:42:18",icon:"🧺"},
 {id:2,name:"Набор вакуумных пакетов для хранения, 12 шт.",offer:"DEMO-HOME-002",sku:"7714205102",commission:14,shop:"星桥家居",status:"销售中",price:549,old:749,stock:76,weight:"380g",updated:"2026-09-24 10:35:06",icon:"📦"},
 {id:3,name:"Светодиодная настольная лампа с регулировкой",offer:"DEMO-DIGI-001",sku:"7714205201",commission:12,shop:"北辰数码",status:"销售中",price:1299,old:1599,stock:33,weight:"890g",updated:"2026-09-24 09:58:41",icon:"💡"},
@@ -15,6 +15,65 @@ const INITIAL:Product[]=[
 {id:7,name:"Электрический вспениватель молока USB",offer:"DEMO-STORE-002",sku:"7714205302",commission:12,shop:"远航百货",status:"已归档",price:389,old:499,stock:0,weight:"180g",updated:"2026-09-23 16:08:11",icon:"🥛"},
 {id:8,name:"Портативный увлажнитель воздуха USB",offer:"DEMO-STORE-003",sku:"7714205303",commission:13,shop:"远航百货",status:"已下架",price:599,old:799,stock:0,weight:"260g",updated:"2026-09-23 14:42:36",icon:"💧"}
 ];
+
+const PRODUCT_TARGETS:Record<Status,number>={"销售中":186,"准备出售":144,"错误":27,"已下架":31,"已归档":40};
+const PRODUCT_TEMPLATES=[
+  ["Настенная полка для ванной без сверления","🧴",14,799,999,46,"480g"],
+  ["Складной органайзер для одежды","📦",14,629,829,73,"520g"],
+  ["Ночник с датчиком движения USB","💡",12,429,569,55,"190g"],
+  ["Набор кухонных контейнеров, 6 шт.","🥡",14,949,1199,61,"760g"],
+  ["Автомобильный органайзер на сиденье","🚘",13,719,899,38,"430g"],
+  ["Набор кистей для рисования, 12 шт.","🖌️",14,359,459,84,"160g"],
+  ["Подставка для ноутбука складная","💻",12,1099,1399,27,"690g"],
+  ["Многоразовый ролик для удаления шерсти","🐾",14,329,449,96,"220g"],
+  ["Комплект дорожных косметичек","🧳",14,589,759,64,"310g"],
+  ["Настольный увлажнитель воздуха","💧",13,649,849,44,"280g"],
+  ["Набор силиконовых кухонных принадлежностей","🍳",14,879,1099,52,"830g"],
+  ["Органайзер для кабелей и зарядок","🔌",12,399,529,88,"170g"],
+] as const;
+const DEMO_SHOPS=["星桥家居","远航百货","北辰数码"] as const;
+
+function buildDemoProducts():Product[]{
+  const result=[...SEED_PRODUCTS];
+  let serial=1;
+  (Object.keys(PRODUCT_TARGETS) as Status[]).forEach(status=>{
+    const existing=result.filter(r=>r.status===status).length;
+    for(let i=existing;i<PRODUCT_TARGETS[status];i++){
+      const tpl=PRODUCT_TEMPLATES[(serial-1)%PRODUCT_TEMPLATES.length];
+      const variant=Math.floor((serial-1)/PRODUCT_TEMPLATES.length)+1;
+      const shop=DEMO_SHOPS[(serial-1)%DEMO_SHOPS.length];
+      const day=24-((serial-1)%20);
+      const hour=8+((serial*3)%11);
+      const minute=(serial*7)%60;
+      const price=tpl[3]+(variant%5)*30;
+      result.push({
+        id:SEED_PRODUCTS.length+serial,
+        name:`${tpl[0]} · вариант ${variant}`,
+        offer:`DEMO-GEN-${String(serial).padStart(4,"0")}`,
+        sku:String(7714210000+serial),
+        commission:tpl[2],
+        shop,
+        status,
+        price,
+        old:tpl[4]+(variant%4)*40,
+        stock:status==="已下架"||status==="已归档"?0:Math.max(1,tpl[5]-((serial*5)%31)),
+        weight:tpl[6],
+        updated:`2026-09-${String(day).padStart(2,"0")} ${String(hour).padStart(2,"0")}:${String(minute).padStart(2,"0")}:00`,
+        icon:tpl[1],
+      });
+      serial++;
+    }
+  });
+  return result;
+}
+const INITIAL:Product[]=buildDemoProducts();
+
+function pageItems(total:number,current:number):(number|"…")[]{
+  if(total<=7)return Array.from({length:total},(_,i)=>i+1);
+  if(current<=4)return [1,2,3,4,5,"…",total];
+  if(current>=total-3)return [1,"…",total-4,total-3,total-2,total-1,total];
+  return [1,"…",current-1,current,current+1,"…",total];
+}
 type ModalKind="sync"|"price"|"stock"|"promotion"|"repair"|"archive"|null;
 
 export function ProductsReplica(){
@@ -39,15 +98,23 @@ export function ProductsReplica(){
  const [pageSize,setPageSize]=useState(10);
  const [autoAction,setAutoAction]=useState(true);
  const flash=(t:string)=>{setToast(t);setTimeout(()=>setToast(""),1500)};
- const counts:Record<string,number>={所有:428,销售中:186,准备出售:144,错误:27,已下架:31,已归档:40};
- const visible=useMemo(()=>rows.filter(r=>{
-   if(status!=="所有"&&r.status!==status)return false;
+ const scoped=useMemo(()=>rows.filter(r=>{
    if(applied.shop!=="all"&&r.shop!==applied.shop)return false;
    const q=applied.search.trim().toLowerCase();if(q&&!r.name.toLowerCase().includes(q))return false;
    const o=applied.offer.trim().toLowerCase();if(o&&!r.offer.toLowerCase().includes(o)&&!r.sku.toLowerCase().includes(o))return false;
    return true;
- }),[rows,status,applied]);
- const all=visible.length>0&&visible.every(r=>selected.includes(r.id));
+ }),[rows,applied]);
+ const counts=useMemo<Record<string,number>>(()=>{
+   const out:Record<string,number>={所有:scoped.length,销售中:0,准备出售:0,错误:0,已下架:0,已归档:0};
+   scoped.forEach(r=>{out[r.status]=(out[r.status]||0)+1});
+   return out;
+ },[scoped]);
+ const visible=useMemo(()=>status==="所有"?scoped:scoped.filter(r=>r.status===status),[scoped,status]);
+ const totalPages=Math.max(1,Math.ceil(visible.length/pageSize));
+ const safePage=Math.min(page,totalPages);
+ const pagedRows=useMemo(()=>visible.slice((safePage-1)*pageSize,safePage*pageSize),[visible,safePage,pageSize]);
+ const pages=pageItems(totalPages,safePage);
+ const all=pagedRows.length>0&&pagedRows.every(r=>selected.includes(r.id));
  const openPrice=(id:number)=>{const r=rows.find(x=>x.id===id)!;setEditTarget(id);setPrice(r.price);setOldPrice(r.old);setModal("price")};
  const openStock=(id:number)=>{const r=rows.find(x=>x.id===id)!;setEditTarget(id);setStockValue(r.stock);setModal("stock")};
  const applyPrice=()=>{setRows(v=>v.map(r=>(editTarget?r.id===editTarget:selected.includes(r.id))?{...r,price,old:oldPrice}:r));setModal(null);setEditTarget(null);flash("价格修改已应用")};
@@ -71,8 +138,8 @@ export function ProductsReplica(){
    </div>
    <div className="product-status-source">{Object.entries(counts).map(([k,v])=><button key={k} className={status===k?"active":""} onClick={()=>{setStatus(k);setSelected([]);setPage(1)}}><span>{k}</span><b>{v}</b></button>)}</div>
    <div className="products-table-scroll-source"><div className="products-table-source">
-    <div className="products-row-source head"><span><input type="checkbox" checked={all} onChange={()=>setSelected(all?[]:visible.map(r=>r.id))}/></span><span>商品信息</span><span>类目佣金</span><span>店铺</span><span>状态</span><span>价格</span><span>库存</span><span>重量</span><span>更新时间</span><span>操作</span></div>
-    {visible.map(r=><div className={"products-row-source "+(selected.includes(r.id)?"selected":"")} key={r.id}>
+    <div className="products-row-source head"><span><input type="checkbox" checked={all} onChange={()=>setSelected(all?selected.filter(id=>!pagedRows.some(r=>r.id===id)):[...new Set([...selected,...pagedRows.map(r=>r.id)])])}/></span><span>商品信息</span><span>类目佣金</span><span>店铺</span><span>状态</span><span>价格</span><span>库存</span><span>重量</span><span>更新时间</span><span>操作</span></div>
+    {pagedRows.map(r=><div className={"products-row-source "+(selected.includes(r.id)?"selected":"")} key={r.id}>
       <span><input type="checkbox" checked={selected.includes(r.id)} onChange={()=>setSelected(v=>v.includes(r.id)?v.filter(x=>x!==r.id):[...v,r.id])}/></span>
       <span className="pi-source"><i>{r.icon}</i><b>{r.name}</b><small>货号 {r.offer}　·　SKU {r.sku}</small></span>
       <span className="commission-source"><em>佣金率:{r.commission}%</em><em>佣金:{(r.price*r.commission/100).toFixed(2)}元</em><em>收单:{(r.price*.01).toFixed(2)}元</em></span><span>{r.shop}</span>
@@ -82,7 +149,7 @@ export function ProductsReplica(){
       <span className="row-actions-source"><button className="edit" onClick={()=>openPrice(r.id)}>编辑</button><div className="dropdown-wrap"><button className="more" onClick={()=>setMoreId(moreId===r.id?null:r.id)}><MoreOutlined/></button>{moreId===r.id&&<div className="dropdown-menu-source row-menu">{r.status==="已归档"?<button onClick={()=>restore(r.id)}>恢复商品</button>:<button onClick={()=>{setMoreId(null);setSelected([r.id]);setModal("archive")}}>归档商品</button>}</div>}</div></span>
     </div>)}
    </div></div>
-   <footer className="products-pagination-source"><strong>共 {counts[status]||0} 条记录，当前页 {visible.length} 条记录</strong><div><button disabled={page<=1} onClick={()=>setPage(Math.max(1,page-1))}>‹</button>{[1,2,3,4,5].map(p=><button key={p} className={page===p?"active":""} onClick={()=>setPage(p)}>{p}</button>)}<span>…</span><button className={page===37?"active":""} onClick={()=>setPage(37)}>37</button><button disabled={page>=37} onClick={()=>setPage(Math.min(37,page+1))}>›</button><select value={pageSize} onChange={e=>{setPageSize(Number(e.target.value));setPage(1)}}><option value={10}>10 条/页</option><option value={20}>20 条/页</option><option value={50}>50 条/页</option></select></div></footer>
+   <footer className="products-pagination-source"><strong>共 {visible.length} 条记录，当前页 {pagedRows.length} 条记录</strong><div><button disabled={safePage<=1} onClick={()=>setPage(Math.max(1,safePage-1))}>‹</button>{pages.map((p,i)=>p==="…"?<span key={"dots-"+i}>…</span>:<button key={p} className={safePage===p?"active":""} onClick={()=>setPage(p)}>{p}</button>)}<button disabled={safePage>=totalPages} onClick={()=>setPage(Math.min(totalPages,safePage+1))}>›</button><select value={pageSize} onChange={e=>{setPageSize(Number(e.target.value));setPage(1)}}><option value={10}>10 条/页</option><option value={20}>20 条/页</option><option value={50}>50 条/页</option></select></div></footer>
   </section>
   <DemoModal open={modal==="sync"} title="选择同步店铺" width={420} onClose={()=>setModal(null)} onOk={()=>{setModal(null);flash("已提交 "+syncStores.length+" 个店铺同步任务")}} okText="确定同步"><div className="sync-store-list-source">{[{id:1,name:"星桥家居"},{id:2,name:"远航百货"},{id:3,name:"北辰数码"}].map(store=><label className={syncStores.includes(store.id)?"active":""} key={store.id}><input type="checkbox" checked={syncStores.includes(store.id)} onChange={()=>setSyncStores(v=>v.includes(store.id)?v.filter(x=>x!==store.id):[...v,store.id])}/><span><b>{store.name}</b><small>ozon</small></span></label>)}</div></DemoModal>
   <DemoModal open={modal==="price"} title="批量改价" width={520} onClose={()=>{setModal(null);setEditTarget(null)}} onOk={applyPrice} okText="确定修改"><div className="edit-grid-source"><label>售价<input type="number" value={price} onChange={e=>setPrice(Number(e.target.value))}/></label><label>划线价<input type="number" value={oldPrice} onChange={e=>setOldPrice(Number(e.target.value))}/></label><label>最低价<input placeholder="未设置"/></label><label>自动应用活动<button className={"mini-toggle "+(autoAction?"on":"")} onClick={()=>setAutoAction(!autoAction)}><i></i></button></label></div></DemoModal>
