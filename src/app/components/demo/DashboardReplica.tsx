@@ -213,12 +213,23 @@ export function DashboardReplica({go}:{go:(v:any)=>void}){
           </button>
         </section>
 
-        <section className="dash-stat-grid">
-          {stats.map((s,i)=><article key={s[0]}>
-            <div className="stat-main"><div><label>{s[0]}</label><strong>{s[1]}</strong></div><span className={s[4]}>{s[5]}</span></div>
-            <div className="stat-meta"><b>{s[2]}</b><span>{s[3]}</span></div>
+        <section className="dash-stat-grid" aria-label="核心指标">
+          {stats.map((s,i)=><article className="stat-card" key={s[0]}>
+            <div className="stat-main">
+              <div>
+                <div className="stat-label">{s[0]}</div>
+                <div className="stat-value">{s[1]}</div>
+              </div>
+              <div className={`stat-icon ${s[4]}`}>{s[5]}</div>
+            </div>
+            <div className="stat-meta">
+              <span className="stat-change">{s[2]}</span>
+              <span>{s[3]}</span>
+            </div>
             {i===4&&<div className="stat-extra">正常 1 / 异常 0</div>}
-            <svg viewBox="0 0 150 42" preserveAspectRatio="none"><path d={sparkPath([...s[7]])} fill="none" stroke={s[6]} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            <svg className="mini-chart" viewBox="0 0 150 42" preserveAspectRatio="none" aria-hidden="true">
+              <path d={sparkPath([...s[7]])} fill="none" stroke={s[6]} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
           </article>)}
         </section>
 
