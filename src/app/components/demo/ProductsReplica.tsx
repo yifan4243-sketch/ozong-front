@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { AppstoreOutlined, DeleteOutlined, DollarCircleOutlined, DownOutlined, EditOutlined, InboxOutlined, MoreOutlined, PictureOutlined, PlusOutlined, ReloadOutlined, SyncOutlined, TagOutlined, ToolOutlined } from "@ant-design/icons";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { AppstoreOutlined, CheckOutlined, DeleteOutlined, DollarCircleOutlined, DownOutlined, EditOutlined, InboxOutlined, MoreOutlined, PictureOutlined, PlusOutlined, ReloadOutlined, SyncOutlined, TagOutlined, ToolOutlined } from "@ant-design/icons";
 import { DemoModal, DemoToast } from "./ReplicaCommon";
 import "./products-replica.css";
 
@@ -74,6 +74,40 @@ function pageItems(total:number,current:number):(number|"…")[]{
   if(current>=total-3)return [1,"…",total-4,total-3,total-2,total-1,total];
   return [1,"…",current-1,current,current+1,"…",total];
 }
+const PRODUCT_SHOPS=[
+  {value:"星桥家居",label:"星桥家居"},
+  {value:"远航百货",label:"远航百货"},
+  {value:"北辰数码",label:"北辰数码"},
+] as const;
+
+function ProductShopSelect({value,onChange}:{value:string;onChange:(value:string)=>void}){
+  const [open,setOpen]=useState(false);
+  const rootRef=useRef<HTMLDivElement|null>(null);
+  useEffect(()=>{
+    const close=(event:MouseEvent)=>{
+      if(rootRef.current&&!rootRef.current.contains(event.target as Node))setOpen(false);
+    };
+    document.addEventListener("mousedown",close);
+    return ()=>document.removeEventListener("mousedown",close);
+  },[]);
+  const selected=PRODUCT_SHOPS.find(item=>item.value===value);
+  const choose=(next:string)=>{onChange(next);setOpen(false)};
+  return <div ref={rootRef} className={"product-shop-select-source "+(open?"open":"")}>
+    <button type="button" className="product-shop-select-trigger-source" aria-haspopup="listbox" aria-expanded={open} onClick={()=>setOpen(v=>!v)}>
+      <span className={selected?"":"placeholder"}>{selected?.label||"全部店铺"}</span>
+      <span className="product-shop-select-actions-source">
+        {selected&&<span className="product-shop-select-clear-source" title="清除" onMouseDown={e=>e.preventDefault()} onClick={e=>{e.stopPropagation();choose("all")}}>×</span>}
+        <DownOutlined className="product-shop-select-arrow-source"/>
+      </span>
+    </button>
+    {open&&<div className="product-shop-select-dropdown-source" role="listbox">
+      {PRODUCT_SHOPS.map(item=><button type="button" role="option" aria-selected={value===item.value} className={value===item.value?"selected":""} key={item.value} onClick={()=>choose(item.value)}>
+        <span>{item.label}</span>{value===item.value&&<CheckOutlined/>}
+      </button>)}
+    </div>}
+  </div>;
+}
+
 type ModalKind="sync"|"price"|"stock"|"promotion"|"repair"|"archive"|null;
 
 export function ProductsReplica(){
@@ -98,6 +132,13 @@ export function ProductsReplica(){
  const [pageSize,setPageSize]=useState(10);
  const [autoAction,setAutoAction]=useState(true);
  const flash=(t:string)=>{setToast(t);setTimeout(()=>setToast(""),1500)};
+ const onShopChange=(next:string)=>{
+   setShop(next);
+   setApplied(current=>({...current,shop:next}));
+   setPage(1);
+   setSelected([]);
+   setMoreId(null);
+ };
  const scoped=useMemo(()=>rows.filter(r=>{
    if(applied.shop!=="all"&&r.shop!==applied.shop)return false;
    const q=applied.search.trim().toLowerCase();if(q&&!r.name.toLowerCase().includes(q))return false;
@@ -126,9 +167,9 @@ export function ProductsReplica(){
  return <div className="products-page-source"><DemoToast text={toast}/>
   <section className="products-shell-source">
    <div className="product-filter-source">
-    <select value={shop} onChange={e=>setShop(e.target.value)}><option value="all">全部店铺</option><option value="星桥家居">星桥家居</option><option value="远航百货">远航百货</option><option value="北辰数码">北辰数码</option></select>
-    <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="搜索商品名称"/>
-    <input value={offer} onChange={e=>setOffer(e.target.value)} placeholder="输入货号或 SKU"/>
+    <ProductShopSelect value={shop} onChange={onShopChange}/>
+    <input className="product-search-input-source" value={search} onChange={e=>setSearch(e.target.value)} placeholder="搜索商品名称"/>
+    <input className="product-offer-input-source" value={offer} onChange={e=>setOffer(e.target.value)} placeholder="输入货号或 SKU"/>
     <span></span>
     <button className="primary" onClick={()=>{setApplied({shop,search,offer});setPage(1)}}>查询</button>
     <button className="create" onClick={()=>flash("已打开新建商品示例")}><PlusOutlined/> 新建商品</button>
