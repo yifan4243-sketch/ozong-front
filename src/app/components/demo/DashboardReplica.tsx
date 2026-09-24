@@ -76,8 +76,8 @@ function areaPath(points:{x:number;y:number;index:number}[]){
   return `${line} L${last.x.toFixed(1)} 282 L${first.x.toFixed(1)} 282 Z`;
 }
 function tickIndexes(length:number){
-  if(length<=7)return Array.from({length},(_,i)=>i);
-  return Array.from({length:7},(_,i)=>Math.round(i*(length-1)/6));
+  const step=Math.max(1,Math.ceil(length/7));
+  return Array.from({length},(_,i)=>i).filter((i)=>i%step===0||i===length-1);
 }
 
 function DemoSelect<T extends string|number>({
