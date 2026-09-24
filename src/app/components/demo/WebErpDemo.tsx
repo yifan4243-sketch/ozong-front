@@ -32,6 +32,7 @@ import { WatermarkReplica } from "./WatermarkReplica";
 import { MembershipReplica } from "./MembershipReplica";
 import { AccountReplica, UserCreditsReplica, ExtensionDevicesReplica } from "./SettingsReplicas";
 import "./web-erp-demo.css";
+import { ERP_LOGO_DATA_URI } from "./erp-logo-data";
 
 type ViewKey =
   | "dashboard"
@@ -52,7 +53,7 @@ type ViewKey =
   | "users"
   | "extensions";
 
-const REAL_LOGO = "https://raw.githubusercontent.com/yifan4243-sketch/ozon-erp/dev-hotfix/frontend/public/logo.png";
+const REAL_LOGO = ERP_LOGO_DATA_URI;
 const ERP_DESIGN_WIDTH = 1920;
 const ERP_DESIGN_HEIGHT = 869;
 
