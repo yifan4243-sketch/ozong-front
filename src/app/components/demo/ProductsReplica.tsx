@@ -3,8 +3,8 @@ import { AppstoreOutlined, CheckOutlined, DeleteOutlined, DollarCircleOutlined, 
 import { DemoModal, DemoToast } from "./ReplicaCommon";
 import "./products-replica.css";
 
-type Status="销售中"|"准备出售"|"错误"|"已下架"|"已归档";
-type Product={id:number;name:string;offer:string;sku:string;commission:number;shop:string;status:Status;price:number;old:number;stock:number;weight:string;updated:string;icon:string};
+export type Status="销售中"|"准备出售"|"错误"|"已下架"|"已归档";
+export type Product={id:number;name:string;offer:string;sku:string;commission:number;shop:string;status:Status;price:number;old:number;stock:number;weight:string;updated:string;icon:string};
 const SEED_PRODUCTS:Product[]=[
 {id:1,name:"Органайзер для кухни многоярусный",offer:"DEMO-HOME-001",sku:"7714205101",commission:14,shop:"星桥家居",status:"销售中",price:899,old:1199,stock:42,weight:"620g",updated:"2026-09-24 10:42:18",icon:"🧺"},
 {id:2,name:"Набор вакуумных пакетов для хранения, 12 шт.",offer:"DEMO-HOME-002",sku:"7714205102",commission:14,shop:"星桥家居",status:"销售中",price:549,old:749,stock:76,weight:"380g",updated:"2026-09-24 10:35:06",icon:"📦"},
@@ -66,7 +66,7 @@ function buildDemoProducts():Product[]{
   });
   return result;
 }
-const INITIAL:Product[]=buildDemoProducts();
+export const DEMO_PRODUCTS:Product[]=buildDemoProducts();
 
 function pageItems(total:number,current:number):(number|"…")[]{
   if(total<=7)return Array.from({length:total},(_,i)=>i+1);
@@ -108,10 +108,22 @@ function ProductShopSelect({value,onChange}:{value:string;onChange:(value:string
   </div>;
 }
 
-type ModalKind="sync"|"price"|"stock"|"promotion"|"repair"|"archive"|null;
+type ModalKind="sync"|"price"|"stock"|"repair"|"archive"|null;
 
-export function ProductsReplica(){
- const [rows,setRows]=useState(INITIAL);
+export function ProductsReplica({
+ rows:externalRows,
+ setRows:externalSetRows,
+ onEdit,
+ onPromotion,
+}:{
+ rows?:Product[];
+ setRows?:(value:Product[]|((prev:Product[])=>Product[]))=>void;
+ onEdit?:(product:Product)=>void;
+ onPromotion?:(products:Product[])=>void;
+}={}){
+ const [localRows,setLocalRows]=useState<Product[]>(()=>DEMO_PRODUCTS.map(r=>({...r})));
+ const rows=externalRows??localRows;
+ const setRows=externalSetRows??setLocalRows;
  const [status,setStatus]=useState("所有");
  const [shop,setShop]=useState("all");
  const [search,setSearch]=useState("");
@@ -131,6 +143,9 @@ export function ProductsReplica(){
  const [page,setPage]=useState(1);
  const [pageSize,setPageSize]=useState(10);
  const [autoAction,setAutoAction]=useState(true);
+ const [batchPriceRows,setBatchPriceRows]=useState<Array<{id:number;name:string;offer:string;sku:string;shop:string;icon:string;price:number;old:number;min:number;autoAction:"none"|"on"|"off"}>>([]);
+ const [batchStockRows,setBatchStockRows]=useState<Array<{id:number;name:string;offer:string;shop:string;icon:string;weight:string;stock:number;warehouse:string}>>([]);
+ const [repairMode,setRepairMode]=useState<"image"|"copy">("image");
  const flash=(t:string)=>{setToast(t);setTimeout(()=>setToast(""),1500)};
  const onShopChange=(next:string)=>{
    setShop(next);
@@ -156,14 +171,68 @@ export function ProductsReplica(){
  const pagedRows=useMemo(()=>visible.slice((safePage-1)*pageSize,safePage*pageSize),[visible,safePage,pageSize]);
  const pages=pageItems(totalPages,safePage);
  const all=pagedRows.length>0&&pagedRows.every(r=>selected.includes(r.id));
+ const selectedProducts=useMemo(()=>rows.filter(r=>selected.includes(r.id)),[rows,selected]);
+ const selectedStores=useMemo(()=>Array.from(new Set(selectedProducts.map(r=>r.shop))),[selectedProducts]);
+ const batchDisabled=selectedProducts.length===0||selectedStores.length!==1;
+ const batchDisabledReason=selectedProducts.length===0?"请先勾选商品":selectedStores.length!==1?"不同店铺的商品不可批量操作":"";
+ useEffect(()=>{if(batchDisabled)setBatchMenu(false)},[batchDisabled]);
  const openPrice=(id:number)=>{const r=rows.find(x=>x.id===id)!;setEditTarget(id);setPrice(r.price);setOldPrice(r.old);setModal("price")};
  const openStock=(id:number)=>{const r=rows.find(x=>x.id===id)!;setEditTarget(id);setStockValue(r.stock);setModal("stock")};
- const applyPrice=()=>{setRows(v=>v.map(r=>(editTarget?r.id===editTarget:selected.includes(r.id))?{...r,price,old:oldPrice}:r));setModal(null);setEditTarget(null);flash("价格修改已应用")};
- const applyStock=()=>{setRows(v=>v.map(r=>(editTarget?r.id===editTarget:selected.includes(r.id))?{...r,stock:stockValue}:r));setModal(null);setEditTarget(null);flash("库存修改已应用")};
- const archive=(ids:number[])=>{setRows(v=>v.map(r=>ids.includes(r.id)?{...r,status:"已归档"}:r));setSelected([]);setModal(null);flash("商品已归档")};
- const restore=(id:number)=>{setRows(v=>v.map(r=>r.id===id?{...r,status:"准备出售"}:r));setMoreId(null);flash("商品已恢复")};
- const doRepair=()=>{setModal(null);flash("已创建商品修复任务")};
- const refresh=()=>{setRows(INITIAL);setSelected([]);flash("在线商品已刷新")};
+ const ensureSingleStoreBatch=()=>{
+   if(!selectedProducts.length){flash("请先勾选商品");return false}
+   if(selectedStores.length!==1){flash("不同店铺的商品不可批量操作");return false}
+   return true;
+ };
+ const openBatchPrice=()=>{
+   if(!ensureSingleStoreBatch())return;
+   setBatchMenu(false);setEditTarget(null);
+   setBatchPriceRows(selectedProducts.map(r=>({id:r.id,name:r.name,offer:r.offer,sku:r.sku,shop:r.shop,icon:r.icon,price:r.price,old:r.old,min:Math.max(0,Math.round(r.price*.82)),autoAction:"none"})));
+   setModal("price");
+ };
+ const applyPrice=()=>{
+   if(editTarget){
+     setRows(v=>v.map(r=>r.id===editTarget?{...r,price,old:oldPrice,updated:"2026-09-25 15:31:00"}:r));
+     flash("价格修改已应用");
+   }else{
+     const updates=new Map(batchPriceRows.map(r=>[r.id,r]));
+     setRows(v=>v.map(r=>{const u=updates.get(r.id);return u?{...r,price:Number(u.price)||r.price,old:Number(u.old)||0,updated:"2026-09-25 15:31:00"}:r}));
+     flash(`已提交 ${batchPriceRows.length} 个商品的价格修改`);
+   }
+   setModal(null);setEditTarget(null);
+ };
+ const openBatchStock=()=>{
+   if(!ensureSingleStoreBatch())return;
+   setBatchMenu(false);setEditTarget(null);
+   setBatchStockRows(selectedProducts.map(r=>({id:r.id,name:r.name,offer:r.offer,shop:r.shop,icon:r.icon,weight:r.weight,stock:r.stock,warehouse:r.shop+"默认仓"})));
+   setStockValue(100);setModal("stock");
+ };
+ const applyStock=()=>{
+   if(editTarget){
+     setRows(v=>v.map(r=>r.id===editTarget?{...r,stock:stockValue,updated:"2026-09-25 15:31:00"}:r));
+     flash("库存修改已应用");
+   }else{
+     const updates=new Map(batchStockRows.map(r=>[r.id,r.stock]));
+     setRows(v=>v.map(r=>updates.has(r.id)?{...r,stock:Number(updates.get(r.id))||0,updated:"2026-09-25 15:31:00"}:r));
+     flash(`已提交 ${batchStockRows.length} 个商品的库存修改`);
+   }
+   setModal(null);setEditTarget(null);
+ };
+ const openBatchPromotion=()=>{
+   if(!ensureSingleStoreBatch())return;
+   setBatchMenu(false);
+   if(onPromotion)onPromotion(selectedProducts);
+   else flash(`已带入 ${selectedProducts.length} 个商品到促销管理`);
+ };
+ const archive=(ids:number[])=>{setRows(v=>v.map(r=>ids.includes(r.id)?{...r,status:"已归档",updated:"2026-09-25 15:31:00"}:r));setSelected([]);setModal(null);flash(`已归档 ${ids.length} 个商品`)};
+ const restore=(id:number)=>{setRows(v=>v.map(r=>r.id===id?{...r,status:"准备出售",updated:"2026-09-25 15:31:00"}:r));setMoreId(null);flash("商品已恢复")};
+ const openBatchRepair=(mode:"image"|"copy")=>{
+   if(!ensureSingleStoreBatch())return;
+   setBatchMenu(false);
+   if(mode==="copy"){flash(`已创建禁止复制修复任务：${selectedProducts.length} 个商品`);return}
+   setRepairMode(mode);setModal("repair");
+ };
+ const doRepair=()=>{setModal(null);flash(`已创建图片修复任务：${selectedProducts.length} 个商品`)};
+ const refresh=()=>{setRows(DEMO_PRODUCTS.map(r=>({...r})));setSelected([]);setPage(1);flash("在线商品已刷新")};
  return <div className="products-page-source"><DemoToast text={toast}/>
   <section className="products-shell-source">
    <div className="product-filter-source">
@@ -174,7 +243,14 @@ export function ProductsReplica(){
     <button className="primary" onClick={()=>{setApplied({shop,search,offer});setPage(1)}}>查询</button>
     <button className="create" onClick={()=>flash("已打开新建商品示例")}><PlusOutlined/> 新建商品</button>
     <div className="dropdown-wrap"><button onClick={()=>setSyncMenu(!syncMenu)}><SyncOutlined/> 同步操作 <DownOutlined/></button>{syncMenu&&<div className="dropdown-menu-source"><button onClick={()=>{setSyncMenu(false);setModal("sync")}}>同步所有商品</button><button disabled={!selected.length} onClick={()=>{setSyncMenu(false);flash("已同步所选 "+selected.length+" 个商品")}}>同步所选商品</button></div>}</div>
-    <div className="dropdown-wrap"><button disabled={!selected.length} onClick={()=>setBatchMenu(!batchMenu)}><AppstoreOutlined/> 批量操作 {selected.length?"("+selected.length+")":""} <DownOutlined/></button>{batchMenu&&selected.length>0&&<div className="dropdown-menu-source batch"><button onClick={()=>{setBatchMenu(false);setEditTarget(null);setPrice(200);setOldPrice(400);setModal("price")}}><DollarCircleOutlined/>批量改价</button><button onClick={()=>{setBatchMenu(false);setEditTarget(null);setStockValue(100);setModal("stock")}}><InboxOutlined/>批量改库存</button><button onClick={()=>{setBatchMenu(false);setModal("promotion")}}><TagOutlined/>批量促销</button><button onClick={()=>{setBatchMenu(false);setModal("archive")}}><InboxOutlined/>批量归档</button><button onClick={()=>{setBatchMenu(false);setModal("repair")}}><PictureOutlined/>修复图片</button><button onClick={()=>{setBatchMenu(false);setModal("repair")}}><ToolOutlined/>修复禁止复制</button></div>}</div>
+    <div className="dropdown-wrap batch-actions-wrap-source"><button title={batchDisabledReason} disabled={batchDisabled} onClick={()=>setBatchMenu(!batchMenu)}><AppstoreOutlined/> 批量操作 <DownOutlined/></button>{batchMenu&&!batchDisabled&&<div className="batch-actions-panel-source">
+      <button className="batch-action-item-source" onClick={openBatchPrice}><DollarCircleOutlined/><span>批量改价</span></button>
+      <button className="batch-action-item-source" onClick={openBatchStock}><InboxOutlined/><span>批量改库存</span></button>
+      <button className="batch-action-item-source" onClick={openBatchPromotion}><TagOutlined/><span>批量促销</span></button>
+      <button className="batch-action-item-source" onClick={()=>{setBatchMenu(false);setModal("archive")}}><InboxOutlined/><span>批量归档</span></button>
+      <button className="batch-action-item-source" onClick={()=>openBatchRepair("image")}><PictureOutlined/><span>修复图片</span></button>
+      <button className="batch-action-item-source" onClick={()=>openBatchRepair("copy")}><ToolOutlined/><span>修复禁止复制</span></button>
+    </div>}</div>
     <button className="square" onClick={refresh}><ReloadOutlined/></button>
    </div>
    <div className="product-status-source">{Object.entries(counts).map(([k,v])=><button key={k} className={status===k?"active":""} onClick={()=>{setStatus(k);setSelected([]);setPage(1)}}><span>{k}</span><b>{v}</b></button>)}</div>
@@ -187,16 +263,40 @@ export function ProductsReplica(){
       <span><i className={"product-status-chip "+(r.status==="销售中"?"green":r.status==="错误"?"red":"gray")}>{r.status}</i></span>
       <span className="price-source"><b>{r.price.toFixed(2)}元 <button onClick={()=>openPrice(r.id)}><EditOutlined/></button></b>{r.old>0&&<s>{r.old.toFixed(2)}元</s>}<em>不利价格指数</em></span>
       <span>{r.stock} <button className="inline" onClick={()=>openStock(r.id)}><EditOutlined/></button></span><span><b>{r.weight}</b></span><span>{r.updated.slice(0,10)}<small>{r.updated.slice(11)}</small></span>
-      <span className="row-actions-source"><button className="edit" onClick={()=>openPrice(r.id)}>编辑</button><div className="dropdown-wrap"><button className="more" onClick={()=>setMoreId(moreId===r.id?null:r.id)}><MoreOutlined/></button>{moreId===r.id&&<div className="dropdown-menu-source row-menu">{r.status==="已归档"?<button onClick={()=>restore(r.id)}>恢复商品</button>:<button onClick={()=>{setMoreId(null);setSelected([r.id]);setModal("archive")}}>归档商品</button>}</div>}</div></span>
+      <span className="row-actions-source"><button className="edit" onClick={()=>onEdit?onEdit(r):flash("已打开商品编辑页")}>{r.status==="错误"?"修复":"编辑"}</button><div className="dropdown-wrap"><button className="more" onClick={()=>setMoreId(moreId===r.id?null:r.id)}><MoreOutlined/></button>{moreId===r.id&&<div className="dropdown-menu-source row-menu">{r.status==="已归档"?<button onClick={()=>restore(r.id)}>恢复商品</button>:<button onClick={()=>{setMoreId(null);setSelected([r.id]);setModal("archive")}}>归档商品</button>}</div>}</div></span>
     </div>)}
    </div></div>
    <footer className="products-pagination-source"><strong>共 {visible.length} 条记录，当前页 {pagedRows.length} 条记录</strong><div><button disabled={safePage<=1} onClick={()=>setPage(Math.max(1,safePage-1))}>‹</button>{pages.map((p,i)=>p==="…"?<span key={"dots-"+i}>…</span>:<button key={p} className={safePage===p?"active":""} onClick={()=>setPage(p)}>{p}</button>)}<button disabled={safePage>=totalPages} onClick={()=>setPage(Math.min(totalPages,safePage+1))}>›</button><select value={pageSize} onChange={e=>{setPageSize(Number(e.target.value));setPage(1)}}><option value={10}>10 条/页</option><option value={20}>20 条/页</option><option value={50}>50 条/页</option></select></div></footer>
   </section>
   <DemoModal open={modal==="sync"} title="选择同步店铺" width={420} onClose={()=>setModal(null)} onOk={()=>{setModal(null);flash("已提交 "+syncStores.length+" 个店铺同步任务")}} okText="确定同步"><div className="sync-store-list-source">{[{id:1,name:"星桥家居"},{id:2,name:"远航百货"},{id:3,name:"北辰数码"}].map(store=><label className={syncStores.includes(store.id)?"active":""} key={store.id}><input type="checkbox" checked={syncStores.includes(store.id)} onChange={()=>setSyncStores(v=>v.includes(store.id)?v.filter(x=>x!==store.id):[...v,store.id])}/><span><b>{store.name}</b><small>ozon</small></span></label>)}</div></DemoModal>
-  <DemoModal open={modal==="price"} title="批量改价" width={520} onClose={()=>{setModal(null);setEditTarget(null)}} onOk={applyPrice} okText="确定修改"><div className="edit-grid-source"><label>售价<input type="number" value={price} onChange={e=>setPrice(Number(e.target.value))}/></label><label>划线价<input type="number" value={oldPrice} onChange={e=>setOldPrice(Number(e.target.value))}/></label><label>最低价<input placeholder="未设置"/></label><label>自动应用活动<button className={"mini-toggle "+(autoAction?"on":"")} onClick={()=>setAutoAction(!autoAction)}><i></i></button></label></div></DemoModal>
-  <DemoModal open={modal==="stock"} title="批量修改库存" width={650} onClose={()=>{setModal(null);setEditTarget(null)}} onOk={applyStock} okText="确定"><div className="stock-toolbar-source"><select><option>星桥家居默认仓</option><option>远航百货默认仓</option><option>北辰数码默认仓</option></select><input type="number" min="0" value={stockValue} onChange={e=>setStockValue(Number(e.target.value))}/><span>件</span></div></DemoModal>
-  <DemoModal open={modal==="promotion"} title="批量促销" width={620} onClose={()=>setModal(null)} onOk={()=>{setModal(null);flash("已进入促销参数设置")}} okText="下一步"><p className="modal-copy-source">已选 {selected.length} 个商品。选择活动后可继续填写活动价与库存。</p><select className="modal-select-source"><option>秋季超级大促</option><option>弹性促销</option></select></DemoModal>
+  <DemoModal open={modal==="price"} title={editTarget?"改价":"批量改价"} width={editTarget?520:1280} onClose={()=>{setModal(null);setEditTarget(null)}} onOk={applyPrice} okText={editTarget?"确定修改":"确定"}>
+    {editTarget?<div className="edit-grid-source"><label>售价<input type="number" value={price} onChange={e=>setPrice(Number(e.target.value))}/></label><label>划线价<input type="number" value={oldPrice} onChange={e=>setOldPrice(Number(e.target.value))}/></label><label>最低价<input placeholder="未设置"/></label><label>自动应用活动<button className={"mini-toggle "+(autoAction?"on":"")} onClick={()=>setAutoAction(!autoAction)}><i></i></button></label></div>:
+    <div className="batch-price-demo-source">
+      <div className="batch-modal-summary-source">已选 <b>{batchPriceRows.length}</b> 个商品 · {selectedStores[0]||"-"}</div>
+      <div className="batch-price-table-source">
+        <div className="batch-price-row-source head"><span>#</span><span>主图</span><span>商品信息</span><span>店铺</span><span>对手价</span><span>售价 *</span><span>划线价</span><span>最低价</span><span>自动应用活动</span></div>
+        {batchPriceRows.map((row,index)=><div className="batch-price-row-source" key={row.id}>
+          <span>{index+1}</span><span className="batch-thumb-source">{row.icon}</span><span><b>{row.name}</b><small>货号 {row.offer} · SKU {row.sku}</small></span><span>{row.shop}</span><span>¥{Math.max(1,row.price-35).toFixed(2)}</span>
+          <span><input type="number" value={row.price} onChange={e=>setBatchPriceRows(v=>v.map(x=>x.id===row.id?{...x,price:Number(e.target.value)}:x))}/></span>
+          <span><input type="number" value={row.old} onChange={e=>setBatchPriceRows(v=>v.map(x=>x.id===row.id?{...x,old:Number(e.target.value)}:x))}/></span>
+          <span><input type="number" value={row.min} onChange={e=>setBatchPriceRows(v=>v.map(x=>x.id===row.id?{...x,min:Number(e.target.value)}:x))}/></span>
+          <span><select value={row.autoAction} onChange={e=>setBatchPriceRows(v=>v.map(x=>x.id===row.id?{...x,autoAction:e.target.value as "none"|"on"|"off"}:x))}><option value="none">不修改</option><option value="on">开启</option><option value="off">关闭</option></select></span>
+        </div>)}
+      </div>
+    </div>}
+  </DemoModal>
+  <DemoModal open={modal==="stock"} title={editTarget?"修改库存":"批量修改库存"} width={editTarget?650:1280} onClose={()=>{setModal(null);setEditTarget(null)}} onOk={applyStock} okText="确定">
+    {editTarget?<div className="stock-toolbar-source"><select><option>{rows.find(r=>r.id===editTarget)?.shop||"星桥家居"}默认仓</option></select><input type="number" min="0" value={stockValue} onChange={e=>setStockValue(Number(e.target.value))}/><span>件</span></div>:
+    <div className="batch-stock-demo-source">
+      <div className="batch-stock-toolbar-demo-source"><span>批量设置</span><select><option>{selectedStores[0]||"演示店铺"}默认仓</option></select><span>库存数</span><input type="number" min="0" value={stockValue} onChange={e=>setStockValue(Number(e.target.value))}/><span>件</span><button onClick={()=>setBatchStockRows(v=>v.map(r=>({...r,stock:stockValue})))}>确定</button></div>
+      <div className="batch-stock-row-source head"><span>商品信息</span><span>店铺</span><span>仓库</span><span>库存数</span><span>重量</span><span>操作</span></div>
+      {batchStockRows.map(row=><div className="batch-stock-row-source" key={row.id}><span className="batch-stock-product-source"><i>{row.icon}</i><b>{row.name}</b><small>货号 {row.offer}</small></span><span>{row.shop}</span><span><select value={row.warehouse} onChange={e=>setBatchStockRows(v=>v.map(x=>x.id===row.id?{...x,warehouse:e.target.value}:x))}><option>{row.shop}默认仓</option><option>{row.shop}备用仓</option></select></span><span><input type="number" min="0" value={row.stock} onChange={e=>setBatchStockRows(v=>v.map(x=>x.id===row.id?{...x,stock:Number(e.target.value)}:x))}/> 件</span><span>{row.weight}</span><span><button className="batch-remove-row-source" onClick={()=>setBatchStockRows(v=>v.filter(x=>x.id!==row.id))}>删除</button></span></div>)}
+      <div className="batch-stock-tip-source">勾选数据中，已自动为您过滤出可设置库存的数据 <b>{batchStockRows.length}/{selected.length}</b></div>
+    </div>}
+  </DemoModal>
   <DemoModal open={modal==="archive"} title={"确认归档 "+selected.length+" 个商品？"} onClose={()=>setModal(null)} onOk={()=>archive(selected)} okText="确认归档" danger><p className="modal-copy-source">归档后商品将从当前销售列表移出，可在“已归档”状态中恢复。</p></DemoModal>
-  <DemoModal open={modal==="repair"} title="批量修复图片" width={700} onClose={()=>setModal(null)} onOk={doRepair} okText="确定修复"><p className="modal-copy-source">将对勾选的 {selected.length} 个商品执行修复任务。示例模式不会调用真实 Ozon API。</p></DemoModal>
+  <DemoModal open={modal==="repair"} title={repairMode==="image"?"批量修复图片":"批量修复禁止复制"} width={880} onClose={()=>setModal(null)} onOk={doRepair} okText="确定修复">
+    <div className="batch-repair-demo-source"><div className="batch-repair-summary-source"><PictureOutlined/><div><b>将对勾选商品执行图片修复</b><span>{selectedProducts.length} 个商品将被修复图片</span></div></div><div className="batch-repair-list-source">{selectedProducts.map(row=><div className="batch-repair-row-source" key={row.id}><i>{row.icon}</i><span><b>{row.name}</b><small>货号: {row.offer}　|　SKU: {row.sku}</small></span><em>{row.shop}</em></div>)}</div></div>
+  </DemoModal>
  </div>
 }
