@@ -215,6 +215,7 @@ export function WebErpDemo() {
   const [view, setView] = useState<ViewKey>("dashboard");
   const [products,setProducts]=useState<Product[]>(()=>DEMO_PRODUCTS.map(item=>({...item})));
   const [editingProductId,setEditingProductId]=useState<number|null>(null);
+  const [promotionPrefill,setPromotionPrefill]=useState<Product[]>([]);
   const [tabs, setTabs] = useState<ViewKey[]>(["dashboard"]);
   const [productsOpen, setProductsOpen] = useState(false);
   const [promoOpen, setPromoOpen] = useState(false);
@@ -273,7 +274,7 @@ export function WebErpDemo() {
         rows={products}
         setRows={setProducts}
         onEdit={(product)=>{setEditingProductId(product.id);go("productEdit")}}
-        onPromotion={()=>go("promoJoin")}
+        onPromotion={(items)=>{setPromotionPrefill(items);go("promoJoin")}}
       />;
       case "productEdit": return <ProductEditReplica
         product={products.find(item=>item.id===editingProductId)||null}
@@ -289,7 +290,7 @@ export function WebErpDemo() {
       case "listing": return <ListingView />;
       case "source1688": return <Source1688View />;
       case "orders": return <OrdersView />;
-      case "promoJoin": return <PromotionJoinView />;
+      case "promoJoin": return <PromotionJoinReplica prefillProducts={promotionPrefill} />;
       case "promoAuto": return <PromotionAutoView />;
       case "shops": return <ShopsView />;
       case "selection": return <SelectionView />;
