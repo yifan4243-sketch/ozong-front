@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
 import { DeleteOutlined, LinkOutlined, ReloadOutlined, UploadOutlined } from "@ant-design/icons";
 import { DemoModal, DemoToast } from "./ReplicaCommon";
+import { QuickListingReplica } from "./QuickListingReplica";
 import "./collection-replica.css";
 
-type Item={id:number;market:"ru"|"kz";sku:string;title:string;price:string;time:string;icon:string};
-const COLLECTION_SEEDS:Item[]=[
+export type CollectionItem={id:number;market:"ru"|"kz";sku:string;title:string;price:string;time:string;icon:string};
+const COLLECTION_SEEDS:CollectionItem[]=[
 {id:1,market:"ru",sku:"7815306101",title:"Органайзер для ванной настенный без сверления",price:"112,40 ¥",time:"2026-09-24 11:18:42",icon:"🧴"},
 {id:2,market:"ru",sku:"7815306102",title:"Ночник светодиодный с датчиком движения",price:"68,90 ¥",time:"2026-09-24 10:56:13",icon:"💡"},
 {id:3,market:"ru",sku:"7815306103",title:"Набор контейнеров для хранения продуктов, 6 шт.",price:"95,60 ¥",time:"2026-09-24 09:43:26",icon:"🥡"},
@@ -20,7 +21,7 @@ const COLLECTION_TITLES=[
 "Набор силиконовых кухонных принадлежностей",
 "Органайзер для кабелей и зарядных устройств",
 ] as const;
-function buildCollectionItems():Item[]{
+function buildCollectionItems():CollectionItem[]{
   const result=[...COLLECTION_SEEDS];
   for(let i=7;i<=24;i++){
     const idx=i-7;
@@ -38,13 +39,14 @@ function buildCollectionItems():Item[]{
   }
   return result;
 }
-const INITIAL:Item[]=buildCollectionItems();
+const INITIAL:CollectionItem[]=buildCollectionItems();
 
-export function CollectionReplica(){
+export function CollectionReplica({onEditListing}:{onEditListing?:(item:CollectionItem)=>void}={}){
  const [items,setItems]=useState(INITIAL);
  const [selected,setSelected]=useState<number[]>([]);
  const [deleteOpen,setDeleteOpen]=useState(false);
  const [opening,setOpening]=useState<number|null>(null);
+ const [listingItem,setListingItem]=useState<CollectionItem|null>(null);
  const [toast,setToast]=useState("");
  const all=items.length>0&&items.every(x=>selected.includes(x.id));
  const total=items.length;
@@ -52,7 +54,14 @@ export function CollectionReplica(){
  const toggle=(id:number)=>setSelected(v=>v.includes(id)?v.filter(x=>x!==id):[...v,id]);
  const remove=()=>{setItems(v=>v.filter(x=>!selected.includes(x.id)));setSelected([]);setDeleteOpen(false);flash("已删除采集箱记录")};
  const refresh=()=>{setItems(INITIAL);setSelected([]);flash("采集箱已刷新")};
- const listing=(id:number)=>{if(opening!==null)return;setOpening(id);window.setTimeout(()=>{setOpening(null);flash("已向 OzonG 插件发送上架请求")},900)};
+ const listing=(item:CollectionItem)=>{
+   if(opening!==null)return;
+   setOpening(item.id);
+   window.setTimeout(()=>{
+     setOpening(null);
+     setListingItem(item);
+   },320);
+ };
  return <div className="collection-page-source">
   <DemoToast text={toast}/>
   <section className="collection-panel-source">
@@ -71,11 +80,17 @@ export function CollectionReplica(){
       <span><input type="checkbox" checked={selected.includes(item.id)} onChange={()=>toggle(item.id)}/></span>
       <span className="product"><i>{item.icon}</i><b title={item.title}>{item.title}</b></span>
       <span>{item.sku}</span><span className="source">OZON <small>{item.market.toUpperCase()}</small></span><span>{item.time}</span><span className="price">{item.price}</span>
-      <span className="ops"><button onClick={()=>window.open(`https://www.ozon.ru/product/${item.sku}/`,"_blank","noopener,noreferrer")}><LinkOutlined/> 原链接</button><button className="primary" disabled={opening===item.id} onClick={()=>listing(item.id)}><UploadOutlined/> {opening===item.id?"打开中…":"上架"}</button></span>
+      <span className="ops"><button onClick={()=>window.open(`https://www.ozon.ru/product/${item.sku}/`,"_blank","noopener,noreferrer")}><LinkOutlined/> 原链接</button><button className="primary" disabled={opening===item.id} onClick={()=>listing(item)}><UploadOutlined/> {opening===item.id?"打开中…":"上架"}</button></span>
     </div>)}
    </div>
    
   </section>
+  {listingItem&&<QuickListingReplica
+    item={listingItem}
+    onClose={()=>setListingItem(null)}
+    onEdit={(item)=>{setListingItem(null);onEditListing?.(item)}}
+    onSubmitted={()=>flash("上架任务已创建")}
+  />}
   <DemoModal open={deleteOpen} title={`确认删除已选的 ${selected.length} 个采集商品？`} onClose={()=>setDeleteOpen(false)} onOk={remove} okText="确认删除" danger>
     <p className="collection-confirm-copy">只会删除 ERP 采集箱记录，不会影响 OZON 原商品或在线商品。</p>
   </DemoModal>
