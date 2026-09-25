@@ -22,6 +22,7 @@ import { DEMO_PRODUCTS, ProductsReplica } from "./ProductsReplica";
 import type { Product } from "./ProductsReplica";
 import { ProductEditReplica } from "./ProductEditReplica";
 import { CollectionReplica } from "./CollectionReplica";
+import type { CollectionItem } from "./CollectionReplica";
 import { ListingReplica } from "./ListingReplica";
 import { Source1688Replica } from "./Source1688Replica";
 import { OrdersReplica } from "./OrdersReplica";
@@ -63,7 +64,7 @@ const ERP_DESIGN_HEIGHT = 869;
 const viewTitles: Record<ViewKey, string> = {
   dashboard: "概览",
   products: "在线商品",
-  productEdit: "商品编辑",
+  productEdit: "AI编辑",
   collection: "采集箱",
   listing: "上架记录",
   source1688: "1688 → Ozon",
@@ -88,8 +89,6 @@ function PageFrame({ children, className = "" }: { children: ReactNode; classNam
 }
 
 function OnlineProductsView() { return <ProductsReplica />; }
-
-function CollectionView() { return <CollectionReplica />; }
 
 function ListingView() { return <ListingReplica />; }
 
@@ -286,7 +285,30 @@ export function WebErpDemo() {
           go("products");
         }}
       />;
-      case "collection": return <CollectionView />;
+      case "collection": return <CollectionReplica onEditListing={(item:CollectionItem)=>{
+        const existing=products.find(product=>product.sku===item.sku);
+        const id=existing?.id??900000+item.id;
+        if(!existing){
+          const sourcePrice=Number(item.price.replace(/[^\d,.]/g,"").replace(",", "."))||99;
+          setProducts(current=>[...current,{
+            id,
+            name:item.title,
+            offer:`COL-${item.sku}`,
+            sku:item.sku,
+            commission:14,
+            shop:"星桥家居",
+            status:"准备出售",
+            price:sourcePrice,
+            old:Number((sourcePrice*2).toFixed(2)),
+            stock:100,
+            weight:"500g",
+            updated:item.time,
+            icon:item.icon,
+          }]);
+        }
+        setEditingProductId(id);
+        go("productEdit");
+      }} />;
       case "listing": return <ListingView />;
       case "source1688": return <Source1688View />;
       case "orders": return <OrdersView />;
