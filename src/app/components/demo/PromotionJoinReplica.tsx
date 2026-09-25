@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { ReloadOutlined, SearchOutlined } from "@ant-design/icons";
 import { DemoModal, DemoToast } from "./ReplicaCommon";
+import type { Product } from "./ProductsReplica";
 import "./promotion-replica.css";
 
 type P={id:number;name:string;offer:string;sku:string;price:number;actionPrice:number;stock:number;icon:string;mode?:"AUTO"|"MANUAL"};
@@ -17,19 +18,22 @@ const PARTICIPATING:P[]=[
 {id:13,name:"Корзина для белья складная с ручками",offer:"DEMO-HOME-003",sku:"7714205103",price:1099,actionPrice:849,stock:12,icon:"🧺",mode:"AUTO"},
 ];
 
-export function PromotionJoinReplica(){
+export function PromotionJoinReplica({prefillProducts=[]}:{prefillProducts?:Product[]}={}){
+ const prefillRows:P[]=prefillProducts.map((item,index)=>({id:10000+item.id,name:item.name,offer:item.offer,sku:item.sku,price:item.price,actionPrice:Math.max(1,Math.round(item.price*.8)),stock:item.stock,icon:item.icon}));
+ const prefillIds=prefillRows.map(item=>item.id);
+ const initialCandidates=[...prefillRows,...CANDIDATES.filter(row=>!prefillRows.some(prefill=>prefill.offer===row.offer))];
  const [tab,setTab]=useState<"candidates"|"participating">("candidates");
  const [keyword,setKeyword]=useState("");
  const [applied,setApplied]=useState("");
- const [selected,setSelected]=useState<number[]>([]);
- const [candidates,setCandidates]=useState(CANDIDATES);
+ const [selected,setSelected]=useState<number[]>(prefillIds);
+ const [candidates,setCandidates]=useState(initialCandidates);
  const [participating,setParticipating]=useState(PARTICIPATING);
  const [joinOpen,setJoinOpen]=useState(false);
  const [edit,setEdit]=useState<P|null>(null);
  const [jobOpen,setJobOpen]=useState(false);
  const [jobPercent,setJobPercent]=useState(0);
  const [toast,setToast]=useState("");
- const [syncing,setSyncing]=useState(false); const [limit,setLimit]=useState(4);
+ const [syncing,setSyncing]=useState(false); const [limit,setLimit]=useState(Math.max(4,prefillIds.length));
  const flash=(t:string)=>{setToast(t);setTimeout(()=>setToast(""),1500)};
  const rows=tab==="candidates"?candidates:participating;
  const filtered=useMemo(()=>{const q=applied.toLowerCase();return !q?rows:rows.filter(r=>[r.name,r.offer,r.sku].some(x=>x.toLowerCase().includes(q)))},[rows,applied]);
@@ -48,7 +52,7 @@ export function PromotionJoinReplica(){
  return <div className="promotion-page-source"><DemoToast text={toast}/>
   <section className="promotion-panel-source">
     <header><h1>参加促销</h1><p>管理商品参加 Ozon 活动的关系；修改会先退出旧关系，再按新参数重新加入。</p></header>
-    <div className="promo-filter-source"><select><option>星桥家居</option><option>远航百货</option><option>北辰数码</option></select><select className="action"><option>Осенний буст продаж · DEMO</option><option>家居焕新周 · 演示活动</option></select><input value={keyword} onChange={e=>setKeyword(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"){setApplied(keyword);setLimit(4)}}} placeholder="商品名称 / 货号 / SKU"/><button className="primary" onClick={()=>{setApplied(keyword);setLimit(4)}}><SearchOutlined/> 查询</button><button disabled={syncing} onClick={()=>{setSyncing(true);setTimeout(()=>{setSyncing(false);flash("促销活动已同步")},700)}}><ReloadOutlined/> {syncing?"同步中…":"同步活动"}</button></div>
+    <div className="promo-filter-source"><select defaultValue={prefillProducts[0]?.shop||"星桥家居"}><option>星桥家居</option><option>远航百货</option><option>北辰数码</option></select><select className="action"><option>Осенний буст продаж · DEMO</option><option>家居焕新周 · 演示活动</option></select><input value={keyword} onChange={e=>setKeyword(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"){setApplied(keyword);setLimit(4)}}} placeholder="商品名称 / 货号 / SKU"/><button className="primary" onClick={()=>{setApplied(keyword);setLimit(4)}}><SearchOutlined/> 查询</button><button disabled={syncing} onClick={()=>{setSyncing(true);setTimeout(()=>{setSyncing(false);flash("促销活动已同步")},700)}}><ReloadOutlined/> {syncing?"同步中…":"同步活动"}</button></div>
     <div className="promo-tabs-source"><button className={tab==="candidates"?"active":""} onClick={()=>{setTab("candidates");setSelected([]);setLimit(4)}}>可参加商品</button><button className={tab==="participating"?"active":""} onClick={()=>{setTab("participating");setSelected([]);setLimit(4)}}>已参加商品</button></div>
     <div className="promo-actions-source"><span>已选 {selected.length} 项</span>{tab==="candidates"&&<button className="primary" disabled={!selected.length} onClick={()=>setJoinOpen(true)}>批量参加</button>}</div>
     <div className="promo-table-source"><div className={"promo-row-source head "+(tab==="participating"?"participating":"")}><span>{tab==="candidates"?<input type="checkbox" checked={all} onChange={()=>setSelected(all?[]:visible.map(r=>r.id))}/>:null}</span><span>商品</span><span>原价</span><span>{tab==="candidates"?"建议活动价":"活动价"}</span><span>库存</span>{tab==="participating"&&<span>加入方式</span>}<span>操作</span></div>
