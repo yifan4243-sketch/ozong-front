@@ -1,5 +1,5 @@
-import { useMemo, useState } from "react";
-import { CheckCircleOutlined, ReloadOutlined, RobotOutlined, SearchOutlined } from "@ant-design/icons";
+import { useState } from "react";
+import { CheckCircleOutlined, ReloadOutlined, SearchOutlined } from "@ant-design/icons";
 import type { Product } from "./ProductsReplica";
 import "./product-edit-replica.css";
 
@@ -37,7 +37,6 @@ export function ProductEditReplica({
     {name:"其他属性",score:30,max:30,tone:"green"},
   ];
   const next=Math.max(0,80-rating);
-  const filled=useMemo(()=>[title,brand,model,weight,depth,width,height,description,tags.length].filter(Boolean).length,[title,brand,model,weight,depth,width,height,description,tags]);
 
   if(!product){
     return <div className="ai-edit-replica-source empty"><div className="ai-edit-empty-source"><b>未找到商品资料</b><button onClick={onCancel}>返回商品列表</button></div></div>;
@@ -160,7 +159,6 @@ export function ProductEditReplica({
             </div>
             <div className="ai-rating-average-source">该类目商品的平均内容评级：<strong>66.2</strong>分</div>
           </section>
-          <section className="ai-rating-hint-source"><RobotOutlined/><div><b>已填写 {filled}/9 项</b><span>继续完善资料可提升内容评级。</span></div></section>
         </aside>
       </div>
       <div className="ai-edit-bottom-space-source"></div>
