@@ -14,7 +14,7 @@ export function ProductEditReplica({
 }){
   const [title,setTitle]=useState(product?.name||"");
   const [brand,setBrand]=useState("NO NAME");
-  const [model,setModel]=useState(product?."offer"||"");
+  const [model,setModel]=useState(product?.offer||"");
   const [weight,setWeight]=useState(product?parseInt(product.weight)||0:0);
   const [length,setLength]=useState(240);
   const [width,setWidth]=useState(180);
