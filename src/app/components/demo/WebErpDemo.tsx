@@ -18,7 +18,9 @@ import {
 } from "@ant-design/icons";
 import { AiWorkflowReplica } from "./AiWorkflowReplica";
 import { DashboardReplica } from "./DashboardReplica";
-import { ProductsReplica } from "./ProductsReplica";
+import { DEMO_PRODUCTS, ProductsReplica } from "./ProductsReplica";
+import type { Product } from "./ProductsReplica";
+import { ProductEditReplica } from "./ProductEditReplica";
 import { CollectionReplica } from "./CollectionReplica";
 import { ListingReplica } from "./ListingReplica";
 import { Source1688Replica } from "./Source1688Replica";
@@ -37,6 +39,7 @@ import { ERP_LOGO_DATA_URI } from "./erp-logo-data";
 type ViewKey =
   | "dashboard"
   | "products"
+  | "productEdit"
   | "collection"
   | "listing"
   | "source1688"
@@ -60,6 +63,7 @@ const ERP_DESIGN_HEIGHT = 869;
 const viewTitles: Record<ViewKey, string> = {
   dashboard: "概览",
   products: "在线商品",
+  productEdit: "商品编辑",
   collection: "采集箱",
   listing: "上架记录",
   source1688: "1688 → Ozon",
@@ -144,7 +148,7 @@ function Sidebar({
 }) {
   const [accountOpen, setAccountOpen] = useState(false);
   const [hoverGroup, setHoverGroup] = useState<"products"|"promo"|null>(null);
-  const productActive = ["products", "collection", "listing"].includes(view);
+  const productActive = ["products", "productEdit", "collection", "listing"].includes(view);
   const promoActive = ["promoJoin", "promoAuto"].includes(view);
   const itemClass = (key: ViewKey) => view === key ? "real-sidebar-item active" : "real-sidebar-item";
   return (
@@ -156,7 +160,7 @@ function Sidebar({
         <div className="real-menu-group-wrap" onMouseEnter={() => collapsed && setHoverGroup("products")} onMouseLeave={() => collapsed && setHoverGroup(null)}>
           <button className={`real-sidebar-item ${productActive ? "parent-active" : ""}`} onClick={() => { if (!collapsed) setProductsOpen(!productsOpen); }} title={collapsed ? "商品" : ""}><ShoppingOutlined /><span>商品</span>{productsOpen ? <DownOutlined /> : <RightOutlined />}</button>
           {productsOpen && !collapsed && <div className="real-sidebar-children">
-            <button className={view === "products" ? "active" : ""} onClick={() => go("products")}>商品管理</button>
+            <button className={view === "products" || view === "productEdit" ? "active" : ""} onClick={() => go("products")}>商品管理</button>
             <button className={view === "collection" ? "active" : ""} onClick={() => go("collection")}>采集箱</button>
             <button className={view === "listing" ? "active" : ""} onClick={() => go("listing")}>上架记录</button>
           </div>}
@@ -209,6 +213,8 @@ function Sidebar({
 
 export function WebErpDemo() {
   const [view, setView] = useState<ViewKey>("dashboard");
+  const [products,setProducts]=useState<Product[]>(()=>DEMO_PRODUCTS.map(item=>({...item})));
+  const [editingProductId,setEditingProductId]=useState<number|null>(null);
   const [tabs, setTabs] = useState<ViewKey[]>(["dashboard"]);
   const [productsOpen, setProductsOpen] = useState(false);
   const [promoOpen, setPromoOpen] = useState(false);
@@ -242,7 +248,7 @@ export function WebErpDemo() {
       setProductsOpen(false);
       setPromoOpen(false);
     } else {
-      if (["products", "collection", "listing"].includes(next)) setProductsOpen(true);
+      if (["products", "productEdit", "collection", "listing"].includes(next)) setProductsOpen(true);
       if (["promoJoin", "promoAuto"].includes(next)) setPromoOpen(true);
     }
   };
@@ -263,7 +269,22 @@ export function WebErpDemo() {
   const renderView = () => {
     switch (view) {
       case "dashboard": return <DashboardView go={go} />;
-      case "products": return <OnlineProductsView />;
+      case "products": return <ProductsReplica
+        rows={products}
+        setRows={setProducts}
+        onEdit={(product)=>{setEditingProductId(product.id);go("productEdit")}}
+        onPromotion={()=>go("promoJoin")}
+      />;
+      case "productEdit": return <ProductEditReplica
+        product={products.find(item=>item.id===editingProductId)||null}
+        onCancel={()=>go("products")}
+        onSave={(patch)=>{
+          if(editingProductId!==null){
+            setProducts(current=>current.map(item=>item.id===editingProductId?{...item,...patch}:item));
+          }
+          go("products");
+        }}
+      />;
       case "collection": return <CollectionView />;
       case "listing": return <ListingView />;
       case "source1688": return <Source1688View />;
