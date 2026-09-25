@@ -33,8 +33,8 @@ function buildRows(item:CollectionItem):ListingRow[]{
     sourcePrice:Number((source+index*7.4).toFixed(2)),
     selected:index===0,
     offer:`ozg-${item.sku.slice(-6)}-${String(index+1).padStart(2,"0")}`,
-    price:index===0?source.toFixed(1):"",
-    oldPrice:index===0?(source*2).toFixed(1):"",
+    price:"",
+    oldPrice:"",
   }));
 }
 
