@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { DeleteOutlined, LinkOutlined, ReloadOutlined, UploadOutlined } from "@ant-design/icons";
 import { DemoModal, DemoToast } from "./ReplicaCommon";
 import { QuickListingReplica } from "./QuickListingReplica";
