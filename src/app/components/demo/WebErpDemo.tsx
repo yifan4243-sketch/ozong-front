@@ -61,6 +61,22 @@ const REAL_LOGO = ERP_LOGO_DATA_URI;
 const ERP_DESIGN_WIDTH = 1920;
 const ERP_DESIGN_HEIGHT = 869;
 
+const PLUGIN_EDIT_PRODUCT:Product={
+  id:990001,
+  name:"Термоэтикетки 40x30 мм ТОП (1 рулон на 1000 эт.)",
+  offer:"OZG-1825601210",
+  sku:"1825601210",
+  commission:14,
+  shop:"星桥家居",
+  status:"准备出售",
+  price:242,
+  old:951,
+  stock:100,
+  weight:"515g",
+  updated:"2026-09-26 14:36:00",
+  icon:"🏷️",
+};
+
 const viewTitles: Record<ViewKey, string> = {
   dashboard: "概览",
   products: "在线商品",
@@ -212,8 +228,8 @@ function Sidebar({
 
 export function WebErpDemo({ initialView = "dashboard" }: { initialView?: ViewKey }) {
   const [view, setView] = useState<ViewKey>(initialView);
-  const [products,setProducts]=useState<Product[]>(()=>DEMO_PRODUCTS.map(item=>({...item})));
-  const [editingProductId,setEditingProductId]=useState<number|null>(()=>initialView==="productEdit"?(DEMO_PRODUCTS[0]?.id??null):null);
+  const [products,setProducts]=useState<Product[]>(()=>initialView==="productEdit"?[PLUGIN_EDIT_PRODUCT,...DEMO_PRODUCTS.map(item=>({...item}))]:DEMO_PRODUCTS.map(item=>({...item})));
+  const [editingProductId,setEditingProductId]=useState<number|null>(()=>initialView==="productEdit"?PLUGIN_EDIT_PRODUCT.id:null);
   const [promotionPrefill,setPromotionPrefill]=useState<Product[]>([]);
   const [tabs, setTabs] = useState<ViewKey[]>([initialView]);
   const [productsOpen, setProductsOpen] = useState(["products","productEdit","collection","listing"].includes(initialView));
