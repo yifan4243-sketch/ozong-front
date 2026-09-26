@@ -92,7 +92,7 @@ export function Hero() {
                 type="button"
                 onClick={() => {
                   setDemoMode("plugin");
-                  setPluginMenuOpen((open) => !open);
+                  setPluginMenuOpen(true);
                 }}
                 className={`flex h-8 items-center gap-2 rounded-lg px-4 text-sm font-medium transition-all ${
                   demoMode === "plugin"
@@ -108,13 +108,11 @@ export function Hero() {
                 <ChevronDown className={`h-3.5 w-3.5 transition-transform ${pluginMenuOpen ? "rotate-180" : ""}`} />
               </button>
 
+              {pluginMenuOpen && (
               <div
-                className={`absolute left-0 top-full z-[500] w-44 pt-2 transition-all duration-150 ${
-                  pluginMenuOpen
-                    ? "visible pointer-events-auto translate-y-0 opacity-100"
-                    : "invisible pointer-events-none -translate-y-1 opacity-0"
-                }`}
+                className="absolute left-0 top-full z-[9999] w-44 pt-2"
                 role="menu"
+                style={{ isolation: "isolate" }}
               >
                 <div className="overflow-hidden rounded-xl border border-border/80 bg-background p-1.5 shadow-xl">
                   {[
@@ -147,6 +145,7 @@ export function Hero() {
                   })}
                 </div>
               </div>
+              )}
             </div>
           </div>
         </div>
