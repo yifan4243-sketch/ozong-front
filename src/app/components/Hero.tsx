@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { Button } from "./ui/button";
 import { Play, Brain, Zap, Monitor, Puzzle, Home, Store, PackageSearch, ChevronDown } from "lucide-react";
 import { WebErpDemo } from "./demo/WebErpDemo";
@@ -11,54 +11,6 @@ export function Hero() {
   const [pluginPage, setPluginPage] = useState<"home" | "store" | "product">("home");
   const [pluginMenuOpen, setPluginMenuOpen] = useState(false);
   const [erpInitialView, setErpInitialView] = useState<"dashboard" | "productEdit">("dashboard");
-  const demoZoneRef = useRef<HTMLDivElement | null>(null);
-  const demoCursorRef = useRef<HTMLDivElement | null>(null);
-
-  useEffect(() => {
-    const zone = demoZoneRef.current;
-    const cursor = demoCursorRef.current;
-    if (!zone || !cursor || window.matchMedia("(pointer: coarse)").matches) return;
-
-    let x = -80;
-    let y = -80;
-    let frame = 0;
-
-    const paint = () => {
-      cursor.style.transform = `translate3d(${x - 2}px, ${y - 2}px, 0)`;
-      frame = 0;
-    };
-
-    const onMove = (event: PointerEvent) => {
-      x = event.clientX;
-      y = event.clientY;
-      if (!frame) frame = window.requestAnimationFrame(paint);
-    };
-
-    const onOver = (event: PointerEvent) => {
-      const target = event.target as Element | null;
-      if (!target) return;
-      const textTarget = target.closest('input:not([type="checkbox"]):not([type="radio"]), textarea');
-      const actionTarget = target.closest('button, a, select, [role="button"], input[type="checkbox"], input[type="radio"], label');
-      cursor.dataset.mode = textTarget ? "text" : actionTarget ? "action" : "arrow";
-    };
-
-    const onEnter = () => { cursor.style.opacity = "1"; };
-    const onLeave = () => { cursor.style.opacity = "0"; };
-
-    zone.addEventListener("pointermove", onMove, { passive: true });
-    zone.addEventListener("pointerover", onOver, { passive: true });
-    zone.addEventListener("pointerenter", onEnter, { passive: true });
-    zone.addEventListener("pointerleave", onLeave, { passive: true });
-
-    return () => {
-      zone.removeEventListener("pointermove", onMove);
-      zone.removeEventListener("pointerover", onOver);
-      zone.removeEventListener("pointerenter", onEnter);
-      zone.removeEventListener("pointerleave", onLeave);
-      if (frame) window.cancelAnimationFrame(frame);
-    };
-  }, []);
-
   return (
     <section id="top" className="py-20 lg:py-32 bg-gradient-to-b from-background to-muted/30">
       <div className="container mx-auto max-w-6xl px-4">
@@ -113,27 +65,19 @@ export function Hero() {
 
       <div
         id="web-erp-demo"
-        ref={demoZoneRef}
         className="demo-morph-zone mt-20 px-2 md:px-4 scroll-mt-24"
       >
-        <div ref={demoCursorRef} className="demo-morph-cursor" data-mode="arrow" aria-hidden="true">
-          <svg className="demo-morph-cursor-arrow" viewBox="0 0 24 30">
-            <path d="M2.2 1.8L20.5 14.4L12.2 16L9 23.2L6.9 17.6L3.2 21.2Z"/>
-          </svg>
-          <span className="demo-morph-cursor-ibeam" />
-        </div>
         <style>{`
-          .demo-morph-zone,.demo-morph-zone *{cursor:none!important}
-          .demo-morph-cursor{position:fixed;left:0;top:0;z-index:2147483647;width:24px;height:30px;pointer-events:none;opacity:0;transform:translate3d(-80px,-80px,0);will-change:transform,opacity;transition:opacity .1s ease}
-          .demo-morph-cursor-arrow{display:block;width:24px;height:30px;overflow:visible;transform-origin:3px 3px;transition:transform .12s cubic-bezier(.2,.8,.2,1),filter .12s ease;filter:drop-shadow(0 1px 1px rgba(15,23,42,.18)) drop-shadow(0 3px 5px rgba(15,23,42,.16))}
-          .demo-morph-cursor-arrow path{fill:#07090d;stroke:rgba(255,255,255,.98);stroke-width:.9;stroke-linejoin:round;stroke-linecap:round}
-          .demo-morph-cursor[data-mode="action"] .demo-morph-cursor-arrow{transform:scale(1.08);filter:drop-shadow(0 3px 6px rgba(15,23,42,.25))}
-          .demo-morph-cursor-ibeam{display:none;position:absolute;left:9px;top:1px;width:3px;height:25px;border-radius:99px;background:#090b10;box-shadow:0 0 0 .7px rgba(255,255,255,.75)}
-          .demo-morph-cursor-ibeam:before,.demo-morph-cursor-ibeam:after{content:"";position:absolute;left:-4px;width:11px;height:2px;border-radius:99px;background:#090b10}
-          .demo-morph-cursor-ibeam:before{top:0}.demo-morph-cursor-ibeam:after{bottom:0}
-          .demo-morph-cursor[data-mode="text"] .demo-morph-cursor-arrow{display:none}
-          .demo-morph-cursor[data-mode="text"] .demo-morph-cursor-ibeam{display:block}
-          @media (pointer:coarse){.demo-morph-zone,.demo-morph-zone *{cursor:auto!important}.demo-morph-cursor{display:none!important}}
+          .demo-morph-zone,.demo-morph-zone *{
+            cursor:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%2720%27%20height%3D%2728%27%20viewBox%3D%270%200%2020%2028%27%3E%3Cpath%20d%3D%27M2%201.5L17%2014L10.8%2015L7.4%2023.5L5.8%2017L2.8%2020.5Z%27%20fill%3D%27%2307090d%27%20stroke%3D%27white%27%20stroke-width%3D%271.1%27%20stroke-linejoin%3D%27round%27/%3E%3C/svg%3E") 2 2, default!important;
+          }
+          .demo-morph-zone input:not([type="checkbox"]):not([type="radio"]),
+          .demo-morph-zone textarea{
+            cursor:text!important;
+          }
+          @media (pointer:coarse){
+            .demo-morph-zone,.demo-morph-zone *{cursor:auto!important}
+          }
         `}</style>
         <div className="relative z-[10000] mx-auto mb-3 flex w-[min(1500px,calc(100vw-36px))] items-center justify-start overflow-visible">
           <div className="relative inline-flex h-10 items-center overflow-visible rounded-xl border border-border/70 bg-background/95 p-1 shadow-sm">
