@@ -89,8 +89,8 @@ export function Hero() {
         <style>{`
           .demo-morph-zone,.demo-morph-zone *{cursor:none!important}
           .demo-morph-cursor{position:fixed;left:-80px;top:-80px;z-index:2147483647;pointer-events:none;opacity:0;background:#050505;will-change:left,top,width,height,transform;transition:width .12s ease,height .12s ease,opacity .12s ease,filter .12s ease}
-          .demo-morph-cursor[data-mode="arrow"]{width:17px;height:22px;border-radius:0;clip-path:polygon(0 0,0 100%,100% 48%);transform:translate(-2px,-2px);filter:drop-shadow(0 1px 1px rgba(0,0,0,.16))}
-          .demo-morph-cursor[data-mode="action"]{width:21px;height:27px;border-radius:0;clip-path:polygon(0 0,0 100%,100% 48%);transform:translate(-2px,-2px);filter:drop-shadow(0 2px 2px rgba(0,0,0,.2))}
+          .demo-morph-cursor[data-mode="arrow"]{width:18px;height:22px;border-radius:0;clip-path:polygon(0 0,100% 64%,56% 100%);transform:translate(-2px,-2px);filter:drop-shadow(0 1px 1px rgba(0,0,0,.16))}
+          .demo-morph-cursor[data-mode="action"]{width:21px;height:26px;border-radius:0;clip-path:polygon(0 0,100% 64%,56% 100%);transform:translate(-2px,-2px);filter:drop-shadow(0 2px 2px rgba(0,0,0,.2))}
           .demo-morph-cursor[data-mode="text"]{width:3px;height:26px;border-radius:3px;clip-path:none;transform:translate(-50%,-50%)}
           @media (pointer:coarse){.demo-morph-zone,.demo-morph-zone *{cursor:auto!important}.demo-morph-cursor{display:none!important}}
         `}</style>
