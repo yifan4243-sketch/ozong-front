@@ -78,7 +78,7 @@ export function PluginControlDrawer({
         </div>
       </header>
       {!collapsed&&<div className="op-drawer-body">
-        <button className="op-action-primary" onClick={()=>setNotice({text:"Demo：真实插件会在新标签页打开 Ozon Seller。"})}>打开 Ozon Seller</button>
+        <button className="op-action-primary" onClick={()=>{window.open("https://seller.ozon.ru/","_blank","noopener,noreferrer");setNotice({text:"已请求打开 Ozon Seller 新标签页。"})}}>打开 Ozon Seller</button>
         <button className="op-action-secondary" onClick={()=>setNotice({text:"Seller Cookie 已绑定（18 项）",tone:"success"})}>绑定 Cookie</button>
 
         <small>效率工具</small>
