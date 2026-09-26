@@ -5,7 +5,6 @@ import {
   Heart,
   Menu,
   Search,
-  Settings,
   ShoppingCart,
   SlidersHorizontal,
   Sparkles,
@@ -87,6 +86,7 @@ const EMOJIS=["🧴","☕","🪒","🧯","📄","🧻","🖌️","📃","🏷️
 const TONES=["#fbe3e8","#efe8df","#dce8ff","#fde6d1","#e7f6ed","#fff2c9","#e9e5ff","#e2f1f7","#f7dfd5","#e5efe7"];
 
 function rub(value:number){return new Intl.NumberFormat("ru-RU").format(Math.round(value))+" ₽";}
+function cny(valueRub:number){return "¥"+new Intl.NumberFormat("zh-CN").format(Math.round(valueRub*.087));}
 function pct(value:number){return (Math.round(value*100)/100).toFixed(value%1?2:0)+"%";}
 
 function buildProduct(index:number):DemoProduct{
@@ -114,12 +114,12 @@ function buildProduct(index:number):DemoProduct{
     commission:isEmpty?unavailable:`${commissionA}% · ${commissionB}% · ${commissionC}%`,
     sku:isEmpty?String(119820000+index*913):String(119820000+index*913),
     brand:isEmpty?unavailable:brand,
-    monthlySales:isEmpty?unavailable:maybe(new Intl.NumberFormat("ru-RU").format(monthlySales),1),
-    monthlyGmv:isEmpty?unavailable:maybe(rub(monthlyGmv),2),
+    monthlySales:isEmpty?unavailable:maybe(new Intl.NumberFormat("zh-CN").format(monthlySales)+" 件",1),
+    monthlyGmv:isEmpty?unavailable:maybe(cny(monthlyGmv),2),
     salesDynamics:isEmpty?unavailable:maybe((index%3===0?"+":"-")+pct(2.4+(index%9)*4.15),3),
     dailySales:isEmpty?unavailable:maybe((monthlySales/30).toFixed(1),4),
-    dailyRevenue:isEmpty?unavailable:maybe(rub(monthlyGmv/30),5),
-    averagePrice:isEmpty?unavailable:maybe(rub(price+((index%4)-2)*17),6),
+    dailyRevenue:isEmpty?unavailable:maybe(cny(monthlyGmv/30),5),
+    averagePrice:isEmpty?unavailable:maybe(cny(price+((index%4)-2)*17),6),
     adRate:isEmpty?unavailable:maybe(pct(1.5+(index%8)*3.11),7),
     promoDays:isEmpty?unavailable:maybe(String(index%29),8),
     promoDiscount:isEmpty?unavailable:maybe(pct(5+(index%7)*6.8),9),
@@ -138,8 +138,8 @@ function buildProduct(index:number):DemoProduct{
     weight:isEmpty?unavailable:maybe(`${52+(index*47)%1180} g`,21),
     createDate:isEmpty?unavailable:maybe(`2026-${String(1+(index%8)).padStart(2,"0")}-${String(5+(index*3)%24).padStart(2,"0")}（${createDays}天）`,22),
     sellerCount:sellerCount===null?unavailable:sellerCount===0?"无跟卖":String(sellerCount),
-    followMinPrice:sellerCount===null?unavailable:sellerCount===0?"—":rub(Number(minFollow)),
-    followMaxPrice:sellerCount===null?unavailable:sellerCount===0?"—":rub(Number(maxFollow)),
+    followMinPrice:sellerCount===null?unavailable:sellerCount===0?"—":cny(Number(minFollow)),
+    followMaxPrice:sellerCount===null?unavailable:sellerCount===0?"—":cny(Number(maxFollow)),
   };
   return {
     id,title:NAMES[index],price,oldPrice,discount:Math.round((1-price/oldPrice)*100),
@@ -173,6 +173,27 @@ function ProductVisual({product}:{product:DemoProduct}){
   </div>;
 }
 
+function intelTone(key:DemoFieldKey,value:string){
+  if(value==="暂无数据"||value==="—"||value==="无跟卖") return "tone-muted";
+  if(["sku","brand","monthlySales","monthlyGmv","dailySales","dailyRevenue","promoConversion","paidPromotionDays","paidBuyers","delivery","sellerCount"].includes(key)) return "tone-primary";
+  if(["followMinPrice","followMaxPrice"].includes(key)) return "tone-negative";
+  if(key==="salesDynamics") return value.startsWith("+")?"tone-positive":value.startsWith("-")?"tone-negative":"tone-muted";
+  if(key==="adRate"){
+    const n=Number.parseFloat(value);
+    return Number.isFinite(n)&&n>15?"tone-negative":"tone-positive";
+  }
+  if(key==="returnRate"){
+    const n=Number.parseFloat(value);
+    return Number.isFinite(n)&&n>10?"tone-negative":"tone-positive";
+  }
+  if(key==="clickThroughRate"){
+    const n=Number.parseFloat(value);
+    return Number.isFinite(n)&&n>3?"tone-positive":"tone-negative";
+  }
+  if(key==="createDate") return "tone-positive";
+  return "";
+}
+
 function IntelCard({
   product,
   visibleFields,
@@ -186,42 +207,49 @@ function IntelCard({
   const [highlight,setHighlight]=useState(false);
   const [showSellers,setShowSellers]=useState(false);
 
-  return <div className={"auto-ozon-intel-card "+(highlight?"highlighted ":"")+(product.status==="empty"?"empty":"")}>
+  return <section className={"auto-ozon-intel-card "+(highlight?"highlighted ":"")+(product.status==="empty"?"empty":"")}>
     <div className="auto-ozon-head">
-      <div className="auto-ozon-brand"><span>✦</span><strong>Auto OZON</strong></div>
-      <div className="auto-ozon-actions">
-        {product.status==="partial"&&<em>部分数据</em>}
-        {product.status==="empty"&&<em>暂无数据</em>}
-        <button className={selected?"done":""} title="加入 ERP 选品池" onClick={()=>setSelected(v=>!v)}>{selected?"✓":"＋"}</button>
-        <button className={highlight?"active":""} title="设置卡片高亮条件" onClick={()=>setHighlight(v=>!v)}>⚠</button>
-        <button title="选择显示字段" onClick={onSettings}><Settings size={12}/></button>
-      </div>
+      <span className="auto-ozon-brand-logo" aria-label="Auto OZON">
+        <span className="auto-ozon-brand-mark-frame"><img className="auto-ozon-brand-mark" src="/auto-ozon/Auto_ozon2.png" alt=""/></span>
+        <span className="auto-ozon-brand-word-frame"><img className="auto-ozon-brand-word" src="/auto-ozon/Auto_ozon1.png" alt="Auto OZON"/></span>
+      </span>
+      <span className="auto-ozon-actions">
+        {product.status==="partial"&&<span className="intel-badge tone-warning">部分数据</span>}
+        {product.status==="empty"&&<span className="intel-badge tone-muted">暂无数据</span>}
+        <button className={"tool-button selection-button "+(selected?"done":"")} title="加入 ERP 选品池" onClick={()=>setSelected(v=>!v)}>{selected?"✓":"＋"}</button>
+        <button className={"tool-button rule-button "+(highlight?"active":"")} title="设置卡片高亮条件" onClick={()=>setHighlight(v=>!v)}>⚠</button>
+        <button className="tool-button settings-button" title="选择显示字段" onClick={onSettings}>⚙</button>
+      </span>
     </div>
+
     <div className="auto-ozon-rows">
       {FIELD_LABELS.filter(([key])=>visibleFields.has(key)).map(([key,label])=>{
         const value=product.data[key];
         const missing=value==="暂无数据"||value==="—";
-        const positive=["monthlySales","monthlyGmv","dailySales","dailyRevenue"].includes(key)&&!missing;
-        const negative=["adRate","returnRate"].includes(key)&&!missing;
         const isCommission=key==="commission"&&!missing;
         if(key==="sellerCount"&&product.sellerCount&&product.sellerCount>0){
-          return <div className="intel-row" key={key}><span>{label}：</span><button className="seller-trigger" onClick={()=>setShowSellers(true)}>{value} 个卖家</button></div>;
+          return <div className="intel-row" key={key}>
+            <span className="intel-label">{label}</span>
+            <button className="seller-list-trigger" onClick={()=>setShowSellers(true)}>{value} 个卖家</button>
+          </div>;
         }
         return <div className="intel-row" key={key}>
-          <span>{label}：</span>
-          {isCommission?<span className="commission-chips">{value.split(" · ").map((v,i)=><b key={v} className={i===0?"blue":i===1?"orange":"pink"}>{v}</b>)}</span>:
-          <strong className={missing?"muted":positive?"positive":negative?"negative":key==="sku"?"primary":""}>{value}</strong>}
+          <span className="intel-label">{label}</span>
+          {isCommission
+            ? <span className="commission-chips">{value.split(" · ").map((v,i)=><b key={v} className={"metric-chip "+(i===0?"tone-primary":i===1?"tone-warning":"tone-negative")}>{v}</b>)}</span>
+            : <span className={"intel-value "+intelTone(key,value)}>{value}</span>}
         </div>;
       })}
     </div>
-    <div className="intel-updated">数据更新：2026-09-25 04:{String(20+product.id).padStart(2,"0")}:01</div>
+
+    <div className="intel-updated">数据截至：2026-09-25 04:{String(20+product.id).padStart(2,"0")}:01</div>
 
     {showSellers&&<div className="seller-popover-demo">
       <div className="seller-popover-head"><b>跟卖列表 · {product.sellerCount} 家</b><button onClick={()=>setShowSellers(false)}><X size={14}/></button></div>
-      {Array.from({length:Math.min(product.sellerCount||0,6)},(_,i)=><div className="seller-line" key={i}><span className="seller-avatar">{String.fromCharCode(65+i)}</span><span>Seller {i+1}</span><strong>{rub(product.price-35+i*11)}</strong><em>★ {(4.5+(i%5)*.1).toFixed(1)}</em></div>)}
+      {Array.from({length:Math.min(product.sellerCount||0,6)},(_,i)=><div className="seller-line" key={i}><span className="seller-avatar">{String.fromCharCode(65+i)}</span><span>Seller {i+1}</span><strong>{cny(product.price-35+i*11)}</strong><em>★ {(4.5+(i%5)*.1).toFixed(1)}</em></div>)}
       {(product.sellerCount||0)>6&&<div className="seller-more">还有 {(product.sellerCount||0)-6} 家跟卖...</div>}
     </div>}
-  </div>;
+  </section>;
 }
 
 function FieldSettings({
@@ -276,14 +304,13 @@ export function OzonPluginHomeDemo(){
       <div className="ozon-demo-end">已展示 30 个插件主页示例商品</div>
     </div>
 
-    <button className="ozong-float-button" onClick={()=>setPanelOpen(v=>!v)}>✦</button>
+    <button className="ozong-float-button" onClick={()=>setPanelOpen(v=>!v)}><img src="/auto-ozon/auto-ozon-logo.png" alt="OzonG"/></button>
     {panelOpen&&<aside className="ozong-control-demo">
-      <header><div><span>✦</span><b>OzonG</b><small>控制中心</small></div><button onClick={()=>setPanelOpen(false)}><X size={14}/></button></header>
+      <header><div><img src="/auto-ozon/auto-ozon-logo.png" alt="OzonG"/><span><b>OzonG</b><small>控制中心</small></span></div><div className="ozong-drawer-actions"><button onClick={()=>setPanelOpen(false)}>—</button><button onClick={()=>setPanelOpen(false)}>×</button></div></header>
       <div className="ozong-control-body">
         <button className="primary">打开 Ozon Seller</button>
         <button>绑定 Cookie</button>
         <small>效率工具</small>
-        <button className="dark">● 自动选品</button>
         <div className="two"><button>计算利润</button><button className="orange">定价工具</button></div>
         <small>快捷设置</small>
         <button onClick={()=>setCardsHidden(v=>!v)}>{cardsHidden?"显示商品卡":"隐藏商品卡"}</button>
