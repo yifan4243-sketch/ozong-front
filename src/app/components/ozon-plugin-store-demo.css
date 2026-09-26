@@ -48,3 +48,8 @@
 .op-ranking-wrap{margin:0 0 12px 0!important}
 .op-ranking-popover{left:0!important;right:auto!important}
 .op-store-intel.settings-active{box-shadow:0 3px 12px rgba(28,43,65,.09),0 0 0 2px rgba(8,116,255,.08)}
+
+
+/* Performance: 30 fully populated cards are expensive; let Chromium skip offscreen painting. */
+.op-store-product-card{content-visibility:auto;contain-intrinsic-size:340px 940px}
+.op-store-intel{contain:layout style}

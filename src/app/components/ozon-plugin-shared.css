@@ -52,3 +52,7 @@
 .op-quick-modal>footer button{height:42px;padding:0 18px;font-size:12px}
 .op-quick-modal>footer span{font-size:11px}
 @media(max-width:1100px){.op-quick-layer{padding:10px 14px}.op-quick-layout{grid-template-columns:260px minmax(0,1fr)}}
+
+
+/* Performance: avoid GPU-heavy backdrop blur on large demo overlays. */
+.op-quick-layer{backdrop-filter:none!important}

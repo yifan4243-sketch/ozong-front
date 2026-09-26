@@ -44,3 +44,8 @@
 .op-edit-loading-box p{margin:7px 0 0;color:#7b879a;font-size:11px}
 .op-edit-spinner{display:inline-block;width:34px;height:34px;border:3px solid #dce8ff;border-top-color:#1769ff;border-radius:50%;animation:op-edit-spin .72s linear infinite}
 @keyframes op-edit-spin{to{transform:rotate(360deg)}}
+
+
+/* Performance: defer lower recommendation/description sections until they approach the scroll viewport. */
+.op-recommend article{content-visibility:auto;contain-intrinsic-size:260px 380px}
+.op-description{content-visibility:auto;contain-intrinsic-size:1200px 260px}
