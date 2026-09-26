@@ -252,6 +252,290 @@ function IntelCard({
   </section>;
 }
 
+type AutoNumericKey=
+  |"monthlySales"|"monthlyGmv"|"averagePrice"|"weight"|"listingDays"|"salesDynamics"
+  |"adRate"|"promoDays"|"promoDiscount"|"promoConversion"|"paidPromotionDays"
+  |"productCardViews"|"productCardCart"|"searchViews"|"searchCart"|"displayConversion"
+  |"clickThroughRate"|"returnRate"|"sellerCount"|"followMinPrice";
+
+const AUTO_NUMERIC_FIELDS:Array<{key:AutoNumericKey;label:string;unit:string}>=[
+  {key:"monthlySales",label:"月销量",unit:"件"},
+  {key:"monthlyGmv",label:"月销售额",unit:"¥"},
+  {key:"averagePrice",label:"均价",unit:"¥"},
+  {key:"weight",label:"重量",unit:"g"},
+  {key:"listingDays",label:"上架天数",unit:"天"},
+  {key:"salesDynamics",label:"销售变化",unit:"%"},
+  {key:"adRate",label:"推广费占比",unit:"%"},
+  {key:"promoDays",label:"参与促销天数",unit:"天"},
+  {key:"promoDiscount",label:"参与促销的折扣",unit:"%"},
+  {key:"promoConversion",label:"促销活动转化率",unit:"%"},
+  {key:"paidPromotionDays",label:"付费推广天数",unit:"天"},
+  {key:"productCardViews",label:"商品卡浏览量",unit:""},
+  {key:"productCardCart",label:"商品卡加购率",unit:"%"},
+  {key:"searchViews",label:"搜索目录浏览量",unit:""},
+  {key:"searchCart",label:"搜索目录加购率",unit:"%"},
+  {key:"displayConversion",label:"展示转化率",unit:"%"},
+  {key:"clickThroughRate",label:"商品点击率",unit:"%"},
+  {key:"returnRate",label:"退货取消率",unit:"%"},
+  {key:"sellerCount",label:"跟卖人数",unit:"人"},
+  {key:"followMinPrice",label:"跟卖最低价",unit:"¥"},
+];
+
+type AutoFilters={
+  brandMode:"any"|"brand"|"noBrand";
+  delivery:"any"|"FBO"|"FBS"|"FBO,FBS";
+  numeric:Record<string,{min:string;max:string}>;
+};
+
+const EMPTY_AUTO_FILTERS:AutoFilters={brandMode:"any",delivery:"any",numeric:{}};
+
+function readDemoNumber(product:DemoProduct,key:AutoNumericKey){
+  if(key==="listingDays"){
+    const match=product.data.createDate.match(/（(\d+)天）/);
+    return match?Number(match[1]):null;
+  }
+  if(key==="sellerCount") return product.sellerCount===null?null:product.sellerCount;
+  const source=product.data[key as DemoFieldKey];
+  if(!source||source==="暂无数据"||source==="—"||source==="无跟卖") return source==="无跟卖"?0:null;
+  const normalized=source.replace(/[¥￥,%\s件g]/gi,"").replace(/,/g,"");
+  const match=normalized.match(/-?\d+(?:\.\d+)?/);
+  return match?Number(match[0]):null;
+}
+
+function autoSettingCount(filters:AutoFilters){
+  return (filters.brandMode!=="any"?1:0)
+    +(filters.delivery!=="any"?1:0)
+    +Object.values(filters.numeric).filter(range=>range.min!==""||range.max!=="").length;
+}
+
+function matchesAutoFilters(product:DemoProduct,filters:AutoFilters){
+  if(filters.brandMode==="brand"&&(product.data.brand==="No name"||product.data.brand==="无品牌"||product.data.brand==="暂无数据")) return false;
+  if(filters.brandMode==="noBrand"&&product.data.brand!=="No name"&&product.data.brand!=="无品牌") return false;
+  if(filters.delivery!=="any"){
+    const allowed=filters.delivery.split(",");
+    if(!allowed.includes(product.data.delivery)) return false;
+  }
+  for(const field of AUTO_NUMERIC_FIELDS){
+    const range=filters.numeric[field.key];
+    if(!range||(range.min===""&&range.max==="")) continue;
+    const value=readDemoNumber(product,field.key);
+    if(value===null) return false;
+    const min=range.min===""?null:Number(range.min);
+    const max=range.max===""?null:Number(range.max);
+    if(min!==null&&Number.isFinite(min)&&value<min) return false;
+    if(max!==null&&Number.isFinite(max)&&value>max) return false;
+  }
+  return true;
+}
+
+function AutoSelectionSettings({
+  value,
+  onCancel,
+  onSave,
+  initialError="",
+}:{
+  value:AutoFilters;
+  onCancel:()=>void;
+  onSave:(next:AutoFilters)=>void;
+  initialError?:string;
+}){
+  const [draft,setDraft]=useState<AutoFilters>(()=>({
+    brandMode:value.brandMode,
+    delivery:value.delivery,
+    numeric:Object.fromEntries(Object.entries(value.numeric).map(([key,range])=>[key,{...range}])),
+  }));
+  const [error,setError]=useState(initialError);
+
+  const updateRange=(key:AutoNumericKey,side:"min"|"max",nextValue:string)=>{
+    const currentRange=draft.numeric[key]||{min:"",max:""};
+    setDraft({...draft,numeric:{...draft.numeric,[key]:{...currentRange,[side]:nextValue}}});
+  };
+
+  const save=()=>{
+    for(const field of AUTO_NUMERIC_FIELDS){
+      const range=draft.numeric[field.key];
+      if(!range) continue;
+      const min=range.min===""?null:Number(range.min);
+      const max=range.max===""?null:Number(range.max);
+      if((min!==null&&!Number.isFinite(min))||(max!==null&&!Number.isFinite(max))||(min!==null&&max!==null&&min>max)){
+        setError(field.label+"的范围无效。");
+        return;
+      }
+    }
+    setError("");
+    onSave(draft);
+  };
+
+  return <div className="auto-settings-overlay">
+    <section className="auto-settings-dialog">
+      <header>
+        <div><h2>选品筛选条件</h2><p>条件全部选填；留空表示不限制该项。</p></div>
+        <button onClick={save}>×</button>
+      </header>
+      <div className="auto-settings-body">
+        <div className="auto-settings-top">
+          <label><span>品牌选项</span><select value={draft.brandMode} onChange={e=>setDraft({...draft,brandMode:e.target.value as AutoFilters["brandMode"]})}><option value="any">不限</option><option value="brand">有品牌</option><option value="noBrand">无品牌</option></select></label>
+          <label><span>发货模式</span><select value={draft.delivery} onChange={e=>setDraft({...draft,delivery:e.target.value as AutoFilters["delivery"]})}><option value="any">不限</option><option value="FBO">FBO</option><option value="FBS">FBS</option><option value="FBO,FBS">FBO + FBS</option></select></label>
+        </div>
+        <div className="auto-settings-section-title"><strong>数值条件</strong><span>最小值和最大值均可单独填写</span></div>
+        <div className="auto-settings-grid">
+          {AUTO_NUMERIC_FIELDS.map(field=>{
+            const range=draft.numeric[field.key]||{min:"",max:""};
+            return <div className="auto-settings-range" key={field.key}>
+              <label>{field.label}</label>
+              <input type="number" value={range.min} placeholder="最小值" onChange={e=>updateRange(field.key,"min",e.target.value)}/>
+              <span>至</span>
+              <input type="number" value={range.max} placeholder="最大值" onChange={e=>updateRange(field.key,"max",e.target.value)}/>
+              <em>{field.unit}</em>
+            </div>;
+          })}
+        </div>
+        <div className="auto-settings-error">{error}</div>
+      </div>
+      <footer><button onClick={onCancel}>取消</button><button className="primary" onClick={save}>保存条件</button></footer>
+    </section>
+  </div>;
+}
+
+function AutoSelectionModal({
+  products,
+  onClose,
+  onComplete,
+}:{
+  products:DemoProduct[];
+  onClose:()=>void;
+  onComplete:(ids:number[],summary:{scanned:number;qualified:number;added:number;existing:number;failed:number})=>void;
+}){
+  const [filters,setFilters]=useState<AutoFilters>(EMPTY_AUTO_FILTERS);
+  const [quantity,setQuantity]=useState("5");
+  const [settingsOpen,setSettingsOpen]=useState(false);
+  const [settingsError,setSettingsError]=useState("");
+  const [summary,setSummary]=useState<{scanned:number;qualified:number;added:number;existing:number;failed:number}|null>(null);
+  const settingsCount=autoSettingCount(filters);
+
+  const start=()=>{
+    const amount=Number(quantity);
+    if(!Number.isInteger(amount)||amount<1) return;
+    if(settingsCount<1){
+      setSettingsError("请至少设置一项筛选条件后再开始选品。");
+      setSettingsOpen(true);
+      return;
+    }
+    const qualified=products.filter(product=>matchesAutoFilters(product,filters));
+    const picked=qualified.slice(0,amount);
+    const next={scanned:products.length,qualified:qualified.length,added:picked.length,existing:0,failed:0};
+    setSummary(next);
+    onComplete(picked.map(item=>item.id),next);
+  };
+
+  const resultProducts=summary?products.filter(product=>matchesAutoFilters(product,filters)).slice(0,Number(quantity)):[];
+  return <div className="auto-listing-overlay">
+    <section className="auto-listing-dialog">
+      <header className="auto-listing-header">
+        <div className="auto-listing-brand"><img src="/auto-ozon/auto-ozon-logo.png" alt="OzonG"/><div><small>AUTO PRODUCT SELECTION</small><strong>{summary?<>本次已新增 <b>{summary.added}</b> 个商品</>:"自动选品工作台"}</strong></div></div>
+        <div className="auto-listing-header-actions">
+          <label><span>筛选条件</span><button onClick={()=>{setSettingsError("");setSettingsOpen(true)}}>{settingsCount?"已设 "+settingsCount+" 项":"设置条件"}</button></label>
+          <label><span>选品数量</span><input type="number" min="1" step="1" value={quantity} onChange={e=>setQuantity(e.target.value)}/></label>
+          <label><span>执行</span><button className="start" disabled={!Number.isInteger(Number(quantity))||Number(quantity)<1} onClick={start}>开始选品</button></label>
+        </div>
+        <button className="auto-listing-close" onClick={onClose}>关闭</button>
+      </header>
+      <div className="auto-listing-content">
+        <section className="auto-listing-stage">
+          <div className="auto-listing-stage-label">PRODUCT SELECTION QUEUE</div>
+          <h3>筛选合格商品，统一进入采集箱</h3>
+          <p>设置筛选条件和选品数量；合格 SKU 只保存到 ERP 采集箱，不会自动执行上架。</p>
+          <div className="auto-listing-ready">
+            <strong>{summary?"本次自动选品已完成":"已准备开始选品"}</strong>
+            <span>{summary
+              ?"扫描 "+summary.scanned+"，合格 "+summary.qualified+"，新增 "+summary.added+"，已存在 "+summary.existing+"，失败 "+summary.failed+"。"
+              :"重复商品会跳过且不计入目标数量。店铺和正式上架设置请在采集箱点击“上架”后选择。"}</span>
+          </div>
+          {summary&&<div className="auto-listing-result-strip"><span>已选商品</span><div>{resultProducts.map(product=><b key={product.id}>{product.data.sku}</b>)}</div></div>}
+        </section>
+      </div>
+    </section>
+    {settingsOpen&&<AutoSelectionSettings value={filters} initialError={settingsError} onCancel={()=>setSettingsOpen(false)} onSave={next=>{setFilters(next);setSettingsOpen(false);setSettingsError("")}}/>}
+  </div>;
+}
+
+type CalculatorMode="profit"|"pricing";
+
+function CalculatorDemoDrawer({
+  initialMode,
+  onClose,
+}:{
+  initialMode:CalculatorMode;
+  onClose:()=>void;
+}){
+  const [mode,setMode]=useState<CalculatorMode>(initialMode);
+  const [sellPrice,setSellPrice]=useState("199");
+  const [cost,setCost]=useState("45");
+  const [weight,setWeight]=useState("500");
+  const [length,setLength]=useState("25");
+  const [width,setWidth]=useState("18");
+  const [height,setHeight]=useState("8");
+  const [commission,setCommission]=useState("16");
+  const [targetProfit,setTargetProfit]=useState("20");
+  const [discount,setDiscount]=useState("50");
+  const [domestic,setDomestic]=useState("3");
+  const [adRate,setAdRate]=useState("8");
+  const [otherRate,setOtherRate]=useState("1");
+  const [result,setResult]=useState<{sell:number;profit:number;margin:number;oldPrice:number;logistics:number;platform:number}|null>(null);
+
+  const calculate=()=>{
+    const purchase=Math.max(0,Number(cost)||0);
+    const kg=Math.max(0,Number(weight)||0)/1000;
+    const volume=Math.max(0,(Number(length)||0)*(Number(width)||0)*(Number(height)||0))/6000;
+    const chargeable=Math.max(kg,volume);
+    const logistics=Number((8.5+chargeable*13.5).toFixed(2));
+    const fixed=purchase+(Number(domestic)||0)+logistics;
+    const commissionRate=(Number(commission)||0)/100;
+    const variable=((Number(adRate)||0)+(Number(otherRate)||0))/100;
+    let price=Number(sellPrice)||0;
+    if(mode==="pricing"){
+      const desired=(Number(targetProfit)||0)/100;
+      const denom=1-commissionRate-variable-desired;
+      price=denom>0?fixed/denom:0;
+    }
+    const platform=price*commissionRate;
+    const profit=price-fixed-platform-price*variable;
+    const margin=price>0?profit/price*100:0;
+    const oldPrice=mode==="pricing"&&Number(discount)<100?price/(1-(Number(discount)||0)/100):price;
+    setResult({sell:price,profit,margin,oldPrice,logistics,platform});
+  };
+
+  return <div className="calculator-demo-root">
+    <button className="calculator-backdrop" aria-label="关闭计算器" onClick={onClose}/>
+    <aside className="calculator-drawer">
+      <header><button onClick={onClose}>×</button><strong>定价工具&利润计算器</strong></header>
+      <div className="calculator-body">
+        <div className="calculator-notice"><b>i</b><span>官网交互 Demo 使用本地示例参数，不调用真实店铺、物流或计费接口。</span></div>
+        <div className="calculator-tabs"><button className={mode==="pricing"?"active":""} onClick={()=>{setMode("pricing");setResult(null)}}>OZON跨境定价工具</button><button className={mode==="profit"?"active":""} onClick={()=>{setMode("profit");setResult(null)}}>OZON跨境利润计算器</button></div>
+        <h2>{mode==="pricing"?"OZON跨境定价工具":"OZON跨境利润计算器"}</h2>
+        <div className="calculator-form">
+          <div className="calculator-section-title"><i/>基础设置</div>
+          {mode==="profit"&&<label><span><em>*</em>售价</span><div><input type="number" value={sellPrice} onChange={e=>setSellPrice(e.target.value)}/><b>元</b></div></label>}
+          <label><span><em>*</em>类目佣金</span><select value={commission} onChange={e=>setCommission(e.target.value)}><option value="10">个人护理 · 10%</option><option value="12">办公用品 · 12%</option><option value="14">数码配件 · 14%</option><option value="16">家居用品 · 16%</option><option value="18">厨房用品 · 18%</option></select></label>
+          <label><span><em>*</em>采购成本</span><div><input type="number" value={cost} onChange={e=>setCost(e.target.value)}/><b>元</b></div></label>
+          <label><span><em>*</em>包裹重量</span><div><input type="number" value={weight} onChange={e=>setWeight(e.target.value)}/><b>g</b></div></label>
+          <label><span><em>*</em>包裹体积</span><div className="calculator-dimensions"><input type="number" value={length} onChange={e=>setLength(e.target.value)} placeholder="长"/><input type="number" value={width} onChange={e=>setWidth(e.target.value)} placeholder="宽"/><input type="number" value={height} onChange={e=>setHeight(e.target.value)} placeholder="高"/></div></label>
+          {mode==="pricing"&&<><label><span>期望利润</span><div><input type="number" value={targetProfit} onChange={e=>setTargetProfit(e.target.value)}/><b>%</b></div></label><label><span>划线折扣</span><div><input type="number" value={discount} onChange={e=>setDiscount(e.target.value)}/><b>%</b></div></label></>}
+          <label><span><em>*</em>跨境物流商</span><select><option>CEL（演示）</option></select></label>
+          <div className="calculator-section-title"><i/>其它设置</div>
+          <label><span>国内运费+代贴单</span><div><input type="number" value={domestic} onChange={e=>setDomestic(e.target.value)}/><b>元</b></div></label>
+          <label><span>广告费占比</span><div><input type="number" value={adRate} onChange={e=>setAdRate(e.target.value)}/><b>%</b></div></label>
+          <label><span>其他(提现、货损等)</span><div><input type="number" value={otherRate} onChange={e=>setOtherRate(e.target.value)}/><b>%</b></div></label>
+          <button className="calculator-submit" onClick={calculate}>开始计算</button>
+        </div>
+        <div className="calculator-result">
+          {result?<><div className="calculator-result-head"><i/>计算结果</div><div className="calculator-summary"><span><small>{mode==="pricing"?"建议售价":"预计利润"}</small><strong>{mode==="pricing"?"¥"+result.sell.toFixed(2):"¥"+result.profit.toFixed(2)}</strong></span><span><small>利润率</small><strong className={result.margin>=0?"green":"red"}>{result.margin.toFixed(2)}%</strong></span></div><div className="calculator-detail"><span>平台佣金 <b>¥{result.platform.toFixed(2)}</b></span><span>物流估算 <b>¥{result.logistics.toFixed(2)}</b></span><span>预计利润 <b className={result.profit>=0?"green":"red"}>¥{result.profit.toFixed(2)}</b></span>{mode==="pricing"&&<span>建议划线价 <b>¥{result.oldPrice.toFixed(2)}</b></span>}</div></>:<div className="calculator-empty">⌁<span>填写参数后点击“开始计算”</span></div>}
+        </div>
+      </div>
+    </aside>
+  </div>;
+}
+
 function FieldSettings({
   visibleFields,
   onClose,
@@ -273,13 +557,18 @@ function FieldSettings({
   </div>;
 }
 
-export function OzonPluginHomeDemo(){
+export function OzonPluginHomeDemo({onEnterErp}:{onEnterErp?:()=>void}){
   const [visibleFields,setVisibleFields]=useState<Set<DemoFieldKey>>(()=>new Set(FIELD_LABELS.map(([key])=>key)));
   const [settingsOpen,setSettingsOpen]=useState(false);
   const [panelOpen,setPanelOpen]=useState(false);
   const [cardsHidden,setCardsHidden]=useState(false);
+  const [autoSelectionOpen,setAutoSelectionOpen]=useState(false);
+  const [calculatorMode,setCalculatorMode]=useState<CalculatorMode|null>(null);
+  const [autoSelectedIds,setAutoSelectedIds]=useState<number[]>([]);
+  const [notice,setNotice]=useState("");
   const [query,setQuery]=useState("");
   const displayed=useMemo(()=>PRODUCTS.filter(p=>!query||p.title.toLowerCase().includes(query.toLowerCase())||p.data.sku.includes(query)),[query]);
+  const autoSelectedSet=useMemo(()=>new Set(autoSelectedIds),[autoSelectedIds]);
 
   return <div className="ozon-plugin-home-demo">
     <div className="ozon-home-scroll">
@@ -293,7 +582,8 @@ export function OzonPluginHomeDemo(){
         <label><Search size={15}/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="搜索商品标题或 SKU"/></label>
       </div>
       <div className="ozon-product-grid">
-        {displayed.map(product=><article className="ozon-product-card" key={product.id}>
+        {displayed.map(product=><article className={"ozon-product-card "+(autoSelectedSet.has(product.id)?"auto-selected":"")} key={product.id}>
+          {autoSelectedSet.has(product.id)&&<div className="auto-selected-badge">已选入采集箱</div>}
           <ProductVisual product={product}/>
           <div className="ozon-product-price"><b>{rub(product.price)}</b><s>{rub(product.oldPrice)}</s><em>-{product.discount}%</em></div>
           <div className="ozon-product-title">{product.title}</div>
@@ -308,17 +598,20 @@ export function OzonPluginHomeDemo(){
     {panelOpen&&<aside className="ozong-control-demo">
       <header><div><img src="/auto-ozon/auto-ozon-logo.png" alt="OzonG"/><span><b>OzonG</b><small>控制中心</small></span></div><div className="ozong-drawer-actions"><button onClick={()=>setPanelOpen(false)}>—</button><button onClick={()=>setPanelOpen(false)}>×</button></div></header>
       <div className="ozong-control-body">
-        <button className="primary">打开 Ozon Seller</button>
-        <button>绑定 Cookie</button>
+        <button className="primary" onClick={()=>setNotice("官网 Demo：真实插件会在新标签页打开 Ozon Seller。")}>打开 Ozon Seller</button>
+        <button onClick={()=>setNotice("官网 Demo 不读取浏览器 Cookie；真实插件会检测当前 Ozon Seller 登录态后执行绑定。")}>绑定 Cookie</button>
         <small>效率工具</small>
-        <button className="auto-listing-control"><span>自动选品</span></button>
-        <div className="two"><button>计算利润</button><button className="orange">定价工具</button></div>
+        <button className="auto-listing-control" onClick={()=>setAutoSelectionOpen(true)}><span>自动选品</span></button>
+        <div className="two"><button onClick={()=>setCalculatorMode("profit")}>计算利润</button><button className="orange" onClick={()=>setCalculatorMode("pricing")}>定价工具</button></div>
         <small>快捷设置</small>
         <button onClick={()=>setCardsHidden(v=>!v)}>{cardsHidden?"显示商品卡":"隐藏商品卡"}</button>
-        <button>进入 OzonG ERP</button>
+        <button onClick={()=>{setPanelOpen(false);onEnterErp?.()}}>进入 OzonG ERP</button>
       </div>
     </aside>}
 
     {settingsOpen&&<FieldSettings visibleFields={visibleFields} onClose={()=>setSettingsOpen(false)} onApply={next=>{setVisibleFields(next);setSettingsOpen(false)}}/>}
+    {autoSelectionOpen&&<AutoSelectionModal products={PRODUCTS} onClose={()=>setAutoSelectionOpen(false)} onComplete={(ids,summary)=>{setAutoSelectedIds(ids);setNotice("自动选品完成：扫描 "+summary.scanned+" 个，合格 "+summary.qualified+" 个，新增 "+summary.added+" 个。")}}/>}
+    {calculatorMode&&<CalculatorDemoDrawer initialMode={calculatorMode} onClose={()=>setCalculatorMode(null)}/>}
+    {notice&&<div className="ozong-demo-toast"><span>{notice}</span><button onClick={()=>setNotice("")}>×</button></div>}
   </div>;
 }
