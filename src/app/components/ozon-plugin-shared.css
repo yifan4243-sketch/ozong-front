@@ -9,3 +9,46 @@
 .op-quick-layer{position:absolute;inset:0;z-index:210;background:rgba(15,23,42,.46);display:flex;align-items:center;justify-content:center;padding:26px}.op-quick-modal{width:min(1500px,calc(100% - 26px));height:min(900px,calc(100% - 26px));display:flex;flex-direction:column;overflow:hidden;border-radius:16px;background:#fff;color:#17233d;box-shadow:0 28px 90px rgba(15,23,42,.3);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif}.op-quick-modal>header{height:62px;flex:none;padding:0 22px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #edf0f5}.op-quick-modal>header h2{font-size:19px;margin:0}.op-quick-modal>header button{border:0;background:transparent;font-size:30px;color:#4b5563;cursor:pointer}.op-quick-layout{min-height:0;flex:1;display:grid;grid-template-columns:300px minmax(0,1fr);gap:14px;padding:12px 18px 0}.op-quick-layout>aside{min-height:0;padding-right:14px;border-right:1px solid #edf0f5;display:flex;flex-direction:column}.op-store-tabs{display:grid;grid-template-columns:1fr 1fr;padding:3px;border-radius:8px;background:#f5f7fb}.op-store-tabs button{height:32px;border:0;border-radius:6px;background:transparent;color:#697386;cursor:pointer}.op-store-tabs .active{background:#1677ff;color:#fff}.op-store-title{margin:12px 2px 8px;display:flex;justify-content:space-between;color:#68748a;font-size:12px}.op-store-title button{border:0;background:transparent;color:#1677ff;cursor:pointer}.op-store-list{overflow:auto;display:flex;flex-direction:column;gap:9px}.op-store-card{padding:10px;border:1px solid #e2e7f0;border-radius:10px;background:#fff}.op-store-card.selected{border-color:#78aaff;background:#f5f9ff;box-shadow:0 0 0 2px rgba(22,119,255,.08)}.op-store-card>label{display:flex;align-items:center;gap:8px;font-size:12px}.op-store-card>span{display:block;margin:5px 0 8px 23px;color:#8792a6;font-size:10px}.op-store-card>div{display:grid;grid-template-columns:1fr 70px;gap:8px}.op-store-card select,.op-store-card input{min-width:0;height:32px;border:1px solid #dce2ec;border-radius:7px;padding:0 8px;background:#fff;font-size:10px}.op-group-list{display:grid;gap:8px}.op-group-list label{padding:12px;border:1px solid #e2e7f0;border-radius:10px;font-size:12px}.op-group-list span{float:right;color:#8c97aa}.op-quick-layout>main{min-width:0;display:flex;flex-direction:column}.op-quick-settings{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.op-quick-settings label{font-size:10px;color:#6f7b8e}.op-quick-settings select{width:100%;height:34px;margin-top:5px;border:1px solid #dfe4ed;border-radius:7px;background:#fff;padding:0 8px;color:#26354c}.op-batch-bar{margin-top:10px;padding:8px 10px;display:flex;align-items:center;gap:7px;border:1px solid #eef1f5;border-radius:9px;background:#fafbfe;color:#3c4961;font-size:10px}.op-batch-bar>div{height:32px;display:flex;align-items:center;border:1px solid #dce2ec;border-radius:7px;background:#fff;padding-left:8px}.op-batch-bar input{height:30px;width:78px;border:0;outline:none;padding:0 6px;background:transparent}.op-batch-bar .ratio{height:32px;width:60px;border:1px solid #dce2ec;border-radius:7px;padding:0 7px}.op-batch-bar button{height:30px;border:1px solid #dce2ec;border-radius:7px;background:#fff;color:#1677ff;font-size:10px;cursor:pointer}.op-batch-bar i{width:1px;height:24px;background:#e7eaf0}.op-quick-table-wrap{min-height:0;flex:1;margin-top:10px;overflow:auto;border:1px solid #eef1f5;border-radius:10px}.op-quick-table-wrap table{width:100%;border-collapse:collapse;table-layout:fixed;font-size:10px}.op-quick-table-wrap th{position:sticky;top:0;z-index:1;padding:10px 7px;background:#f7f9fc;border-bottom:1px solid #e6eaf1;text-align:left}.op-quick-table-wrap td{padding:10px 7px;border-bottom:1px solid #edf0f5;vertical-align:middle}.op-quick-table-wrap th:nth-child(1){width:30px}.op-quick-table-wrap th:nth-child(2){width:42px}.op-quick-table-wrap th:nth-child(3){width:62px}.op-quick-table-wrap th:nth-child(5){width:92px}.op-quick-table-wrap th:nth-child(6){width:120px}.op-quick-table-wrap th:nth-child(7){width:84px}.op-quick-table-wrap th:nth-child(8),.op-quick-table-wrap th:nth-child(9){width:130px}.op-quick-table-wrap td strong,.op-quick-table-wrap td span{display:block}.op-quick-table-wrap td span{margin-top:3px;color:#8490a3}.op-quick-table-wrap td.sku{color:#1677ff;font-weight:700}.op-quick-table-wrap td>input{width:100%;height:32px;border:1px solid #dfe4ed;border-radius:7px;padding:0 7px}.op-label-thumb{width:46px;height:46px;display:grid;place-items:center;border-radius:8px;background:linear-gradient(#fff,#fff8d9);border:1px solid #e7e2a7;color:#1261ff;font-weight:900}.op-quick-table-wrap .money{display:flex;align-items:center;height:32px;border:1px solid #dfe4ed;border-radius:7px;padding-left:7px}.op-quick-table-wrap .money input{min-width:0;flex:1;border:0;outline:0}.op-pagination{display:flex;justify-content:flex-end;align-items:center;gap:9px;padding:9px 0;font-size:10px}.op-pagination button{height:28px;border:1px solid #e1e6ef;border-radius:7px;background:#fff}.op-footer-fields{display:grid;grid-template-columns:1fr .7fr;gap:10px}.op-footer-fields label{display:flex;align-items:center;gap:8px;font-size:10px}.op-footer-fields input{min-width:0;flex:1;height:32px;border:1px solid #dfe4ed;border-radius:7px;padding:0 8px}.op-quick-modal>footer{min-height:58px;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #edf0f5}.op-quick-modal>footer>div:last-child{display:flex;gap:8px}.op-quick-modal>footer button{height:38px;padding:0 16px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer}.op-quick-modal>footer .secondary{border:1px solid #dbe2ec;background:#fff;color:#334155}.op-quick-modal>footer .primary{border:0;background:#1677ff;color:#fff}.op-quick-modal>footer span{font-size:10px}.op-quick-modal>footer span.error{color:#b42318}.op-quick-modal>footer span.success{color:#137333}.op-quick-modal>footer span.loading{color:#52627f}
 
 @media(max-width:1100px){.op-user-actions{gap:8px}.op-ozon-links span:nth-child(n+7){display:none}.op-quick-layout{grid-template-columns:240px minmax(0,1fr)}}
+
+
+/* Fidelity pass: quick-listing modal proportions and density from the reference flow. */
+.op-quick-layer{padding:14px 44px;background:rgba(15,23,42,.48);backdrop-filter:blur(1.5px)}
+.op-quick-modal{width:100%;height:100%;max-width:none;max-height:none;border-radius:18px}
+.op-quick-modal>header{height:66px;padding:0 24px}
+.op-quick-modal>header h2{font-size:20px;font-weight:700}
+.op-quick-layout{grid-template-columns:330px minmax(0,1fr);gap:16px;padding:12px 20px 0}
+.op-quick-layout>aside{padding-right:16px}
+.op-store-tabs{padding:4px;border-radius:9px}
+.op-store-tabs button{height:40px;font-size:13px}
+.op-store-title{margin:14px 3px 9px;font-size:12px}
+.op-store-card{padding:14px 12px;border-radius:11px}
+.op-store-card>label{font-size:13px}
+.op-store-card>span{margin:7px 0 10px 25px;font-size:11px}
+.op-store-card>div{grid-template-columns:1fr 78px;gap:9px}
+.op-store-card select,.op-store-card input{height:38px;font-size:11px}
+.op-quick-settings{gap:10px}
+.op-quick-settings label{font-size:11px}
+.op-quick-settings select{height:40px;margin-top:6px;border-radius:8px;font-size:12px}
+.op-batch-bar{min-height:58px;margin-top:10px;padding:9px 12px;gap:8px;border-radius:10px;font-size:11px}
+.op-batch-bar>div{height:36px}
+.op-batch-bar input{height:34px;width:86px;font-size:11px}
+.op-batch-bar .ratio{height:36px;width:64px}
+.op-batch-bar button{height:34px;font-size:11px}
+.op-quick-table-wrap{margin-top:10px;border-radius:11px}
+.op-quick-table-wrap table{font-size:11px}
+.op-quick-table-wrap th{padding:11px 8px;font-size:11px}
+.op-quick-table-wrap td{padding:12px 8px}
+.op-quick-table-wrap th:nth-child(3){width:68px}
+.op-quick-table-wrap th:nth-child(5){width:100px}
+.op-quick-table-wrap th:nth-child(6){width:125px}
+.op-quick-table-wrap th:nth-child(7){width:90px}
+.op-quick-table-wrap th:nth-child(8),.op-quick-table-wrap th:nth-child(9){width:138px}
+.op-label-thumb{width:50px;height:50px}
+.op-quick-table-wrap td>input,.op-quick-table-wrap .money{height:36px}
+.op-pagination{padding:10px 0;font-size:11px}
+.op-footer-fields label{font-size:11px}
+.op-footer-fields input{height:36px}
+.op-quick-modal>footer{min-height:64px;padding:10px 22px}
+.op-quick-modal>footer button{height:42px;padding:0 18px;font-size:12px}
+.op-quick-modal>footer span{font-size:11px}
+@media(max-width:1100px){.op-quick-layer{padding:10px 14px}.op-quick-layout{grid-template-columns:260px minmax(0,1fr)}}

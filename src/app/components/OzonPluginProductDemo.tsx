@@ -30,6 +30,10 @@ export function OzonPluginProductDemo({
   const [cartCount,setCartCount]=useState(0);
   const [variant,setVariant]=useState(0);
   const [notice,setNotice]=useState("");
+  const [editLoading,setEditLoading]=useState(false);
+  const [detailSelected,setDetailSelected]=useState(false);
+  const [detailRisk,setDetailRisk]=useState(false);
+  const [detailExpanded,setDetailExpanded]=useState(false);
   const variants=useMemo(()=>[
     {qty:"1",price:"242 ₽/шт",discount:"Выгода 22%"},
     {qty:"5",price:"190 ₽/шт",discount:"Выгода 27%"},
@@ -39,8 +43,10 @@ export function OzonPluginProductDemo({
   ],[]);
 
   const edit=()=>{
+    if(editLoading) return;
     setQuickOpen(false);
-    onEditListing();
+    setEditLoading(true);
+    window.setTimeout(()=>onEditListing(),1100);
   };
 
   return <div className="op-product-demo">
@@ -82,13 +88,45 @@ export function OzonPluginProductDemo({
           <button className="later" onClick={()=>setNotice("Оплата позже добавлена в Demo-корзину")}>Оплатить позже</button>
           <div className="buy-actions"><button onClick={()=>setCartCount(v=>v+1)}><ShoppingCart size={16}/> В корзину {cartCount>0?"("+cartCount+")":""}</button><button className={liked?"liked":""} onClick={()=>setLiked(v=>!v)}><Heart size={16} fill={liked?"currentColor":"none"}/></button></div>
 
-          {!cardsHidden&&<div className="op-detail-intel-card">
-            <div className="intel-head"><span className="mini-auto"><img src="/auto-ozon/Auto_ozon2.png"/><img src="/auto-ozon/Auto_ozon1.png"/></span><button onClick={()=>setNotice("商品已加入采集箱（Demo）")}>＋</button><button onClick={()=>setNotice("风险规则：推广费占比偏高")}>⚠</button><button onClick={()=>setNotice("字段显示设置已打开（Demo）")}>⚙</button></div>
-            <div className="intel-grid">
-              <span>类目：<b>标签</b></span><span>销售佣金：<b className="chips">12%　14%　16%</b></span><span>SKU：<b className="blue">1825601210</b></span><span>品牌：<b className="blue">InteliLabel</b></span><span>月销量：<b className="blue">6 件</b></span><span>月销售额：<b className="blue">¥99</b></span><span>销售变化：<b className="red">-74%</b></span><span>近30天日均销量：<b className="blue">0.2</b></span><span>推广费占比：<b className="red">21.7%</b></span><span>促销活动转化率：<b className="blue">100.00%</b></span>
+          {!cardsHidden&&<section className={"op-detail-intel-card "+(detailRisk?"highlighted":"")}>
+            <div className="op-detail-intel-head">
+              <span className="op-detail-auto-logo" aria-label="Auto OZON">
+                <span className="op-detail-auto-mark-frame"><img className="op-detail-auto-mark" src="/auto-ozon/Auto_ozon2.png" alt=""/></span>
+                <span className="op-detail-auto-word-frame"><img className="op-detail-auto-word" src="/auto-ozon/Auto_ozon1.png" alt="Auto OZON"/></span>
+              </span>
+              <span className="op-detail-intel-actions">
+                <button className={detailSelected?"done":""} title="加入 ERP 选品池" onClick={()=>{setDetailSelected(v=>!v);setNotice(detailSelected?"已从选品池移除（Demo）":"商品已加入选品池（Demo）")}}>{detailSelected?"✓":"＋"}</button>
+                <button className={detailRisk?"risk active":"risk"} title="高亮风险项" onClick={()=>setDetailRisk(v=>!v)}>⚠</button>
+                <button className={detailExpanded?"active":""} title="显示更多字段" onClick={()=>setDetailExpanded(v=>!v)}>⚙</button>
+              </span>
             </div>
+            <div className="op-detail-intel-rows">
+              <div className="op-detail-intel-row"><span>类目</span><b>标签</b></div>
+              <div className="op-detail-intel-row"><span>销售佣金</span><b className="op-detail-commission"><i>12%</i><i>14%</i><i>16%</i></b></div>
+              <div className="op-detail-intel-row"><span>SKU</span><b className="blue">1825601210</b></div>
+              <div className="op-detail-intel-row"><span>品牌</span><b className="blue">InteliLabel</b></div>
+              <div className="op-detail-intel-row"><span>月销量</span><b className="blue">6 件</b></div>
+              <div className="op-detail-intel-row"><span>月销售额</span><b className="blue">¥99</b></div>
+              <div className="op-detail-intel-row"><span>销售变化</span><b className="red">-74%</b></div>
+              <div className="op-detail-intel-row"><span>近30天日均销量</span><b className="blue">0.2</b></div>
+              <div className="op-detail-intel-row"><span>近30天日均销售额</span><b className="blue">¥3.30</b></div>
+              <div className="op-detail-intel-row"><span>均价</span><b className="blue">¥21.05</b></div>
+              <div className="op-detail-intel-row"><span>推广费占比</span><b className="red">21.7%</b></div>
+              <div className="op-detail-intel-row"><span>促销活动转化率</span><b className="blue">100.00%</b></div>
+              <div className="op-detail-intel-row"><span>商品点击率</span><b className="green">4.12%</b></div>
+              <div className="op-detail-intel-row"><span>发货模式</span><b className="blue">FBS</b></div>
+              <div className="op-detail-intel-row"><span>上架时间</span><b className="green">47天前</b></div>
+              {detailExpanded&&<>
+                <div className="op-detail-intel-row"><span>商品卡浏览量</span><b>12,486</b></div>
+                <div className="op-detail-intel-row"><span>商品卡加购率</span><b>7.36%</b></div>
+                <div className="op-detail-intel-row"><span>搜索目录浏览量</span><b>8,921</b></div>
+                <div className="op-detail-intel-row"><span>退货取消率</span><b className="green">0.84%</b></div>
+                <div className="op-detail-intel-row"><span>跟卖列表</span><b className="blue">4 个卖家</b></div>
+              </>}
+            </div>
+            <div className="op-detail-intel-updated">数据截至：2026-09-25 04:36:01</div>
             <div className="detail-actions"><button onClick={()=>setQuickOpen(true)}>一键上架</button><button onClick={edit}>编辑上架</button></div>
-          </div>}
+          </section>}
         </aside>
       </section>
 
@@ -124,6 +162,9 @@ export function OzonPluginProductDemo({
       onHideCards={()=>setCardsHidden(v=>!v)}
       onEnterErp={onEnterErp}
     />
+    {editLoading&&<div className="op-edit-loading-layer" role="status" aria-live="polite">
+      <div className="op-edit-loading-box"><span className="op-edit-spinner"/><strong>正在打开 OzonG ERP</strong><p>正在加载商品数据并进入 AI 编辑...</p></div>
+    </div>}
     {quickOpen&&<QuickListingDemoModal onClose={()=>setQuickOpen(false)} onEdit={edit}/>}
   </div>;
 }

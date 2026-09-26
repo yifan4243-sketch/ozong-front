@@ -53,25 +53,51 @@ const STORE_PRODUCTS:StoreProduct[]=Array.from({length:30},(_,i)=>{
 });
 
 function StoreIntelCard({product}:{product:StoreProduct}){
-  return <div className="op-store-intel">
+  const [selected,setSelected]=useState(false);
+  const [highlighted,setHighlighted]=useState(false);
+  const [expanded,setExpanded]=useState(false);
+  const monthlyGmv=Math.round(product.monthlySales*product.price*.087);
+  const dailySales=(product.monthlySales/30).toFixed(1);
+  const dailyGmv=Math.round(monthlyGmv/30);
+  const averagePrice=Math.round(product.price*.087);
+  const sellerCount=2+(product.id%7);
+
+  return <section className={"op-store-intel "+(highlighted?"highlighted":"")}>
     <div className="op-store-intel-head">
-      <span className="mini-auto"><img src="/auto-ozon/Auto_ozon2.png" alt=""/><img src="/auto-ozon/Auto_ozon1.png" alt="Auto OZON"/></span>
-      <button>＋</button><button>⚙</button><button>⚙</button>
+      <span className="op-store-auto-logo" aria-label="Auto OZON">
+        <span className="op-store-auto-mark-frame"><img className="op-store-auto-mark" src="/auto-ozon/Auto_ozon2.png" alt=""/></span>
+        <span className="op-store-auto-word-frame"><img className="op-store-auto-word" src="/auto-ozon/Auto_ozon1.png" alt="Auto OZON"/></span>
+      </span>
+      <span className="op-store-intel-actions">
+        <button className={"op-store-intel-action "+(selected?"done":"")} title="加入 ERP 选品池" onClick={()=>setSelected(v=>!v)}>{selected?"✓":"＋"}</button>
+        <button className={"op-store-intel-action warning "+(highlighted?"active":"")} title="高亮风险卡片" onClick={()=>setHighlighted(v=>!v)}>⚠</button>
+        <button className={"op-store-intel-action "+(expanded?"active":"")} title="显示更多数据" onClick={()=>setExpanded(v=>!v)}>⚙</button>
+      </span>
     </div>
     <div className="op-store-intel-lines">
-      <span>类目：<b>标签</b></span>
-      <span>销售佣金：<b className="commission">{product.commission[0]}%　{product.commission[1]}%　{product.commission[2]}%</b></span>
-      <span>SKU：<b className="blue">{product.sku}</b></span>
-      <span>品牌：<b className="blue">{product.brand}</b></span>
-      <span>月销量：<b className="blue">{product.monthlySales.toLocaleString("zh-CN")} 件</b></span>
-      <span>月销售额：<b className="blue">¥{Math.round(product.monthlySales*product.price*.12).toLocaleString("zh-CN")}</b></span>
-      <span>销售变化：<b className={product.salesChange>=0?"green":"red"}>{product.salesChange>0?"+":""}{product.salesChange}%</b></span>
-      <span>近30天日均销量：<b className="blue">{(product.monthlySales/30).toFixed(2)}</b></span>
-      <span>推广费占比：<b className={product.adRate>18?"red":"green"}>{product.adRate}%</b></span>
-      <span>商品卡加购率：<b>{product.clickRate}%</b></span>
-      <span>上架时间：<b>{product.listedDays}天前</b></span>
+      <div className="op-store-intel-row"><span>类目</span><b>标签</b></div>
+      <div className="op-store-intel-row"><span>销售佣金</span><b className="op-store-commission"><i>{product.commission[0]}%</i><i>{product.commission[1]}%</i><i>{product.commission[2]}%</i></b></div>
+      <div className="op-store-intel-row"><span>SKU</span><b className="blue">{product.sku}</b></div>
+      <div className="op-store-intel-row"><span>品牌</span><b className="blue">{product.brand}</b></div>
+      <div className="op-store-intel-row"><span>月销量</span><b className="blue">{product.monthlySales.toLocaleString("zh-CN")} 件</b></div>
+      <div className="op-store-intel-row"><span>月销售额</span><b className="blue">¥{monthlyGmv.toLocaleString("zh-CN")}</b></div>
+      <div className="op-store-intel-row"><span>销售变化</span><b className={product.salesChange>=0?"green":"red"}>{product.salesChange>0?"+":""}{product.salesChange}%</b></div>
+      <div className="op-store-intel-row"><span>近30天日均销量</span><b className="blue">{dailySales}</b></div>
+      <div className="op-store-intel-row"><span>近30天日均销售额</span><b className="blue">¥{dailyGmv.toLocaleString("zh-CN")}</b></div>
+      <div className="op-store-intel-row"><span>均价</span><b className="blue">¥{averagePrice}</b></div>
+      <div className="op-store-intel-row"><span>推广费占比</span><b className={product.adRate>18?"red":"green"}>{product.adRate}%</b></div>
+      <div className="op-store-intel-row"><span>商品点击率</span><b className={product.clickRate>3?"green":"red"}>{product.clickRate}%</b></div>
+      <div className="op-store-intel-row"><span>发货模式</span><b className="blue">{product.id%4===0?"FBO":"FBS"}</b></div>
+      <div className="op-store-intel-row"><span>跟卖列表</span><b className="blue">{sellerCount} 个卖家</b></div>
+      <div className="op-store-intel-row"><span>上架时间</span><b className="green">{product.listedDays}天前</b></div>
+      {expanded&&<>
+        <div className="op-store-intel-row"><span>商品卡浏览量</span><b>{(product.monthlySales*18+product.id*791).toLocaleString("zh-CN")}</b></div>
+        <div className="op-store-intel-row"><span>商品卡加购率</span><b>{Math.max(2.1,product.clickRate*.58).toFixed(2)}%</b></div>
+        <div className="op-store-intel-row"><span>退货取消率</span><b className="green">{(0.4+(product.id%6)*.37).toFixed(2)}%</b></div>
+      </>}
     </div>
-  </div>;
+    <div className="op-store-intel-updated">数据截至：2026-09-25 04:{String(20+product.id).padStart(2,"0")}:01</div>
+  </section>;
 }
 
 export function OzonPluginStoreDemo({onEnterErp}:{onEnterErp:()=>void}){

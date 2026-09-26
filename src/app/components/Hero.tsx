@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
+import type { PointerEvent as ReactPointerEvent } from "react";
 import { Button } from "./ui/button";
 import { Play, Brain, Zap, Monitor, Puzzle, Home, Store, PackageSearch, ChevronDown } from "lucide-react";
 import { WebErpDemo } from "./demo/WebErpDemo";
@@ -11,6 +12,19 @@ export function Hero() {
   const [pluginPage, setPluginPage] = useState<"home" | "store" | "product">("home");
   const [pluginMenuOpen, setPluginMenuOpen] = useState(false);
   const [erpInitialView, setErpInitialView] = useState<"dashboard" | "productEdit">("dashboard");
+  const demoCursorRef = useRef<HTMLDivElement | null>(null);
+
+  const moveDemoCursor = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const cursor = demoCursorRef.current;
+    if (!cursor) return;
+    cursor.style.left = event.clientX + "px";
+    cursor.style.top = event.clientY + "px";
+    cursor.style.opacity = "1";
+    const target = event.target as Element;
+    const textTarget = target.closest('input:not([type="checkbox"]):not([type="radio"]), textarea');
+    const actionTarget = target.closest('button, a, select, [role="button"], input[type="checkbox"], input[type="radio"], label');
+    cursor.dataset.mode = textTarget ? "text" : actionTarget ? "action" : "arrow";
+  };
 
   return (
     <section id="top" className="py-20 lg:py-32 bg-gradient-to-b from-background to-muted/30">
@@ -64,7 +78,24 @@ export function Hero() {
         </div>
       </div>
 
-      <div id="web-erp-demo" className="mt-20 px-2 md:px-4 scroll-mt-24">
+      <div
+        id="web-erp-demo"
+        className="demo-morph-zone mt-20 px-2 md:px-4 scroll-mt-24"
+        onPointerMove={moveDemoCursor}
+        onPointerEnter={() => { if (demoCursorRef.current) demoCursorRef.current.style.opacity = "1"; }}
+        onPointerLeave={() => { if (demoCursorRef.current) demoCursorRef.current.style.opacity = "0"; }}
+      >
+        <div ref={demoCursorRef} className="demo-morph-cursor" data-mode="arrow" aria-hidden="true" />
+        <style>{`
+          .demo-morph-zone,.demo-morph-zone *{cursor:none!important}
+          .demo-morph-cursor{position:fixed;left:-80px;top:-80px;z-index:2147483647;pointer-events:none;opacity:0;background:#050505;will-change:left,top,width,height,transform;transition:width .13s ease,height .13s ease,border-radius .13s ease,clip-path .13s ease,opacity .12s ease}
+          .demo-morph-cursor:after{content:"";position:absolute;inset:50% auto auto 50%;width:5px;height:5px;border-radius:50%;background:#fff;transform:translate(-50%,-50%);opacity:0;transition:opacity .13s ease}
+          .demo-morph-cursor[data-mode="arrow"]{width:19px;height:25px;border-radius:0;clip-path:polygon(0 0,0 100%,6px 75%,11px 98%,15px 96%,10px 72%,19px 72%);transform:translate(-2px,-2px)}
+          .demo-morph-cursor[data-mode="action"]{width:29px;height:29px;border-radius:50%;clip-path:circle(50%);transform:translate(-50%,-50%)}
+          .demo-morph-cursor[data-mode="action"]:after{opacity:1}
+          .demo-morph-cursor[data-mode="text"]{width:3px;height:26px;border-radius:3px;clip-path:none;transform:translate(-50%,-50%)}
+          @media (pointer:coarse){.demo-morph-zone,.demo-morph-zone *{cursor:auto!important}.demo-morph-cursor{display:none!important}}
+        `}</style>
         <div className="relative z-[10000] mx-auto mb-3 flex w-[min(1500px,calc(100vw-36px))] items-center justify-start overflow-visible">
           <div className="relative inline-flex h-10 items-center overflow-visible rounded-xl border border-border/70 bg-background/95 p-1 shadow-sm">
             <button
