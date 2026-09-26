@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "./ui/button";
 import { Play, Brain, Zap, Monitor, Puzzle, Home, Store, PackageSearch } from "lucide-react";
 import { WebErpDemo } from "./demo/WebErpDemo";
+import { OzonPluginHomeDemo } from "./OzonPluginHomeDemo";
 
 export function Hero() {
   const [demoMode, setDemoMode] = useState<"erp" | "plugin">("erp");
@@ -126,31 +127,27 @@ export function Hero() {
 
         {demoMode === "erp" ? (
           <WebErpDemo />
+        ) : pluginPage === "home" ? (
+          <OzonPluginHomeDemo />
         ) : (
           <div className="mx-auto flex h-[560px] w-[min(1500px,calc(100vw-36px))] items-center justify-center overflow-hidden rounded-[18px] border border-border bg-[#eef3ff] shadow-[0_28px_80px_rgba(58,72,110,.18)]">
             <div className="max-w-md px-6 text-center">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                {pluginPage === "home" ? (
-                  <Home className="h-6 w-6" />
-                ) : pluginPage === "store" ? (
+                {pluginPage === "store" ? (
                   <Store className="h-6 w-6" />
                 ) : (
                   <PackageSearch className="h-6 w-6" />
                 )}
               </div>
               <h3 className="text-xl font-semibold text-foreground">
-                {pluginPage === "home"
-                  ? "Ozon 插件端 · 主页"
-                  : pluginPage === "store"
-                    ? "Ozon 插件端 · 店铺页"
-                    : "Ozon 插件端 · 商品详情页"}
+                {pluginPage === "store"
+                  ? "Ozon 插件端 · 店铺页"
+                  : "Ozon 插件端 · 商品详情页"}
               </h3>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                {pluginPage === "home"
-                  ? "这里将复刻 Ozon 首页加载插件后的真实界面与交互。"
-                  : pluginPage === "store"
-                    ? "这里将复刻 Ozon 店铺页面加载插件后的真实界面与交互。"
-                    : "这里将复刻 Ozon 商品详情页加载插件后的真实界面与交互。"}
+                {pluginPage === "store"
+                  ? "这里将复刻 Ozon 店铺页面加载插件后的真实界面与交互。"
+                  : "这里将复刻 Ozon 商品详情页加载插件后的真实界面与交互。"}
               </p>
             </div>
           </div>
