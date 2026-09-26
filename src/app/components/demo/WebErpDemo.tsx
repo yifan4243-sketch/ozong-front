@@ -210,13 +210,13 @@ function Sidebar({
   );
 }
 
-export function WebErpDemo() {
-  const [view, setView] = useState<ViewKey>("dashboard");
+export function WebErpDemo({ initialView = "dashboard" }: { initialView?: ViewKey }) {
+  const [view, setView] = useState<ViewKey>(initialView);
   const [products,setProducts]=useState<Product[]>(()=>DEMO_PRODUCTS.map(item=>({...item})));
-  const [editingProductId,setEditingProductId]=useState<number|null>(null);
+  const [editingProductId,setEditingProductId]=useState<number|null>(()=>initialView==="productEdit"?(DEMO_PRODUCTS[0]?.id??null):null);
   const [promotionPrefill,setPromotionPrefill]=useState<Product[]>([]);
-  const [tabs, setTabs] = useState<ViewKey[]>(["dashboard"]);
-  const [productsOpen, setProductsOpen] = useState(false);
+  const [tabs, setTabs] = useState<ViewKey[]>([initialView]);
+  const [productsOpen, setProductsOpen] = useState(["products","productEdit","collection","listing"].includes(initialView));
   const [promoOpen, setPromoOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
   const [rechargeOpen, setRechargeOpen] = useState(false);
