@@ -5,6 +5,49 @@ import "./product-edit-replica.css";
 
 const DEFAULT_TAGS=["#органайзер","#для_дома","#удобное_хранение","#товары_для_дома","#порядок"];
 
+const OTHER_ATTRIBUTE_SEEDS=[
+  {id:"supplier_size",label:"俄罗斯尺码",value:"152-158",placeholder:"搜索选择俄罗斯尺码"},
+  {id:"purpose",label:"用途",value:"Повседневная одежда",placeholder:"搜索选择用途"},
+  {id:"age_range",label:"建议年龄范围",value:"8–10 лет",placeholder:"搜索选择年龄范围"},
+  {id:"json_size",label:"JSON大小描述",value:"Рост 152–158 см, свободный крой, эластичный пояс",placeholder:"添加JSON格式的尺寸图表"},
+  {id:"pdf_name",label:"PDF 文件名称",value:"",placeholder:"请输入"},
+  {id:"jeans_size",label:"牛仔裤尺寸",value:"134",placeholder:"搜索选择牛仔裤尺寸"},
+  {id:"warranty",label:"保证",value:"Без гарантии",placeholder:"搜索选择保证"},
+  {id:"gender",label:"性别",value:"Мальчики",placeholder:"搜索选择性别"},
+  {id:"unit_count",label:"统一计量单位内的商品数量",value:"1",placeholder:"请输入商品数量"},
+  {id:"model_feature",label:"模型的特点",value:"Свободный крой",placeholder:"搜索选择模型的特点"},
+  {id:"model_height_photo",label:"照片中模特的身高",value:"134 см",placeholder:"请输入"},
+  {id:"cut",label:"切",value:"Прямой",placeholder:"搜索选择版型"},
+  {id:"fit",label:"适合的款式",value:"Для мальчиков",placeholder:"请输入"},
+  {id:"material",label:"材料",value:"Деним",placeholder:"搜索选择材料"},
+  {id:"package_type",label:"服装包装类型",value:"Пакет",placeholder:"搜索选择包装类型"},
+  {id:"style",label:"风格",value:"Повседневный",placeholder:"搜索选择风格"},
+  {id:"surface_type",label:"表面类型",value:"Гладкая",placeholder:"搜索选择表面类型"},
+  {id:"season",label:"季节",value:"На любой сезон",placeholder:"搜索选择季节"},
+  {id:"model_params",label:"图片中模型的参数（OG-OT-OB）",value:"61-54-76",placeholder:"请输入"},
+  {id:"product_color",label:"商品颜色",value:"Темно-синий",placeholder:"搜索选择商品颜色"},
+  {id:"care",label:"服装打理",value:"Бережная стирка при t не более 30C",placeholder:"请输入洗护说明"},
+  {id:"model_size",label:"型号尺寸",value:"134",placeholder:"请输入"},
+  {id:"decor",label:"装饰元素",value:"Карманы; Манжеты",placeholder:"搜索选择装饰元素"},
+  {id:"merge_card",label:"合并至一张卡片",value:"HFO0801",placeholder:"请输入"},
+  {id:"origin_country",label:"原产国",value:"中国",placeholder:"搜索选择原产国"},
+  {id:"marking_required",label:"需要标记代码",value:"false",placeholder:"请选择"},
+  {id:"height",label:"身高",value:"152-158",placeholder:"搜索选择身高"},
+  {id:"fit_type",label:"版型类型",value:"Свободный",placeholder:"搜索选择版型类型"},
+  {id:"manufacturer_size",label:"由制造商规定尺码",value:"158",placeholder:"请输入"},
+  {id:"collection",label:"系列",value:"Осень-зима 2026",placeholder:"搜索选择系列"},
+  {id:"composition",label:"材料的组成",value:"76% хлопок, 22% полиэстер, 2% эластан",placeholder:"请输入材料组成"},
+  {id:"factory_pack_qty",label:"原厂包装数量",value:"1",placeholder:"请输入"},
+  {id:"lining",label:"衬里材料",value:"Без подкладки",placeholder:"搜索选择衬里材料"},
+  {id:"pattern",label:"绘图",value:"Без рисунка",placeholder:"搜索选择图案"},
+  {id:"color_name",label:"颜色名称",value:"т.синий",placeholder:"请输入颜色名称"},
+  {id:"seller_code",label:"卖家代码",value:"ozg-260909-779620-01",placeholder:"请输入"},
+  {id:"set_included",label:"整套",value:"false",placeholder:"请选择"},
+  {id:"tnved",label:"欧亚经济联盟商品分类编码",value:"6203423100 — брюки и бриджи мужские или для мальчиков из денима",placeholder:"搜索选择编码"},
+  {id:"model_type",label:"型号",value:"джоггеры",placeholder:"请输入型号"},
+  {id:"waist_type",label:"腰部位置类型",value:"Средняя",placeholder:"搜索选择腰部位置类型"},
+] as const;
+
 export function ProductEditReplica({
   product,
   onCancel,
@@ -30,6 +73,8 @@ export function ProductEditReplica({
   const [saved,setSaved]=useState(false);
   const [rating,setRating]=useState(69.5);
   const [openGroup,setOpenGroup]=useState<number|null>(null);
+  const [otherAttributes,setOtherAttributes]=useState<Record<string,string>>(()=>Object.fromEntries(OTHER_ATTRIBUTE_SEEDS.map(item=>[item.id,item.value])));
+  const [variantAttributeIds,setVariantAttributeIds]=useState<string[]>([]);
 
   const ratingGroups=[
     {name:"媒体",score:27,max:45,tone:"amber"},
@@ -65,6 +110,9 @@ export function ProductEditReplica({
     if(!tags.includes(normalized))setTags(v=>[...v,normalized]);
     setTagDraft("");
   };
+
+  const patchOtherAttribute=(id:string,value:string)=>setOtherAttributes(current=>({...current,[id]:value}));
+  const toggleVariantAttribute=(id:string)=>setVariantAttributeIds(current=>current.includes(id)?current.filter(item=>item!==id):[...current,id]);
 
   return <div className="ai-edit-replica-source">
     {saved&&<div className="ai-edit-toast-source"><CheckCircleOutlined/> 草稿已保存</div>}
@@ -133,6 +181,31 @@ export function ProductEditReplica({
             <h3>📦 变体设置</h3>
             <div className="ai-variant-row-source head"><span>上架</span><span>SKU 名称</span><span>货号</span><span>售价</span><span>划线价</span><span>库存</span></div>
             <div className="ai-variant-row-source"><span><input type="checkbox" defaultChecked/></span><span>{title}</span><span>{product.offer}</span><span><input type="number" value={price} onChange={e=>setPrice(Number(e.target.value))}/></span><span><input type="number" value={oldPrice} onChange={e=>setOldPrice(Number(e.target.value))}/></span><span><input type="number" value={stock} onChange={e=>setStock(Number(e.target.value))}/></span></div>
+          </section>
+
+          <section className="ai-form-card-source ai-other-attributes-card-source">
+            <h3>⚙ 其他属性</h3>
+            <div className="ai-other-attributes-list-source">
+              {OTHER_ATTRIBUTE_SEEDS.map(attr=>{
+                const added=variantAttributeIds.includes(attr.id);
+                return <div className="ai-other-attribute-row-source" key={attr.id}>
+                  <label>{attr.label}</label>
+                  <div className="ai-other-attribute-control-source">
+                    <input
+                      value={otherAttributes[attr.id]??""}
+                      placeholder={attr.placeholder}
+                      onChange={e=>patchOtherAttribute(attr.id,e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      className={added?"active":""}
+                      title={added?"已加入变体属性，点击移除":"添加到变体属性中"}
+                      onClick={()=>toggleVariantAttribute(attr.id)}
+                    >{added?"✓":"＋"}</button>
+                  </div>
+                </div>;
+              })}
+            </div>
           </section>
         </main>
 
