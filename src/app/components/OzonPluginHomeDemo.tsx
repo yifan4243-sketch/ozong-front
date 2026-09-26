@@ -384,7 +384,17 @@ function AutoSelectionSettings({
     onSave(draft);
   };
 
-  return <div className="auto-settings-overlay">
+  useEffect(()=>{
+    const handleEscape=(event:KeyboardEvent)=>{
+      if(event.key!=="Escape") return;
+      event.preventDefault();
+      save();
+    };
+    document.addEventListener("keydown",handleEscape,true);
+    return()=>document.removeEventListener("keydown",handleEscape,true);
+  });
+
+  return <div className="auto-settings-overlay" onMouseDown={event=>{if(event.target===event.currentTarget) save()}}>
     <section className="auto-settings-dialog">
       <header>
         <div><h2>选品筛选条件</h2><p>条件全部选填；留空表示不限制该项。</p></div>
