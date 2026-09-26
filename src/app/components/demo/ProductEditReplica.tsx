@@ -48,6 +48,31 @@ const OTHER_ATTRIBUTE_SEEDS=[
   {id:"waist_type",label:"腰部位置类型",value:"Средняя",placeholder:"搜索选择腰部位置类型"},
 ] as const;
 
+const LABEL_ATTRIBUTE_SEEDS=[
+  {id:"label_width",label:"标签宽度",value:"40 мм",placeholder:"请输入标签宽度"},
+  {id:"label_height",label:"标签高度",value:"30 мм",placeholder:"请输入标签高度"},
+  {id:"label_count",label:"单卷标签数量",value:"1000",placeholder:"请输入数量"},
+  {id:"print_type",label:"打印类型",value:"Термопечать",placeholder:"搜索选择打印类型"},
+  {id:"purpose",label:"用途",value:"для печати",placeholder:"搜索选择用途"},
+  {id:"core_diameter",label:"纸芯内径",value:"40 мм",placeholder:"请输入纸芯内径"},
+  {id:"roll_diameter",label:"卷径",value:"85 мм",placeholder:"请输入卷径"},
+  {id:"label_shape",label:"标签形状",value:"Прямоугольная",placeholder:"搜索选择形状"},
+  {id:"adhesive",label:"胶粘类型",value:"Постоянный акриловый",placeholder:"搜索选择胶粘类型"},
+  {id:"surface",label:"表面类型",value:"Матовая",placeholder:"搜索选择表面类型"},
+  {id:"material",label:"材料",value:"Термобумага",placeholder:"搜索选择材料"},
+  {id:"color",label:"颜色",value:"Белый",placeholder:"搜索选择颜色"},
+  {id:"package_type",label:"包装类型",value:"Рулон",placeholder:"搜索选择包装类型"},
+  {id:"unit_count",label:"统一计量单位内的商品数量",value:"1",placeholder:"请输入商品数量"},
+  {id:"compatibility",label:"适用设备",value:"Термопринтеры этикеток",placeholder:"请输入适用设备"},
+  {id:"storage",label:"存储条件",value:"Сухое место, вдали от солнечных лучей",placeholder:"请输入存储条件"},
+  {id:"origin_country",label:"原产国",value:"中国",placeholder:"搜索选择原产国"},
+  {id:"seller_code",label:"卖家代码",value:"OZG-1825601210",placeholder:"请输入卖家代码"},
+  {id:"model_type",label:"型号",value:"40x30 TOP D85",placeholder:"请输入型号"},
+  {id:"tnved",label:"欧亚经济联盟商品分类编码",value:"4811900000",placeholder:"搜索选择编码"},
+  {id:"factory_pack_qty",label:"原厂包装数量",value:"1",placeholder:"请输入"},
+  {id:"marking_required",label:"需要标记代码",value:"false",placeholder:"请选择"},
+] as const;
+
 export function ProductEditReplica({
   product,
   onCancel,
@@ -61,11 +86,13 @@ export function ProductEditReplica({
   const [brand,setBrand]=useState("NO NAME");
   const [model,setModel]=useState(product?.offer||"");
   const [weight,setWeight]=useState(product?parseInt(product.weight)||0:0);
-  const [depth,setDepth]=useState(340);
-  const [width,setWidth]=useState(270);
-  const [height,setHeight]=useState(50);
+  const isLabelDemo=product?.sku==="1825601210";
+  const attributeSeeds=isLabelDemo?LABEL_ATTRIBUTE_SEEDS:OTHER_ATTRIBUTE_SEEDS;
+  const [depth,setDepth]=useState(isLabelDemo?120:340);
+  const [width,setWidth]=useState(isLabelDemo?120:270);
+  const [height,setHeight]=useState(isLabelDemo?90:50);
   const [description,setDescription]=useState("");
-  const [tags,setTags]=useState(DEFAULT_TAGS);
+  const [tags,setTags]=useState(isLabelDemo?["#термоэтикетки","#этикетки_40x30","#для_маркетплейсов","#термопечать","#этикетки"]:DEFAULT_TAGS);
   const [tagDraft,setTagDraft]=useState("");
   const [price,setPrice]=useState(product?.price||0);
   const [oldPrice,setOldPrice]=useState(product?.old||0);
@@ -73,7 +100,7 @@ export function ProductEditReplica({
   const [saved,setSaved]=useState(false);
   const [rating,setRating]=useState(69.5);
   const [openGroup,setOpenGroup]=useState<number|null>(null);
-  const [otherAttributes,setOtherAttributes]=useState<Record<string,string>>(()=>Object.fromEntries(OTHER_ATTRIBUTE_SEEDS.map(item=>[item.id,item.value])));
+  const [otherAttributes,setOtherAttributes]=useState<Record<string,string>>(()=>Object.fromEntries(attributeSeeds.map(item=>[item.id,item.value])));
   const [variantAttributeIds,setVariantAttributeIds]=useState<string[]>([]);
 
   const ratingGroups=[
@@ -186,7 +213,7 @@ export function ProductEditReplica({
           <section className="ai-form-card-source ai-other-attributes-card-source">
             <h3>⚙ 其他属性</h3>
             <div className="ai-other-attributes-list-source">
-              {OTHER_ATTRIBUTE_SEEDS.map(attr=>{
+              {attributeSeeds.map(attr=>{
                 const added=variantAttributeIds.includes(attr.id);
                 return <div className="ai-other-attribute-row-source" key={attr.id}>
                   <label>{attr.label}</label>
