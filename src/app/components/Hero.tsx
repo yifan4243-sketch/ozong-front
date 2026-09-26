@@ -118,7 +118,7 @@ export function Hero() {
       >
         <div ref={demoCursorRef} className="demo-morph-cursor" data-mode="arrow" aria-hidden="true">
           <svg className="demo-morph-cursor-arrow" viewBox="0 0 24 28">
-            <path d="M3.2 2.2C2.4 1.65 1.35 2.28 1.52 3.23L4.88 23.42C5.04 24.39 6.28 24.7 6.88 23.92L11.02 18.56L18.13 17.33C19.11 17.16 19.39 15.91 18.57 15.35L3.2 2.2Z"/>
+            <path d="M3.1 2.2C2.3 1.55 1.12 2.22 1.34 3.24L5.35 23.62C5.56 24.67 6.84 24.98 7.48 24.13L20.02 16.35C20.77 15.42 20.38 14.29 19.27 13.85L3.1 2.2Z"/>
           </svg>
           <span className="demo-morph-cursor-ibeam" />
         </div>
