@@ -128,7 +128,7 @@ export function Hero() {
         {demoMode === "erp" ? (
           <WebErpDemo />
         ) : pluginPage === "home" ? (
-          <OzonPluginHomeDemo />
+          <OzonPluginHomeDemo onEnterErp={() => setDemoMode("erp")} />
         ) : (
           <div className="mx-auto flex h-[560px] w-[min(1500px,calc(100vw-36px))] items-center justify-center overflow-hidden rounded-[18px] border border-border bg-[#eef3ff] shadow-[0_28px_80px_rgba(58,72,110,.18)]">
             <div className="max-w-md px-6 text-center">
