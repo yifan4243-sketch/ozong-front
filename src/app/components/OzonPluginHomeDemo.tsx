@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Box,
   ChevronDown,
@@ -132,7 +132,7 @@ function buildProduct(index:number):DemoProduct{
     searchCart:isEmpty?unavailable:maybe(pct(2.1+(index%7)*1.42),16),
     displayConversion:isEmpty?unavailable:maybe(pct(7.4+(index%6)*4.38),17),
     clickThroughRate:isEmpty?unavailable:maybe(pct(.12+(index%8)*.47),18),
-    delivery:isEmpty?unavailable:(index%4===0?"FBO":"FBS"),
+    delivery:isEmpty?unavailable:(index%7===0?"FBO,FBS":index%4===0?"FBO":"FBS"),
     returnRate:isEmpty?unavailable:maybe(pct(.3+(index%7)*.58),19),
     dimensions:isEmpty?unavailable:maybe(`${120+(index%6)*18} × ${80+(index%5)*14} × ${30+(index%8)*9}mm`,20),
     weight:isEmpty?unavailable:maybe(`${52+(index*47)%1180} g`,21),
@@ -253,7 +253,7 @@ function IntelCard({
 }
 
 type AutoNumericKey=
-  |"monthlySales"|"monthlyGmv"|"averagePrice"|"weight"|"listingDays"|"salesDynamics"
+  |"monthlySales"|"monthlyGmv"|"averagePrice"|"packagingWeight"|"listingDays"|"salesDynamics"
   |"adRate"|"promoDays"|"promoDiscount"|"promoConversion"|"paidPromotionDays"
   |"productCardViews"|"productCardCart"|"searchViews"|"searchCart"|"displayConversion"
   |"clickThroughRate"|"returnRate"|"sellerCount"|"followMinPrice";
@@ -262,7 +262,7 @@ const AUTO_NUMERIC_FIELDS:Array<{key:AutoNumericKey;label:string;unit:string}>=[
   {key:"monthlySales",label:"月销量",unit:"件"},
   {key:"monthlyGmv",label:"月销售额",unit:"¥"},
   {key:"averagePrice",label:"均价",unit:"¥"},
-  {key:"weight",label:"重量",unit:"g"},
+  {key:"packagingWeight",label:"重量",unit:"g"},
   {key:"listingDays",label:"上架天数",unit:"天"},
   {key:"salesDynamics",label:"销售变化",unit:"%"},
   {key:"adRate",label:"推广费占比",unit:"%"},
@@ -288,8 +288,15 @@ type AutoFilters={
 };
 
 const EMPTY_AUTO_FILTERS:AutoFilters={brandMode:"any",delivery:"any",numeric:{}};
+const DEMO_EXISTING_SELECTION_IDS=new Set([2,12,22]);
 
 function readDemoNumber(product:DemoProduct,key:AutoNumericKey){
+  if(key==="packagingWeight"){
+    const source=product.data.weight;
+    if(!source||source==="暂无数据") return null;
+    const match=source.replace(/,/g,"").match(/-?\d+(?:\.\d+)?/);
+    return match?Number(match[0]):null;
+  }
   if(key==="listingDays"){
     const match=product.data.createDate.match(/（(\d+)天）/);
     return match?Number(match[1]):null;
@@ -308,24 +315,35 @@ function autoSettingCount(filters:AutoFilters){
     +Object.values(filters.numeric).filter(range=>range.min!==""||range.max!=="").length;
 }
 
-function matchesAutoFilters(product:DemoProduct,filters:AutoFilters){
-  if(filters.brandMode==="brand"&&(product.data.brand==="No name"||product.data.brand==="无品牌"||product.data.brand==="暂无数据")) return false;
-  if(filters.brandMode==="noBrand"&&product.data.brand!=="No name"&&product.data.brand!=="无品牌") return false;
+type DemoFilterEvaluation={status:"pass"|"reject"|"error";field?:string};
+
+function evaluateDemoProduct(product:DemoProduct,filters:AutoFilters):DemoFilterEvaluation{
+  if(filters.brandMode==="brand"||filters.brandMode==="noBrand"){
+    const brand=product.data.brand;
+    if(brand==="暂无数据") return {status:"error",field:"品牌"};
+    const hasBrand=brand!=="No name"&&brand!=="无品牌";
+    if((filters.brandMode==="brand"&&!hasBrand)||(filters.brandMode==="noBrand"&&hasBrand)) return {status:"reject",field:"品牌"};
+  }
   if(filters.delivery!=="any"){
-    const allowed=filters.delivery.split(",");
-    if(!allowed.includes(product.data.delivery)) return false;
+    const delivery=product.data.delivery;
+    if(delivery==="暂无数据") return {status:"error",field:"发货模式"};
+    if(delivery!==filters.delivery) return {status:"reject",field:"发货模式"};
   }
   for(const field of AUTO_NUMERIC_FIELDS){
     const range=filters.numeric[field.key];
     if(!range||(range.min===""&&range.max==="")) continue;
     const value=readDemoNumber(product,field.key);
-    if(value===null) return false;
+    if(value===null) return {status:product.status==="empty"?"error":"reject",field:field.label};
     const min=range.min===""?null:Number(range.min);
     const max=range.max===""?null:Number(range.max);
-    if(min!==null&&Number.isFinite(min)&&value<min) return false;
-    if(max!==null&&Number.isFinite(max)&&value>max) return false;
+    if(min!==null&&Number.isFinite(min)&&value<min) return {status:"reject",field:field.label};
+    if(max!==null&&Number.isFinite(max)&&value>max) return {status:"reject",field:field.label};
   }
-  return true;
+  return {status:"pass"};
+}
+
+function matchesAutoFilters(product:DemoProduct,filters:AutoFilters){
+  return evaluateDemoProduct(product,filters).status==="pass";
 }
 
 function AutoSelectionSettings({
@@ -397,65 +415,222 @@ function AutoSelectionSettings({
   </div>;
 }
 
+type DemoScanRow={product:DemoProduct;status:"pending"|"pass"|"reject"|"error";field?:string};
+type DemoQueueRow={product:DemoProduct;state:"running"|"completed"|"existing"|"failed";error?:string};
+
 function AutoSelectionModal({
   products,
+  filters,
+  quantity,
+  onFiltersChange,
+  onQuantityChange,
+  onScanningChange,
   onClose,
   onComplete,
 }:{
   products:DemoProduct[];
+  filters:AutoFilters;
+  quantity:string;
+  onFiltersChange:(next:AutoFilters)=>void;
+  onQuantityChange:(next:string)=>void;
+  onScanningChange:(next:boolean)=>void;
   onClose:()=>void;
   onComplete:(ids:number[],summary:{scanned:number;qualified:number;added:number;existing:number;failed:number})=>void;
 }){
-  const [filters,setFilters]=useState<AutoFilters>(EMPTY_AUTO_FILTERS);
-  const [quantity,setQuantity]=useState("5");
   const [settingsOpen,setSettingsOpen]=useState(false);
   const [settingsError,setSettingsError]=useState("");
+  const [running,setRunning]=useState(false);
+  const [scanRows,setScanRows]=useState<DemoScanRow[]>([]);
+  const [queueRows,setQueueRows]=useState<DemoQueueRow[]>([]);
+  const [scanStatus,setScanStatus]=useState("等待开始扫描");
   const [summary,setSummary]=useState<{scanned:number;qualified:number;added:number;existing:number;failed:number}|null>(null);
+  const runToken=useRef(0);
+  const scanBodyRef=useRef<HTMLDivElement|null>(null);
+  const queueBodyRef=useRef<HTMLDivElement|null>(null);
   const settingsCount=autoSettingCount(filters);
 
-  const start=()=>{
+  useEffect(()=>()=>{
+    runToken.current+=1;
+    onScanningChange(false);
+  },[onScanningChange]);
+
+  useEffect(()=>{
+    if(scanBodyRef.current) scanBodyRef.current.scrollTop=scanBodyRef.current.scrollHeight;
+  },[scanRows.length]);
+
+  useEffect(()=>{
+    if(queueBodyRef.current) queueBodyRef.current.scrollTop=queueBodyRef.current.scrollHeight;
+  },[queueRows.length]);
+
+  const stopAndClose=()=>{
+    runToken.current+=1;
+    onScanningChange(false);
+    onClose();
+  };
+
+  const start=async()=>{
     const amount=Number(quantity);
-    if(!Number.isInteger(amount)||amount<1) return;
+    if(running||!Number.isInteger(amount)||amount<1) return;
     if(settingsCount<1){
       setSettingsError("请至少设置一项筛选条件后再开始选品。");
+      setScanStatus("等待设置筛选条件");
       setSettingsOpen(true);
       return;
     }
-    const qualified=products.filter(product=>matchesAutoFilters(product,filters));
-    const picked=qualified.slice(0,amount);
-    const next={scanned:products.length,qualified:qualified.length,added:picked.length,existing:0,failed:0};
-    setSummary(next);
-    onComplete(picked.map(item=>item.id),next);
+
+    const token=++runToken.current;
+    setRunning(true);
+    setSummary(null);
+    setScanRows([]);
+    setQueueRows([]);
+    setScanStatus("正在恢复扫描进度并读取 SKU…");
+    onScanningChange(true);
+
+    const scroller=document.querySelector(".ozon-plugin-home-demo .ozon-home-scroll") as HTMLElement|null;
+    if(scroller) scroller.scrollTop=0;
+    const scrollTimer=window.setInterval(()=>{
+      if(runToken.current!==token||!scroller) return;
+      const max=Math.max(0,scroller.scrollHeight-scroller.clientHeight);
+      scroller.scrollTop=Math.min(max,scroller.scrollTop+12);
+    },50);
+
+    let scanned=0;
+    let qualified=0;
+    let added=0;
+    let existing=0;
+    let failed=0;
+    const addedIds:number[]=[];
+    const scanBuffer:DemoScanRow[]=[];
+    const queueBuffer:DemoQueueRow[]=[];
+    const sleep=(ms:number)=>new Promise(resolve=>window.setTimeout(resolve,ms));
+
+    try{
+      await sleep(320);
+      if(runToken.current!==token) return;
+      setScanStatus("商品顺序已确认，准备自动下滑扫描");
+
+      for(const product of products){
+        if(runToken.current!==token||added>=amount) break;
+        scanned+=1;
+        scanBuffer.push({product,status:"pending"});
+        setScanRows([...scanBuffer]);
+        setScanStatus("自动下滑扫描中 · 240px/s");
+        await sleep(150);
+        if(runToken.current!==token) return;
+
+        const evaluation=evaluateDemoProduct(product,filters);
+        scanBuffer[scanBuffer.length-1]={product,status:evaluation.status,field:evaluation.field};
+        setScanRows([...scanBuffer]);
+
+        if(evaluation.status==="pass"){
+          qualified+=1;
+          const queueEntry:DemoQueueRow={product,state:"running"};
+          queueBuffer.push(queueEntry);
+          setQueueRows([...queueBuffer]);
+          await sleep(130);
+          if(runToken.current!==token) return;
+
+          if(DEMO_EXISTING_SELECTION_IDS.has(product.id)){
+            existing+=1;
+            queueEntry.state="existing";
+          }else{
+            added+=1;
+            addedIds.push(product.id);
+            queueEntry.state="completed";
+          }
+          setQueueRows([...queueBuffer]);
+        }else if(evaluation.status==="error"){
+          failed+=1;
+        }
+
+        await sleep(110);
+      }
+
+      if(runToken.current!==token) return;
+      const next={scanned,qualified,added,existing,failed};
+      setSummary(next);
+      setScanStatus(
+        added>=amount
+          ?"扫描完成 · 已找到 "+qualified+" 个合格 SKU，达到目标 "+amount
+          :"扫描完成 · 目标 "+amount+"，实际新增 "+added
+      );
+      onComplete(addedIds,next);
+    }finally{
+      window.clearInterval(scrollTimer);
+      if(runToken.current===token) setRunning(false);
+    }
   };
 
-  const resultProducts=summary?products.filter(product=>matchesAutoFilters(product,filters)).slice(0,Number(quantity)):[];
+  const showWorkspace=running||scanRows.length>0||summary!==null;
   return <div className="auto-listing-overlay">
     <section className="auto-listing-dialog">
       <header className="auto-listing-header">
-        <div className="auto-listing-brand"><img src="/auto-ozon/auto-ozon-logo.png" alt="OzonG"/><div><small>AUTO PRODUCT SELECTION</small><strong>{summary?<>本次已新增 <b>{summary.added}</b> 个商品</>:"自动选品工作台"}</strong></div></div>
-        <div className="auto-listing-header-actions">
-          <label><span>筛选条件</span><button onClick={()=>{setSettingsError("");setSettingsOpen(true)}}>{settingsCount?"已设 "+settingsCount+" 项":"设置条件"}</button></label>
-          <label><span>选品数量</span><input type="number" min="1" step="1" value={quantity} onChange={e=>setQuantity(e.target.value)}/></label>
-          <label><span>执行</span><button className="start" disabled={!Number.isInteger(Number(quantity))||Number(quantity)<1} onClick={start}>开始选品</button></label>
+        <div className="auto-listing-brand">
+          <img src="/auto-ozon/auto-ozon-logo.png" alt="OzonG"/>
+          <div>
+            <small>AUTO PRODUCT SELECTION</small>
+            <strong className={showWorkspace?"scan-summary":""}>
+              {showWorkspace?<><span>已扫描</span><b>{scanRows.length}</b><span>个SKU，</span><b>{queueRows.length}</b><span>个符合条件SKU</span></>:"自动选品工作台"}
+            </strong>
+          </div>
         </div>
-        <button className="auto-listing-close" onClick={onClose}>关闭</button>
+        <div className="auto-listing-header-actions">
+          <label><span>筛选条件</span><button disabled={running} onClick={()=>{setSettingsError("");setSettingsOpen(true)}}>{settingsCount?"已设 "+settingsCount+" 项":"设置条件"}</button></label>
+          <label><span>选品数量</span><input disabled={running} type="number" min="1" step="1" value={quantity} onChange={e=>onQuantityChange(e.target.value)}/></label>
+          <label><span>执行</span><button className="start" disabled={running||!Number.isInteger(Number(quantity))||Number(quantity)<1} onClick={start}>{running?"选品中":"开始选品"}</button></label>
+        </div>
+        <button className="auto-listing-close" onClick={stopAndClose}>关闭</button>
       </header>
+
       <div className="auto-listing-content">
         <section className="auto-listing-stage">
-          <div className="auto-listing-stage-label">PRODUCT SELECTION QUEUE</div>
-          <h3>筛选合格商品，统一进入采集箱</h3>
-          <p>设置筛选条件和选品数量；合格 SKU 只保存到 ERP 采集箱，不会自动执行上架。</p>
-          <div className="auto-listing-ready">
-            <strong>{summary?"本次自动选品已完成":"已准备开始选品"}</strong>
-            <span>{summary
-              ?"扫描 "+summary.scanned+"，合格 "+summary.qualified+"，新增 "+summary.added+"，已存在 "+summary.existing+"，失败 "+summary.failed+"。"
-              :"重复商品会跳过且不计入目标数量。店铺和正式上架设置请在采集箱点击“上架”后选择。"}</span>
-          </div>
-          {summary&&<div className="auto-listing-result-strip"><span>已选商品</span><div>{resultProducts.map(product=><b key={product.id}>{product.data.sku}</b>)}</div></div>}
+          {!showWorkspace?<>
+            <div className="auto-listing-stage-label">PRODUCT SELECTION QUEUE</div>
+            <h3>筛选合格商品，统一进入采集箱</h3>
+            <p>设置筛选条件和选品数量；合格 SKU 只保存到 ERP 采集箱，不会自动执行上架。</p>
+            <div className="auto-listing-ready">
+              <strong>已准备开始选品</strong>
+              <span>重复商品会跳过且不计入目标数量。店铺和正式上架设置请在采集箱点击“上架”后选择。</span>
+            </div>
+          </>:<div className="auto-scan-results">
+            <section className="auto-scan-pane is-scan">
+              <header><div><h3>扫描列表</h3><p>{scanStatus}</p></div><b>{scanRows.length}</b></header>
+              <div className="auto-scan-pane-body" ref={scanBodyRef}>
+                {running&&scanRows.length===0?<div className="auto-scan-loading"><i/><span>正在恢复扫描进度并读取 SKU…</span></div>:scanRows.length===0?<div className="auto-scan-empty">当前主商品区暂未发现可用 SKU</div>:<div className="auto-scan-grid">
+                  {scanRows.map((row,index)=><div className="auto-scan-item" key={row.product.id}>
+                    <span className="auto-scan-index">{index+1}</span>
+                    <span className="auto-scan-sku">{row.product.data.sku}</span>
+                    <span className={"auto-scan-status is-"+row.status}>
+                      {row.status==="pending"?"判断中":row.status==="pass"?"符合条件":row.status==="reject"?"不符合条件":"数据失败"+(row.field?"："+row.field:"")}
+                    </span>
+                  </div>)}
+                </div>}
+              </div>
+            </section>
+
+            <section className="auto-scan-pane is-queue">
+              <header><div><h3>合格列表</h3><p>符合条件的 SKU 将依次保存到 ERP 采集箱</p></div><b>{queueRows.length}</b></header>
+              <div className="auto-scan-pane-body" ref={queueBodyRef}>
+                {queueRows.length===0?<div className="auto-scan-empty">符合条件的 SKU 将依次保存到 ERP 采集箱</div>:<div className="auto-scan-grid">
+                  {queueRows.map((row,index)=><div className={"auto-scan-item is-candidate is-"+row.state} key={row.product.id}>
+                    <span className="auto-scan-index">{index+1}</span>
+                    <span className="auto-scan-sku">{row.product.data.sku}</span>
+                    <span className="auto-queue-status">{row.state==="running"?"采集中":row.state==="completed"?"已采集":row.state==="existing"?"已在采集箱":"采集失败"}</span>
+                  </div>)}
+                </div>}
+              </div>
+            </section>
+          </div>}
         </section>
       </div>
     </section>
-    {settingsOpen&&<AutoSelectionSettings value={filters} initialError={settingsError} onCancel={()=>setSettingsOpen(false)} onSave={next=>{setFilters(next);setSettingsOpen(false);setSettingsError("")}}/>}
+
+    {settingsOpen&&<AutoSelectionSettings
+      value={filters}
+      initialError={settingsError}
+      onCancel={()=>setSettingsOpen(false)}
+      onSave={next=>{onFiltersChange(next);setSettingsOpen(false);setSettingsError("")}}
+    />}
   </div>;
 }
 
@@ -563,6 +738,9 @@ export function OzonPluginHomeDemo({onEnterErp}:{onEnterErp?:()=>void}){
   const [panelOpen,setPanelOpen]=useState(false);
   const [cardsHidden,setCardsHidden]=useState(false);
   const [autoSelectionOpen,setAutoSelectionOpen]=useState(false);
+  const [autoFilters,setAutoFilters]=useState<AutoFilters>(EMPTY_AUTO_FILTERS);
+  const [autoQuantity,setAutoQuantity]=useState("5");
+  const [autoScanning,setAutoScanning]=useState(false);
   const [calculatorMode,setCalculatorMode]=useState<CalculatorMode|null>(null);
   const [autoSelectedIds,setAutoSelectedIds]=useState<number[]>([]);
   const [notice,setNotice]=useState("");
@@ -588,7 +766,7 @@ export function OzonPluginHomeDemo({onEnterErp}:{onEnterErp?:()=>void}){
           <div className="ozon-product-price"><b>{rub(product.price)}</b><s>{rub(product.oldPrice)}</s><em>-{product.discount}%</em></div>
           <div className="ozon-product-title">{product.title}</div>
           <div className="ozon-product-rating">★ {product.rating.toFixed(1)} <span>{new Intl.NumberFormat("ru-RU").format(product.reviews)} отзывов</span></div>
-          {!cardsHidden&&<IntelCard product={product} visibleFields={visibleFields} onSettings={()=>setSettingsOpen(true)}/>}
+          {!cardsHidden&&!autoScanning&&<IntelCard product={product} visibleFields={visibleFields} onSettings={()=>setSettingsOpen(true)}/>}
         </article>)}
       </div>
       <div className="ozon-demo-end">已展示 30 个插件主页示例商品</div>
@@ -610,7 +788,19 @@ export function OzonPluginHomeDemo({onEnterErp}:{onEnterErp?:()=>void}){
     </aside>}
 
     {settingsOpen&&<FieldSettings visibleFields={visibleFields} onClose={()=>setSettingsOpen(false)} onApply={next=>{setVisibleFields(next);setSettingsOpen(false)}}/>}
-    {autoSelectionOpen&&<AutoSelectionModal products={PRODUCTS} onClose={()=>setAutoSelectionOpen(false)} onComplete={(ids,summary)=>{setAutoSelectedIds(ids);setNotice("自动选品完成：扫描 "+summary.scanned+" 个，合格 "+summary.qualified+" 个，新增 "+summary.added+" 个。")}}/>}
+    {autoSelectionOpen&&<AutoSelectionModal
+      products={PRODUCTS}
+      filters={autoFilters}
+      quantity={autoQuantity}
+      onFiltersChange={setAutoFilters}
+      onQuantityChange={setAutoQuantity}
+      onScanningChange={setAutoScanning}
+      onClose={()=>setAutoSelectionOpen(false)}
+      onComplete={(ids,summary)=>{
+        setAutoSelectedIds(current=>[...new Set([...current,...ids])]);
+        setNotice("自动选品完成：扫描 "+summary.scanned+" 个，合格 "+summary.qualified+" 个，新增 "+summary.added+" 个，已存在 "+summary.existing+" 个。");
+      }}
+    />}
     {calculatorMode&&<CalculatorDemoDrawer initialMode={calculatorMode} onClose={()=>setCalculatorMode(null)}/>}
     {notice&&<div className="ozong-demo-toast"><span>{notice}</span><button onClick={()=>setNotice("")}>×</button></div>}
   </div>;
