@@ -3,11 +3,14 @@ import { Button } from "./ui/button";
 import { Play, Brain, Zap, Monitor, Puzzle, Home, Store, PackageSearch, ChevronDown } from "lucide-react";
 import { WebErpDemo } from "./demo/WebErpDemo";
 import { OzonPluginHomeDemo } from "./OzonPluginHomeDemo";
+import { OzonPluginStoreDemo } from "./OzonPluginStoreDemo";
+import { OzonPluginProductDemo } from "./OzonPluginProductDemo";
 
 export function Hero() {
   const [demoMode, setDemoMode] = useState<"erp" | "plugin">("erp");
   const [pluginPage, setPluginPage] = useState<"home" | "store" | "product">("home");
   const [pluginMenuOpen, setPluginMenuOpen] = useState(false);
+  const [erpInitialView, setErpInitialView] = useState<"dashboard" | "productEdit">("dashboard");
 
   return (
     <section id="top" className="py-20 lg:py-32 bg-gradient-to-b from-background to-muted/30">
@@ -66,7 +69,7 @@ export function Hero() {
           <div className="relative inline-flex h-10 items-center overflow-visible rounded-xl border border-border/70 bg-background/95 p-1 shadow-sm">
             <button
               type="button"
-              onClick={() => setDemoMode("erp")}
+              onClick={() => { setErpInitialView("dashboard"); setDemoMode("erp"); }}
               className={`flex h-8 items-center gap-2 rounded-lg px-4 text-sm font-medium transition-all ${
                 demoMode === "erp"
                   ? "bg-primary text-primary-foreground shadow-sm"
@@ -151,31 +154,16 @@ export function Hero() {
         </div>
 
         {demoMode === "erp" ? (
-          <WebErpDemo />
+          <WebErpDemo initialView={erpInitialView} />
         ) : pluginPage === "home" ? (
-          <OzonPluginHomeDemo onEnterErp={() => setDemoMode("erp")} />
+          <OzonPluginHomeDemo onEnterErp={() => { setErpInitialView("dashboard"); setDemoMode("erp"); }} />
+        ) : pluginPage === "store" ? (
+          <OzonPluginStoreDemo onEnterErp={() => { setErpInitialView("dashboard"); setDemoMode("erp"); }} />
         ) : (
-          <div className="mx-auto flex h-[560px] w-[min(1500px,calc(100vw-36px))] items-center justify-center overflow-hidden rounded-[18px] border border-border bg-[#eef3ff] shadow-[0_28px_80px_rgba(58,72,110,.18)]">
-            <div className="max-w-md px-6 text-center">
-              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                {pluginPage === "store" ? (
-                  <Store className="h-6 w-6" />
-                ) : (
-                  <PackageSearch className="h-6 w-6" />
-                )}
-              </div>
-              <h3 className="text-xl font-semibold text-foreground">
-                {pluginPage === "store"
-                  ? "Ozon 插件端 · 店铺页"
-                  : "Ozon 插件端 · 商品详情页"}
-              </h3>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                {pluginPage === "store"
-                  ? "这里将复刻 Ozon 店铺页面加载插件后的真实界面与交互。"
-                  : "这里将复刻 Ozon 商品详情页加载插件后的真实界面与交互。"}
-              </p>
-            </div>
-          </div>
+          <OzonPluginProductDemo
+            onEnterErp={() => { setErpInitialView("dashboard"); setDemoMode("erp"); }}
+            onEditListing={() => { setErpInitialView("productEdit"); setDemoMode("erp"); }}
+          />
         )}
       </div>
     </section>
