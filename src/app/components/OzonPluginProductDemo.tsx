@@ -24,7 +24,6 @@ export function OzonPluginProductDemo({
   onEnterErp:()=>void;
   onEditListing:()=>void;
 }) {
-  const [drawerKey,setDrawerKey]=useState(0);
   const [quickOpen,setQuickOpen]=useState(false);
   const [cardsHidden,setCardsHidden]=useState(false);
   const [liked,setLiked]=useState(false);
@@ -117,7 +116,6 @@ export function OzonPluginProductDemo({
     </div>
 
     <PluginControlDrawer
-      key={drawerKey}
       defaultOpen
       productPage
       cardsHidden={cardsHidden}
