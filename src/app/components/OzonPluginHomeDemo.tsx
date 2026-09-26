@@ -311,6 +311,7 @@ export function OzonPluginHomeDemo(){
         <button className="primary">打开 Ozon Seller</button>
         <button>绑定 Cookie</button>
         <small>效率工具</small>
+        <button className="auto-listing-control"><span>自动选品</span></button>
         <div className="two"><button>计算利润</button><button className="orange">定价工具</button></div>
         <small>快捷设置</small>
         <button onClick={()=>setCardsHidden(v=>!v)}>{cardsHidden?"显示商品卡":"隐藏商品卡"}</button>
