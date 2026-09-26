@@ -1,8 +1,11 @@
+import { useState } from "react";
 import { Button } from "./ui/button";
-import { Play, Brain, Zap } from "lucide-react";
+import { Play, Brain, Zap, Monitor, Puzzle } from "lucide-react";
 import { WebErpDemo } from "./demo/WebErpDemo";
 
 export function Hero() {
+  const [demoMode, setDemoMode] = useState<"erp" | "plugin">("erp");
+
   return (
     <section id="top" className="py-20 lg:py-32 bg-gradient-to-b from-background to-muted/30">
       <div className="container mx-auto max-w-6xl px-4">
@@ -56,7 +59,52 @@ export function Hero() {
       </div>
 
       <div id="web-erp-demo" className="mt-20 px-2 md:px-4 scroll-mt-24">
-        <WebErpDemo />
+        <div className="mx-auto mb-3 flex w-[min(1500px,calc(100vw-36px))] items-center justify-start">
+          <div className="inline-flex h-10 items-center rounded-xl border border-border/70 bg-background/95 p-1 shadow-sm backdrop-blur">
+            <button
+              type="button"
+              onClick={() => setDemoMode("erp")}
+              className={`flex h-8 items-center gap-2 rounded-lg px-4 text-sm font-medium transition-all ${
+                demoMode === "erp"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+              aria-pressed={demoMode === "erp"}
+            >
+              <Monitor className="h-4 w-4" />
+              ERP 网页端
+            </button>
+            <button
+              type="button"
+              onClick={() => setDemoMode("plugin")}
+              className={`flex h-8 items-center gap-2 rounded-lg px-4 text-sm font-medium transition-all ${
+                demoMode === "plugin"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              }`}
+              aria-pressed={demoMode === "plugin"}
+            >
+              <Puzzle className="h-4 w-4" />
+              Ozon 插件端
+            </button>
+          </div>
+        </div>
+
+        {demoMode === "erp" ? (
+          <WebErpDemo />
+        ) : (
+          <div className="mx-auto flex h-[560px] w-[min(1500px,calc(100vw-36px))] items-center justify-center overflow-hidden rounded-[18px] border border-border bg-[#eef3ff] shadow-[0_28px_80px_rgba(58,72,110,.18)]">
+            <div className="max-w-md px-6 text-center">
+              <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <Puzzle className="h-6 w-6" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground">Ozon 插件端演示</h3>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                插件端演示容器已经接入切换逻辑。下一步将按照真实 Ozon 页面与插件源码逐项复刻 UI、数据与交互。
+              </p>
+            </div>
+          </div>
+        )}
       </div>
     </section>
   );
