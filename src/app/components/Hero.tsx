@@ -117,16 +117,16 @@ export function Hero() {
         className="demo-morph-zone mt-20 px-2 md:px-4 scroll-mt-24"
       >
         <div ref={demoCursorRef} className="demo-morph-cursor" data-mode="arrow" aria-hidden="true">
-          <svg className="demo-morph-cursor-arrow" viewBox="0 0 22 24">
-            <path d="M2.4 1.9L19.1 14.25L11.85 16.0L9.35 21.45L7.55 17.25L3.05 21.05L2.4 1.9Z"/>
+          <svg className="demo-morph-cursor-arrow" viewBox="0 0 24 30">
+            <path d="M2.2 1.8L20.5 14.4L12.2 16L9 23.2L6.9 17.6L3.2 21.2Z"/>
           </svg>
           <span className="demo-morph-cursor-ibeam" />
         </div>
         <style>{`
           .demo-morph-zone,.demo-morph-zone *{cursor:none!important}
-          .demo-morph-cursor{position:fixed;left:0;top:0;z-index:2147483647;width:22px;height:24px;pointer-events:none;opacity:0;transform:translate3d(-80px,-80px,0);will-change:transform,opacity;transition:opacity .1s ease}
-          .demo-morph-cursor-arrow{display:block;width:22px;height:24px;overflow:visible;transform-origin:3px 3px;transition:transform .12s cubic-bezier(.2,.8,.2,1),filter .12s ease;filter:drop-shadow(0 1px 1px rgba(15,23,42,.18)) drop-shadow(0 3px 5px rgba(15,23,42,.16))}
-          .demo-morph-cursor-arrow path{fill:#07090d;stroke:rgba(255,255,255,.98);stroke-width:1.35;stroke-linejoin:round;stroke-linecap:round}
+          .demo-morph-cursor{position:fixed;left:0;top:0;z-index:2147483647;width:24px;height:30px;pointer-events:none;opacity:0;transform:translate3d(-80px,-80px,0);will-change:transform,opacity;transition:opacity .1s ease}
+          .demo-morph-cursor-arrow{display:block;width:24px;height:30px;overflow:visible;transform-origin:3px 3px;transition:transform .12s cubic-bezier(.2,.8,.2,1),filter .12s ease;filter:drop-shadow(0 1px 1px rgba(15,23,42,.18)) drop-shadow(0 3px 5px rgba(15,23,42,.16))}
+          .demo-morph-cursor-arrow path{fill:#07090d;stroke:rgba(255,255,255,.98);stroke-width:.9;stroke-linejoin:round;stroke-linecap:round}
           .demo-morph-cursor[data-mode="action"] .demo-morph-cursor-arrow{transform:scale(1.08);filter:drop-shadow(0 3px 6px rgba(15,23,42,.25))}
           .demo-morph-cursor-ibeam{display:none;position:absolute;left:9px;top:1px;width:3px;height:25px;border-radius:99px;background:#090b10;box-shadow:0 0 0 .7px rgba(255,255,255,.75)}
           .demo-morph-cursor-ibeam:before,.demo-morph-cursor-ibeam:after{content:"";position:absolute;left:-4px;width:11px;height:2px;border-radius:99px;background:#090b10}
