@@ -69,7 +69,7 @@ export function Hero() {
       >
         <style>{`
           .demo-morph-zone,.demo-morph-zone *{
-            cursor:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%2720%27%20height%3D%2728%27%20viewBox%3D%270%200%2020%2028%27%3E%3Cpath%20d%3D%27M2%201.5L17%2014L10.8%2015L7.4%2023.5L5.8%2017L2.8%2020.5Z%27%20fill%3D%27%2307090d%27%20stroke%3D%27white%27%20stroke-width%3D%271.1%27%20stroke-linejoin%3D%27round%27/%3E%3C/svg%3E") 2 2, default!important;
+            cursor:url("/ozong-demo-cursor.png") 2 2, default!important;
           }
           .demo-morph-zone input:not([type="checkbox"]):not([type="radio"]),
           .demo-morph-zone textarea{
