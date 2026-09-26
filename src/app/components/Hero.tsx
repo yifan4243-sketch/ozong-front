@@ -118,15 +118,15 @@ export function Hero() {
       >
         <div ref={demoCursorRef} className="demo-morph-cursor" data-mode="arrow" aria-hidden="true">
           <svg className="demo-morph-cursor-arrow" viewBox="0 0 24 28">
-            <path d="M3.1 2.2C2.3 1.55 1.12 2.22 1.34 3.24L5.35 23.62C5.56 24.67 6.84 24.98 7.48 24.13L20.02 16.35C20.77 15.42 20.38 14.29 19.27 13.85L3.1 2.2Z"/>
+            <path d="M3 2.3C2.23 1.72 1.18 2.34 1.36 3.27L5.12 23.58C5.31 24.59 6.52 24.94 7.18 24.13L20.06 16.62C20.82 15.69 20.45 14.43 19.37 13.94L3 2.3Z"/>
           </svg>
           <span className="demo-morph-cursor-ibeam" />
         </div>
         <style>{`
           .demo-morph-zone,.demo-morph-zone *{cursor:none!important}
           .demo-morph-cursor{position:fixed;left:0;top:0;z-index:2147483647;width:24px;height:28px;pointer-events:none;opacity:0;transform:translate3d(-80px,-80px,0);will-change:transform,opacity;transition:opacity .1s ease}
-          .demo-morph-cursor-arrow{display:block;width:24px;height:28px;overflow:visible;transform-origin:3px 3px;transition:transform .12s cubic-bezier(.2,.8,.2,1),filter .12s ease;filter:drop-shadow(0 2px 4px rgba(15,23,42,.2))}
-          .demo-morph-cursor-arrow path{fill:#090b10;stroke:rgba(255,255,255,.86);stroke-width:.9;stroke-linejoin:round}
+          .demo-morph-cursor-arrow{display:block;width:24px;height:28px;overflow:visible;transform-origin:3px 3px;transition:transform .12s cubic-bezier(.2,.8,.2,1),filter .12s ease;filter:drop-shadow(0 1px 1px rgba(15,23,42,.18)) drop-shadow(0 3px 5px rgba(15,23,42,.16))}
+          .demo-morph-cursor-arrow path{fill:#07090d;stroke:rgba(255,255,255,.96);stroke-width:1.35;stroke-linejoin:round;stroke-linecap:round}
           .demo-morph-cursor[data-mode="action"] .demo-morph-cursor-arrow{transform:scale(1.08);filter:drop-shadow(0 3px 6px rgba(15,23,42,.25))}
           .demo-morph-cursor-ibeam{display:none;position:absolute;left:9px;top:1px;width:3px;height:25px;border-radius:99px;background:#090b10;box-shadow:0 0 0 .7px rgba(255,255,255,.75)}
           .demo-morph-cursor-ibeam:before,.demo-morph-cursor-ibeam:after{content:"";position:absolute;left:-4px;width:11px;height:2px;border-radius:99px;background:#090b10}
