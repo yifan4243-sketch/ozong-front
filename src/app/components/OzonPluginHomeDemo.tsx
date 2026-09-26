@@ -749,7 +749,7 @@ function FieldSettings({
 export function OzonPluginHomeDemo({onEnterErp}:{onEnterErp?:()=>void}){
   const [visibleFields,setVisibleFields]=useState<Set<DemoFieldKey>>(()=>new Set(FIELD_LABELS.map(([key])=>key)));
   const [settingsOpen,setSettingsOpen]=useState(false);
-  const [panelOpen,setPanelOpen]=useState(false);
+  const [panelOpen,setPanelOpen]=useState(true);
   const [cardsHidden,setCardsHidden]=useState(false);
   const [autoSelectionOpen,setAutoSelectionOpen]=useState(false);
   const [autoFilters,setAutoFilters]=useState<AutoFilters>(EMPTY_AUTO_FILTERS);
