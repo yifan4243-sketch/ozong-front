@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { CollectionItem } from "./CollectionReplica";
 import "./quick-listing-replica.css";
 
@@ -21,8 +21,58 @@ const STORE_OPTIONS=[
   {id:3,name:"北辰数码",currency:"CNY",warehouses:["北辰数码默认仓"]},
 ];
 
+type QuickSelectOption={value:string;label:string;disabled?:boolean};
+function QuickListingSelect({
+  value,
+  options,
+  onChange,
+  disabled=false,
+  placeholder="请选择",
+  className="",
+}:{
+  value:string;
+  options:QuickSelectOption[];
+  onChange:(value:string)=>void;
+  disabled?:boolean;
+  placeholder?:string;
+  className?:string;
+}){
+  const [open,setOpen]=useState(false);
+  const rootRef=useRef<HTMLDivElement|null>(null);
+  useEffect(()=>{
+    const onPointer=(event:MouseEvent)=>{
+      if(rootRef.current&&!rootRef.current.contains(event.target as Node))setOpen(false);
+    };
+    document.addEventListener("mousedown",onPointer);
+    return()=>document.removeEventListener("mousedown",onPointer);
+  },[]);
+  const selected=options.find(option=>option.value===value);
+  const choose=(option:QuickSelectOption)=>{
+    if(option.disabled)return;
+    onChange(option.value);
+    setOpen(false);
+  };
+  return <div ref={rootRef} className={`quick-select-source ${open?"open":""} ${disabled?"disabled":""} ${className}`}>
+    <button type="button" className="quick-select-trigger-source" disabled={disabled} onClick={()=>!disabled&&setOpen(v=>!v)} aria-haspopup="listbox" aria-expanded={open}>
+      <span className={selected?"":"placeholder"}>{selected?.label||placeholder}</span>
+      <i className="quick-select-arrow-source">⌄</i>
+    </button>
+    {open&&!disabled&&<div className="quick-select-menu-source" role="listbox">
+      {options.map(option=><button
+        type="button"
+        key={option.value}
+        className={(option.value===value?"selected ":"")+(option.disabled?"disabled":"")}
+        disabled={option.disabled}
+        role="option"
+        aria-selected={option.value===value}
+        onClick={()=>choose(option)}
+      ><span>{option.label}</span>{option.value===value&&<b>✓</b>}</button>)}
+    </div>}
+  </div>;
+}
+
 function buildRows(item:CollectionItem):ListingRow[]{
-  const source=Number(item.price.replace(/[^d,.]/g,"").replace(",", "."))||0;
+  const source=Number(item.price.replace(/[^\d,.]/g,"").replace(",", "."))||0;
   const labels=["当前商品","颜色：白色","规格：升级款","组合：2件装"];
   return labels.map((relation,index)=>({
     id:index+1,
@@ -117,7 +167,13 @@ export function QuickListingReplica({
               return <div key={store.id} className={"quick-listing-store-card-source "+(selected?"selected":"")}>
                 <label className="quick-listing-store-head-source"><input type="checkbox" checked={selected} onChange={()=>toggleStore(store.id)}/><span><strong>{store.name}</strong><small>Ozon API 已配置 · {store.currency}</small></span></label>
                 <div className="quick-listing-store-config-source">
-                  <select disabled={!selected} value={warehouses[store.id]||""} onChange={e=>setWarehouses(v=>({...v,[store.id]:e.target.value}))}><option value="">选择仓库</option>{store.warehouses.map(w=><option key={w}>{w}</option>)}</select>
+                  <QuickListingSelect
+                    disabled={!selected}
+                    value={warehouses[store.id]||""}
+                    placeholder="选择仓库"
+                    options={[{value:"",label:"选择仓库"},...store.warehouses.map(w=>({value:w,label:w}))]}
+                    onChange={value=>setWarehouses(v=>({...v,[store.id]:value}))}
+                  />
                   <label><span>库存</span><input disabled={!selected} type="number" min="0" value={stocks[store.id]||0} onChange={e=>setStocks(v=>({...v,[store.id]:Number(e.target.value)}))}/></label>
                 </div>
               </div>
@@ -130,10 +186,10 @@ export function QuickListingReplica({
 
         <main className="quick-listing-content-source">
           <div className="quick-listing-settings-source">
-            <label>品牌 <select value={brand} onChange={e=>setBrand(e.target.value)}><option value="none">无品牌</option><option value="source">沿用当前品牌</option></select></label>
-            <label>图片顺序 <select value={imageOrder} onChange={e=>setImageOrder(e.target.value)}><option value="source">按来源顺序</option><option value="reverse">倒序</option></select></label>
-            <label>水印 <select value={watermark} onChange={e=>setWatermark(e.target.value)}><option value="">不使用</option><option value="wm1">OzonG 默认水印</option></select></label>
-            <label>上架币种 <select disabled><option>人民币 CNY</option></select></label>
+            <label><span>品牌</span><QuickListingSelect value={brand} options={[{value:"none",label:"无品牌"},{value:"source",label:"沿用当前品牌"}]} onChange={setBrand}/></label>
+            <label><span>图片顺序</span><QuickListingSelect value={imageOrder} options={[{value:"source",label:"按来源顺序"},{value:"reverse",label:"倒序"}]} onChange={setImageOrder}/></label>
+            <label><span>水印</span><QuickListingSelect value={watermark} options={[{value:"",label:"不使用"},{value:"wm1",label:"OzonG 默认水印"}]} onChange={setWatermark}/></label>
+            <label><span>上架币种</span><QuickListingSelect disabled value="cny" options={[{value:"cny",label:"人民币 CNY"}]} onChange={()=>{}}/></label>
           </div>
 
           <div className="quick-listing-batch-source">
