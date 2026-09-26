@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { Play, Brain, Zap, Monitor, Puzzle, Home, Store, PackageSearch } from "lucide-react";
+import { Play, Brain, Zap, Monitor, Puzzle, Home, Store, PackageSearch, ChevronDown } from "lucide-react";
 import { WebErpDemo } from "./demo/WebErpDemo";
 import { OzonPluginHomeDemo } from "./OzonPluginHomeDemo";
 
 export function Hero() {
   const [demoMode, setDemoMode] = useState<"erp" | "plugin">("erp");
   const [pluginPage, setPluginPage] = useState<"home" | "store" | "product">("home");
+  const [pluginMenuOpen, setPluginMenuOpen] = useState(false);
 
   return (
     <section id="top" className="py-20 lg:py-32 bg-gradient-to-b from-background to-muted/30">
@@ -76,22 +77,45 @@ export function Hero() {
               <Monitor className="h-4 w-4" />
               ERP 网页端
             </button>
-            <div className="group relative">
+            <div
+              className="relative"
+              onMouseEnter={() => setPluginMenuOpen(true)}
+              onMouseLeave={() => setPluginMenuOpen(false)}
+              onFocusCapture={() => setPluginMenuOpen(true)}
+              onBlurCapture={(event) => {
+                if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+                  setPluginMenuOpen(false);
+                }
+              }}
+            >
               <button
                 type="button"
-                onClick={() => setDemoMode("plugin")}
+                onClick={() => {
+                  setDemoMode("plugin");
+                  setPluginMenuOpen((open) => !open);
+                }}
                 className={`flex h-8 items-center gap-2 rounded-lg px-4 text-sm font-medium transition-all ${
                   demoMode === "plugin"
                     ? "bg-primary text-primary-foreground shadow-sm"
                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                 }`}
                 aria-pressed={demoMode === "plugin"}
+                aria-haspopup="menu"
+                aria-expanded={pluginMenuOpen}
               >
                 <Puzzle className="h-4 w-4" />
                 Ozon 插件端
+                <ChevronDown className={`h-3.5 w-3.5 transition-transform ${pluginMenuOpen ? "rotate-180" : ""}`} />
               </button>
 
-              <div className="pointer-events-none invisible absolute left-0 top-full z-[300] w-40 pt-2 opacity-0 transition-all duration-150 group-hover:pointer-events-auto group-hover:visible group-hover:opacity-100">
+              <div
+                className={`absolute left-0 top-full z-[500] w-44 pt-2 transition-all duration-150 ${
+                  pluginMenuOpen
+                    ? "visible pointer-events-auto translate-y-0 opacity-100"
+                    : "invisible pointer-events-none -translate-y-1 opacity-0"
+                }`}
+                role="menu"
+              >
                 <div className="overflow-hidden rounded-xl border border-border/80 bg-background p-1.5 shadow-xl">
                   {[
                     { key: "home", label: "主页", icon: Home },
@@ -103,10 +127,12 @@ export function Hero() {
                     return (
                       <button
                         type="button"
+                        role="menuitem"
                         key={item.key}
                         onClick={() => {
                           setPluginPage(item.key as "home" | "store" | "product");
                           setDemoMode("plugin");
+                          setPluginMenuOpen(false);
                         }}
                         className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm transition-colors ${
                           active
