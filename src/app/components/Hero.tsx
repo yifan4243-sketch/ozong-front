@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { Play, Brain, Zap, Monitor, Puzzle } from "lucide-react";
+import { Play, Brain, Zap, Monitor, Puzzle, Home, Store, PackageSearch } from "lucide-react";
 import { WebErpDemo } from "./demo/WebErpDemo";
 
 export function Hero() {
   const [demoMode, setDemoMode] = useState<"erp" | "plugin">("erp");
+  const [pluginPage, setPluginPage] = useState<"home" | "store" | "product">("home");
 
   return (
     <section id="top" className="py-20 lg:py-32 bg-gradient-to-b from-background to-muted/30">
@@ -74,19 +75,52 @@ export function Hero() {
               <Monitor className="h-4 w-4" />
               ERP 网页端
             </button>
-            <button
-              type="button"
-              onClick={() => setDemoMode("plugin")}
-              className={`flex h-8 items-center gap-2 rounded-lg px-4 text-sm font-medium transition-all ${
-                demoMode === "plugin"
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
-              }`}
-              aria-pressed={demoMode === "plugin"}
-            >
-              <Puzzle className="h-4 w-4" />
-              Ozon 插件端
-            </button>
+            <div className="group relative">
+              <button
+                type="button"
+                onClick={() => setDemoMode("plugin")}
+                className={`flex h-8 items-center gap-2 rounded-lg px-4 text-sm font-medium transition-all ${
+                  demoMode === "plugin"
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                }`}
+                aria-pressed={demoMode === "plugin"}
+              >
+                <Puzzle className="h-4 w-4" />
+                Ozon 插件端
+              </button>
+
+              <div className="pointer-events-none invisible absolute left-0 top-full z-[300] w-40 pt-2 opacity-0 transition-all duration-150 group-hover:pointer-events-auto group-hover:visible group-hover:opacity-100">
+                <div className="overflow-hidden rounded-xl border border-border/80 bg-background p-1.5 shadow-xl">
+                  {[
+                    { key: "home", label: "主页", icon: Home },
+                    { key: "store", label: "店铺页", icon: Store },
+                    { key: "product", label: "商品详情页", icon: PackageSearch },
+                  ].map((item) => {
+                    const Icon = item.icon;
+                    const active = demoMode === "plugin" && pluginPage === item.key;
+                    return (
+                      <button
+                        type="button"
+                        key={item.key}
+                        onClick={() => {
+                          setPluginPage(item.key as "home" | "store" | "product");
+                          setDemoMode("plugin");
+                        }}
+                        className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm transition-colors ${
+                          active
+                            ? "bg-primary/10 font-medium text-primary"
+                            : "text-foreground hover:bg-muted"
+                        }`}
+                      >
+                        <Icon className="h-4 w-4 shrink-0" />
+                        {item.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -96,11 +130,27 @@ export function Hero() {
           <div className="mx-auto flex h-[560px] w-[min(1500px,calc(100vw-36px))] items-center justify-center overflow-hidden rounded-[18px] border border-border bg-[#eef3ff] shadow-[0_28px_80px_rgba(58,72,110,.18)]">
             <div className="max-w-md px-6 text-center">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <Puzzle className="h-6 w-6" />
+                {pluginPage === "home" ? (
+                  <Home className="h-6 w-6" />
+                ) : pluginPage === "store" ? (
+                  <Store className="h-6 w-6" />
+                ) : (
+                  <PackageSearch className="h-6 w-6" />
+                )}
               </div>
-              <h3 className="text-xl font-semibold text-foreground">Ozon 插件端演示</h3>
+              <h3 className="text-xl font-semibold text-foreground">
+                {pluginPage === "home"
+                  ? "Ozon 插件端 · 主页"
+                  : pluginPage === "store"
+                    ? "Ozon 插件端 · 店铺页"
+                    : "Ozon 插件端 · 商品详情页"}
+              </h3>
               <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                插件端演示容器已经接入切换逻辑。下一步将按照真实 Ozon 页面与插件源码逐项复刻 UI、数据与交互。
+                {pluginPage === "home"
+                  ? "这里将复刻 Ozon 首页加载插件后的真实界面与交互。"
+                  : pluginPage === "store"
+                    ? "这里将复刻 Ozon 店铺页面加载插件后的真实界面与交互。"
+                    : "这里将复刻 Ozon 商品详情页加载插件后的真实界面与交互。"}
               </p>
             </div>
           </div>
