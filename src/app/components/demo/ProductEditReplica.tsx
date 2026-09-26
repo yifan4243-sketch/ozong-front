@@ -83,15 +83,15 @@ export function ProductEditReplica({
   onSave:(patch:Partial<Product>)=>void;
 }){
   const [title,setTitle]=useState(product?.name||"");
-  const [brand,setBrand]=useState("NO NAME");
-  const [model,setModel]=useState(product?.offer||"");
+  const [brand,setBrand]=useState(product?.sku==="1825601210"?"InteliLabel":"NO NAME");
+  const [model,setModel]=useState(product?.sku==="1825601210"?"40x30 TOP D85":product?.offer||"");
   const [weight,setWeight]=useState(product?parseInt(product.weight)||0:0);
   const isLabelDemo=product?.sku==="1825601210";
   const attributeSeeds=isLabelDemo?LABEL_ATTRIBUTE_SEEDS:OTHER_ATTRIBUTE_SEEDS;
   const [depth,setDepth]=useState(isLabelDemo?120:340);
   const [width,setWidth]=useState(isLabelDemo?120:270);
   const [height,setHeight]=useState(isLabelDemo?90:50);
-  const [description,setDescription]=useState("");
+  const [description,setDescription]=useState(product?.sku==="1825601210"?"Белые термоэтикетки 40×30 мм для печати штрихкодов, маркировки и этикеток маркетплейсов. В рулоне 1000 этикеток, втулка 40 мм.":"");
   const [tags,setTags]=useState(isLabelDemo?["#термоэтикетки","#этикетки_40x30","#для_маркетплейсов","#термопечать","#этикетки"]:DEFAULT_TAGS);
   const [tagDraft,setTagDraft]=useState("");
   const [price,setPrice]=useState(product?.price||0);
