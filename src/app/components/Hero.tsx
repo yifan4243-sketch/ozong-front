@@ -62,8 +62,8 @@ export function Hero() {
       </div>
 
       <div id="web-erp-demo" className="mt-20 px-2 md:px-4 scroll-mt-24">
-        <div className="mx-auto mb-3 flex w-[min(1500px,calc(100vw-36px))] items-center justify-start">
-          <div className="inline-flex h-10 items-center rounded-xl border border-border/70 bg-background/95 p-1 shadow-sm backdrop-blur">
+        <div className="relative z-[10000] mx-auto mb-3 flex w-[min(1500px,calc(100vw-36px))] items-center justify-start overflow-visible">
+          <div className="relative inline-flex h-10 items-center overflow-visible rounded-xl border border-border/70 bg-background/95 p-1 shadow-sm">
             <button
               type="button"
               onClick={() => setDemoMode("erp")}
