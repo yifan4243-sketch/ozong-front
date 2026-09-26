@@ -289,6 +289,7 @@ type AutoFilters={
 
 const EMPTY_AUTO_FILTERS:AutoFilters={brandMode:"any",delivery:"any",numeric:{}};
 const DEMO_EXISTING_SELECTION_IDS=new Set([2,12,22]);
+const DEMO_FAILED_SELECTION_IDS=new Set([27]);
 
 function readDemoNumber(product:DemoProduct,key:AutoNumericKey){
   if(key==="packagingWeight"){
@@ -498,11 +499,7 @@ function AutoSelectionModal({
 
     const scroller=document.querySelector(".ozon-plugin-home-demo .ozon-home-scroll") as HTMLElement|null;
     if(scroller) scroller.scrollTop=0;
-    const scrollTimer=window.setInterval(()=>{
-      if(runToken.current!==token||!scroller) return;
-      const max=Math.max(0,scroller.scrollHeight-scroller.clientHeight);
-      scroller.scrollTop=Math.min(max,scroller.scrollTop+12);
-    },50);
+    let scrollTimer:number|undefined;
 
     let scanned=0;
     let qualified=0;
@@ -518,6 +515,11 @@ function AutoSelectionModal({
       await sleep(320);
       if(runToken.current!==token) return;
       setScanStatus("商品顺序已确认，准备自动下滑扫描");
+      scrollTimer=window.setInterval(()=>{
+        if(runToken.current!==token||!scroller) return;
+        const max=Math.max(0,scroller.scrollHeight-scroller.clientHeight);
+        scroller.scrollTop=Math.min(max,scroller.scrollTop+12);
+      },50);
 
       for(const product of products){
         if(runToken.current!==token||added>=amount) break;
@@ -543,14 +545,16 @@ function AutoSelectionModal({
           if(DEMO_EXISTING_SELECTION_IDS.has(product.id)){
             existing+=1;
             queueEntry.state="existing";
+          }else if(DEMO_FAILED_SELECTION_IDS.has(product.id)){
+            failed+=1;
+            queueEntry.state="failed";
+            queueEntry.error="示例：保存到采集箱失败";
           }else{
             added+=1;
             addedIds.push(product.id);
             queueEntry.state="completed";
           }
           setQueueRows([...queueBuffer]);
-        }else if(evaluation.status==="error"){
-          failed+=1;
         }
 
         await sleep(110);
@@ -566,7 +570,7 @@ function AutoSelectionModal({
       );
       onComplete(addedIds,next);
     }finally{
-      window.clearInterval(scrollTimer);
+      if(scrollTimer!==undefined) window.clearInterval(scrollTimer);
       if(runToken.current===token) setRunning(false);
     }
   };
@@ -806,9 +810,8 @@ export function OzonPluginHomeDemo({onEnterErp}:{onEnterErp?:()=>void}){
       onQuantityChange={setAutoQuantity}
       onScanningChange={setAutoScanning}
       onClose={()=>setAutoSelectionOpen(false)}
-      onComplete={(ids,summary)=>{
+      onComplete={(ids)=>{
         setAutoSelectedIds(current=>[...new Set([...current,...ids])]);
-        setNotice("自动选品完成：扫描 "+summary.scanned+" 个，合格 "+summary.qualified+" 个，新增 "+summary.added+" 个，已存在 "+summary.existing+" 个。");
       }}
     />}
     {calculatorMode&&<CalculatorDemoDrawer initialMode={calculatorMode} onClose={()=>setCalculatorMode(null)}/>}
