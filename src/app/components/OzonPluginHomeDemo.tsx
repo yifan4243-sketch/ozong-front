@@ -1,17 +1,14 @@
 import { useMemo, useState } from "react";
 import {
-  Bell,
   Box,
   ChevronDown,
   Heart,
-  Home,
   Menu,
   Search,
   Settings,
   ShoppingCart,
   SlidersHorizontal,
   Sparkles,
-  Store,
   User,
   X,
 } from "lucide-react";
