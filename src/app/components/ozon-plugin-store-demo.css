@@ -42,3 +42,9 @@
 .op-store-commission i:nth-child(3){background:#fff0f5;color:#f21372}
 .op-store-intel-updated{padding-top:7px;color:#9aa3af;font-size:9px;font-weight:500;text-align:right}
 @media(max-width:1200px){.op-ranking-wrap{width:min(500px,100%)}.op-ranking-popover{width:410px}.op-store-intel{font-size:11px}.op-store-intel-lines{font-size:11px}}
+
+
+/* 2026-09-26 corrections: ranking belongs to the left edge of the product area. */
+.op-ranking-wrap{margin:0 0 12px 0!important}
+.op-ranking-popover{left:0!important;right:auto!important}
+.op-store-intel.settings-active{box-shadow:0 3px 12px rgba(28,43,65,.09),0 0 0 2px rgba(8,116,255,.08)}

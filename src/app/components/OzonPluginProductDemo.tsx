@@ -96,7 +96,7 @@ export function OzonPluginProductDemo({
               </span>
               <span className="op-detail-intel-actions">
                 <button className={detailSelected?"done":""} title="加入 ERP 选品池" onClick={()=>{setDetailSelected(v=>!v);setNotice(detailSelected?"已从选品池移除（Demo）":"商品已加入选品池（Demo）")}}>{detailSelected?"✓":"＋"}</button>
-                <button className={detailRisk?"risk active":"risk"} title="高亮风险项" onClick={()=>setDetailRisk(v=>!v)}>⚠</button>
+                <button className={detailRisk?"risk active":"risk"} title="高亮风险项" onClick={()=>setDetailRisk(v=>!v)}>⚙</button>
                 <button className={detailExpanded?"active":""} title="显示更多字段" onClick={()=>setDetailExpanded(v=>!v)}>⚙</button>
               </span>
             </div>
@@ -109,22 +109,30 @@ export function OzonPluginProductDemo({
               <div className="op-detail-intel-row"><span>月销售额</span><b className="blue">¥99</b></div>
               <div className="op-detail-intel-row"><span>销售变化</span><b className="red">-74%</b></div>
               <div className="op-detail-intel-row"><span>近30天日均销量</span><b className="blue">0.2</b></div>
-              <div className="op-detail-intel-row"><span>近30天日均销售额</span><b className="blue">¥3.30</b></div>
-              <div className="op-detail-intel-row"><span>均价</span><b className="blue">¥21.05</b></div>
+              <div className="op-detail-intel-row"><span>近30天日均销售额</span><b className="blue">¥3</b></div>
+              <div className="op-detail-intel-row"><span>均价</span><b>¥21</b></div>
               <div className="op-detail-intel-row"><span>推广费占比</span><b className="red">21.7%</b></div>
+              <div className="op-detail-intel-row"><span>参与促销天数</span><b>18</b></div>
+              <div className="op-detail-intel-row"><span>参与促销的折扣</span><b>26%</b></div>
               <div className="op-detail-intel-row"><span>促销活动转化率</span><b className="blue">100.00%</b></div>
-              <div className="op-detail-intel-row"><span>商品点击率</span><b className="green">4.12%</b></div>
+              <div className="op-detail-intel-row"><span>付费推广天数</span><b className="blue">12</b></div>
+              <div className="op-detail-intel-row"><span>付费买家</span><b className="blue">37</b></div>
+              <div className="op-detail-intel-row"><span>商品卡浏览量</span><b>12,486</b></div>
+              <div className="op-detail-intel-row"><span>商品卡加购率</span><b>7.36%</b></div>
+              <div className="op-detail-intel-row"><span>搜索目录浏览量</span><b>8,921</b></div>
+              <div className="op-detail-intel-row"><span>搜索目录加购率</span><b>4.40%</b></div>
+              <div className="op-detail-intel-row"><span>展示转化率</span><b>3.37%</b></div>
+              <div className="op-detail-intel-row"><span>商品点击率</span><b className="red">2.88%</b></div>
               <div className="op-detail-intel-row"><span>发货模式</span><b className="blue">FBS</b></div>
-              <div className="op-detail-intel-row"><span>上架时间</span><b className="green">47天前</b></div>
-              {detailExpanded&&<>
-                <div className="op-detail-intel-row"><span>商品卡浏览量</span><b>12,486</b></div>
-                <div className="op-detail-intel-row"><span>商品卡加购率</span><b>7.36%</b></div>
-                <div className="op-detail-intel-row"><span>搜索目录浏览量</span><b>8,921</b></div>
-                <div className="op-detail-intel-row"><span>退货取消率</span><b className="green">0.84%</b></div>
-                <div className="op-detail-intel-row"><span>跟卖列表</span><b className="blue">4 个卖家</b></div>
-              </>}
+              <div className="op-detail-intel-row"><span>退货取消率</span><b className="green">0.84%</b></div>
+              <div className="op-detail-intel-row"><span>长 × 宽 × 高</span><b>120 × 80 × 40mm</b></div>
+              <div className="op-detail-intel-row"><span>重量</span><b>515 g</b></div>
+              <div className="op-detail-intel-row"><span>上架时间</span><b className="green">2026-08-10（47天）</b></div>
+              <div className="op-detail-intel-row"><span>跟卖列表</span><b className="blue">4 个卖家</b></div>
+              <div className="op-detail-intel-row"><span>跟卖最低价</span><b className="red">¥18</b></div>
+              <div className="op-detail-intel-row"><span>跟卖最高价</span><b className="red">¥31</b></div>
             </div>
-            <div className="op-detail-intel-updated">数据截至：2026-09-25 04:36:01</div>
+            <div className="op-detail-intel-updated">数据截至：2026-09-26 07:46:02</div>
             <div className="detail-actions"><button onClick={()=>setQuickOpen(true)}>一键上架</button><button onClick={edit}>编辑上架</button></div>
           </section>}
         </aside>
