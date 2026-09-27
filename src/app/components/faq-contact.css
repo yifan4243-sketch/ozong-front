@@ -1,0 +1,76 @@
+.contact-qr {
+  position: relative;
+  display: inline-flex;
+  justify-content: center;
+}
+
+.contact-qr-popover {
+  position: absolute;
+  z-index: 30;
+  left: 50%;
+  bottom: calc(100% + 12px);
+  width: min(248px, calc(100vw - 32px));
+  padding: 12px 12px 14px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 22px 54px rgba(15, 23, 42, 0.18);
+  color: #0f172a;
+  text-align: center;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate(-50%, 8px) scale(0.98);
+  transform-origin: 50% 100%;
+  transition: opacity 160ms ease, visibility 160ms ease, transform 160ms ease;
+}
+
+.contact-qr-popover img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.contact-qr-popover strong,
+.contact-qr-popover span {
+  display: block;
+}
+
+.contact-qr-popover strong {
+  margin-top: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+.contact-qr-popover span {
+  margin-top: 3px;
+  color: #64748b;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.contact-qr.is-open .contact-qr-popover,
+.contact-qr-button:focus-visible + .contact-qr-popover {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translate(-50%, 0) scale(1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .contact-qr:hover .contact-qr-popover {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: translate(-50%, 0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contact-qr-popover {
+    transition: none;
+  }
+}

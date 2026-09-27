@@ -5,6 +5,8 @@ import {
   AccordionTrigger,
 } from "./ui/accordion";
 import { Button } from "./ui/button";
+import { useEffect, useRef, useState } from "react";
+import "./faq-contact.css";
 
 const faqs = [
   {
@@ -42,6 +44,27 @@ const faqs = [
 ];
 
 export function FAQ() {
+  const [isQrOpen, setIsQrOpen] = useState(false);
+  const contactRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isQrOpen) return;
+
+    const closeOnOutsidePress = (event: PointerEvent) => {
+      if (!contactRef.current?.contains(event.target as Node)) setIsQrOpen(false);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setIsQrOpen(false);
+    };
+
+    document.addEventListener("pointerdown", closeOnOutsidePress);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("pointerdown", closeOnOutsidePress);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [isQrOpen]);
+
   return (
     <section id="faq" className="py-20 lg:py-32">
       <div className="container mx-auto max-w-4xl px-4">
@@ -69,9 +92,23 @@ export function FAQ() {
 
         <div className="text-center mt-12">
           <p className="text-muted-foreground mb-4">还有其他问题？</p>
-          <Button variant="outline" asChild>
-            <a href="#contact">联系 OzonG 团队</a>
-          </Button>
+          <div ref={contactRef} className={`contact-qr${isQrOpen ? " is-open" : ""}`}>
+            <Button
+              type="button"
+              variant="outline"
+              className="contact-qr-button"
+              aria-expanded={isQrOpen}
+              aria-controls="ozong-contact-qr"
+              onClick={() => setIsQrOpen((open) => !open)}
+            >
+              联系 OzonG 团队
+            </Button>
+            <div id="ozong-contact-qr" className="contact-qr-popover" role="dialog" aria-label="OzonG 团队微信二维码">
+              <img src="/brand/wechat-contact-qr.jpg" alt="OzonG 团队微信二维码" />
+              <strong>微信扫码联系 OzonG 团队</strong>
+              <span>产品咨询、开通与售后支持</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>

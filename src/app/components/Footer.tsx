@@ -9,9 +9,14 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="space-y-4">
             <div className="flex items-center space-x-2">
-              <div className="h-8 w-8 bg-primary-foreground text-primary rounded-lg flex items-center justify-center">
-                <span>O</span>
-              </div>
+              <span className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden">
+                <img
+                  src="/brand/ozong-logo.png"
+                  alt=""
+                  aria-hidden="true"
+                  className="h-full w-full scale-[1.65] object-contain"
+                />
+              </span>
               <span className="text-xl">OzonG ERP</span>
             </div>
             <p className="text-primary-foreground/80">
