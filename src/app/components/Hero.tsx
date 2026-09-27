@@ -12,6 +12,7 @@ export function Hero() {
   const [pluginPage, setPluginPage] = useState<"home" | "store" | "product">("home");
   const [pluginMenuOpen, setPluginMenuOpen] = useState(false);
   const [erpInitialView, setErpInitialView] = useState<"dashboard" | "productEdit">("dashboard");
+  const [demoNoticeOpen, setDemoNoticeOpen] = useState(false);
   return (
     <section id="top" className="py-20 lg:py-32 bg-gradient-to-b from-background to-muted/30">
       <div className="container mx-auto max-w-6xl px-4">
@@ -39,11 +40,14 @@ export function Hero() {
                 了解 OzonG ERP
               </a>
             </Button>
-            <Button variant="outline" size="lg" className="text-lg px-8 py-6" asChild>
-              <a href="#web-erp-demo">
-                <Play className="w-5 h-5 mr-2" />
-                体验网页端演示
-              </a>
+            <Button
+              variant="outline"
+              size="lg"
+              className="text-lg px-8 py-6"
+              onClick={() => setDemoNoticeOpen(true)}
+            >
+              <Play className="w-5 h-5 mr-2" />
+              体验网页端演示
             </Button>
           </div>
 
@@ -63,6 +67,66 @@ export function Hero() {
           </div>
         </div>
       </div>
+
+      {demoNoticeOpen && (
+        <div
+          className="fixed inset-0 z-[2147483600] flex items-center justify-center bg-slate-950/35 px-4 backdrop-blur-[2px]"
+          role="presentation"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) setDemoNoticeOpen(false);
+          }}
+        >
+          <div
+            className="w-full max-w-[520px] rounded-2xl border border-border/70 bg-background p-6 text-left shadow-[0_28px_90px_rgba(15,23,42,0.24)]"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="demo-notice-title"
+          >
+            <div className="mb-5 flex items-start justify-between gap-4">
+              <div>
+                <div className="mb-2 inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                  Demo 演示说明
+                </div>
+                <h3 id="demo-notice-title" className="text-xl font-semibold tracking-tight">
+                  当前页面仅用于产品演示
+                </h3>
+              </div>
+              <button
+                type="button"
+                aria-label="关闭"
+                onClick={() => setDemoNoticeOpen(false)}
+                className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <p className="text-sm leading-7 text-muted-foreground">
+              当前 Demo 主要用于展示 OzonG ERP 的核心页面与交互流程。演示数据、部分功能细节及界面表现与实际正式版本可能略有不同，实际功能请以正式产品为准。
+            </p>
+
+            <div className="mt-6 flex justify-end gap-3">
+              <Button variant="outline" onClick={() => setDemoNoticeOpen(false)}>
+                我知道了
+              </Button>
+              <Button
+                onClick={() => {
+                  setDemoNoticeOpen(false);
+                  window.requestAnimationFrame(() => {
+                    document.getElementById("web-erp-demo")?.scrollIntoView({
+                      behavior: "smooth",
+                      block: "start",
+                    });
+                  });
+                }}
+              >
+                <Play className="mr-2 h-4 w-4" />
+                继续体验 Demo
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div
         id="web-erp-demo"
