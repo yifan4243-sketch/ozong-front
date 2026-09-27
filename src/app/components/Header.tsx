@@ -24,7 +24,7 @@ export function Header() {
 
         <div className="hidden md:flex items-center space-x-4">
           <Button variant="ghost" asChild>
-            <a href="https://erp.ozongerp.com/login">登录 ERP</a>
+            <a href="https://erp.ozongerp.com">登录 ERP</a>
           </Button>
           <Button asChild>
             <a href="#features">了解产品</a>
@@ -48,7 +48,7 @@ export function Header() {
             <a href="#testimonials" onClick={() => setIsMenuOpen(false)} className="text-muted-foreground hover:text-foreground transition-colors">应用场景</a>
             <a href="#faq" onClick={() => setIsMenuOpen(false)} className="text-muted-foreground hover:text-foreground transition-colors">常见问题</a>
             <Button variant="ghost" className="justify-start" asChild>
-              <a href="https://erp.ozongerp.com/login">登录 ERP</a>
+              <a href="https://erp.ozongerp.com">登录 ERP</a>
             </Button>
             <Button className="justify-start" asChild>
               <a href="#features" onClick={() => setIsMenuOpen(false)}>了解产品</a>
