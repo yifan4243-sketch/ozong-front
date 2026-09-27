@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
-import { Play, Brain, Zap, Monitor, Puzzle, Home, Store, PackageSearch, ChevronDown } from "lucide-react";
+import { Play, Brain, Zap, Monitor, Puzzle, Home, Store, PackageSearch, ChevronDown, ShoppingBag } from "lucide-react";
 import { WebErpDemo } from "./demo/WebErpDemo";
 import { OzonPluginHomeDemo } from "./OzonPluginHomeDemo";
 import { OzonPluginStoreDemo } from "./OzonPluginStoreDemo";
 import { OzonPluginProductDemo } from "./OzonPluginProductDemo";
+import { Alibaba1688Demo } from "./Alibaba1688Demo";
 
 export function Hero() {
-  const [demoMode, setDemoMode] = useState<"erp" | "plugin">("erp");
+  const [demoMode, setDemoMode] = useState<"erp" | "source1688" | "plugin">("erp");
   const [pluginPage, setPluginPage] = useState<"home" | "store" | "product">("home");
   const [pluginMenuOpen, setPluginMenuOpen] = useState(false);
   const [erpInitialView, setErpInitialView] = useState<"dashboard" | "productEdit">("dashboard");
@@ -94,6 +95,19 @@ export function Hero() {
               <Monitor className="h-4 w-4" />
               ERP 网页端
             </button>
+            <button
+              type="button"
+              onClick={() => setDemoMode("source1688")}
+              className={"flex h-8 items-center gap-2 rounded-lg px-4 text-sm font-medium transition-all " + (
+                demoMode === "source1688"
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              )}
+              aria-pressed={demoMode === "source1688"}
+            >
+              <ShoppingBag className="h-4 w-4" />
+              1688 端
+            </button>
             <div
               className="relative"
               onMouseEnter={() => setPluginMenuOpen(true)}
@@ -169,6 +183,8 @@ export function Hero() {
 
         {demoMode === "erp" ? (
           <WebErpDemo initialView={erpInitialView} />
+        ) : demoMode === "source1688" ? (
+          <Alibaba1688Demo onEnterErp={() => { setErpInitialView("dashboard"); setDemoMode("erp"); }} />
         ) : pluginPage === "home" ? (
           <OzonPluginHomeDemo onEnterErp={() => { setErpInitialView("dashboard"); setDemoMode("erp"); }} />
         ) : pluginPage === "store" ? (
