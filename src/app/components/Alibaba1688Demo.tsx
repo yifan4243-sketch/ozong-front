@@ -21,9 +21,27 @@ type Props = {
   onEnterErp: () => void;
 };
 
-const skuRows = [
+type ListingRow = {
+  id: number;
+  name: string;
+  skuId: string;
+  offerId: string;
+  sourcePrice: string;
+  stock: string;
+  selected: boolean;
+  deleted: boolean;
+  manualPrice: string;
+  weight: string;
+};
+
+const pageSkuRows = [
   { id: 1, name: "新款白色小刮无绒 4.5×10cm", price: "0.45", stock: "1978229" },
   { id: 2, name: "新款白色小刮带绒 4.5×10cm", price: "0.65", stock: "7006950" },
+];
+
+const listingSeed: ListingRow[] = [
+  { id: 1, name: "颜色：新款白色小刮带绒 4.5*10cm", skuId: "5247255030042", offerId: "734320139100-1", sourcePrice: "3.95", stock: "7006950", selected: true, deleted: false, manualPrice: "", weight: "" },
+  { id: 2, name: "颜色：新款白色小刮无绒 4.5*10cm", skuId: "5247255030041", offerId: "734320139100-2", sourcePrice: "3.75", stock: "1978229", selected: true, deleted: false, manualPrice: "", weight: "" },
 ];
 
 const thumbs = ["视频", "讲解", "细节", "实拍", "无绒", "带绒", "侧面"];
@@ -40,6 +58,307 @@ function ProductVisual({ mode }: { mode: number }) {
   );
 }
 
+function ModalSkuThumb({ dark = false }: { dark?: boolean }) {
+  return <div className={"ali-modal-thumb " + (dark ? "dark" : "light")}><span /></div>;
+}
+
+function SkuPickerModal({
+  onCancel,
+  onConfirm,
+}: {
+  onCancel: () => void;
+  onConfirm: (skuIds: string[]) => void;
+}) {
+  const [selected, setSelected] = useState<string[]>(listingSeed.map((row) => row.skuId));
+  const [search, setSearch] = useState("");
+
+  const visible = listingSeed.filter((row) =>
+    (row.name + " " + row.skuId).toLowerCase().includes(search.trim().toLowerCase())
+  );
+  const allSelected = selected.length === listingSeed.length;
+
+  const toggle = (skuId: string) => {
+    setSelected((current) =>
+      current.includes(skuId) ? current.filter((id) => id !== skuId) : [...current, skuId]
+    );
+  };
+
+  return (
+    <div className="ali-modal-layer sku-picker-layer">
+      <section className="ali-sku-picker-modal" role="dialog" aria-modal="true" aria-label="选择需要采集的 SKU">
+        <header>
+          <div>
+            <h2>选择需要采集的 SKU</h2>
+            <p>默认全部勾选。取消不需要的规格后，只会把已选 SKU 保存到 OzonG。</p>
+          </div>
+          <button className="ali-modal-x" onClick={onCancel} aria-label="关闭"><X size={20}/></button>
+        </header>
+
+        <div className="ali-picker-tools">
+          <label>
+            <input
+              type="checkbox"
+              checked={allSelected}
+              ref={(node) => { if (node) node.indeterminate = selected.length > 0 && !allSelected; }}
+              onChange={(event) => setSelected(event.target.checked ? listingSeed.map((row) => row.skuId) : [])}
+            />
+            全选
+          </label>
+          <input
+            autoFocus
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="搜索规格、SKU ID"
+          />
+        </div>
+
+        <div className="ali-picker-list">
+          {visible.map((row, index) => (
+            <label className="ali-picker-row" key={row.skuId}>
+              <input type="checkbox" checked={selected.includes(row.skuId)} onChange={() => toggle(row.skuId)} />
+              <ModalSkuThumb dark={index === 0} />
+              <div className="ali-picker-info">
+                <strong>{row.name}</strong>
+                <div><span>SKU {row.skuId}</span><span>库存 {row.stock}</span><span>重量 —</span></div>
+              </div>
+              <b>¥{row.sourcePrice}</b>
+            </label>
+          ))}
+        </div>
+
+        <footer>
+          <span>已选择 {selected.length} / {listingSeed.length} 个 SKU</span>
+          <div>
+            <button onClick={onCancel}>取消</button>
+            <button className="primary" disabled={!selected.length} onClick={() => onConfirm(selected)}>
+              采集已选 SKU（{selected.length}）
+            </button>
+          </div>
+        </footer>
+      </section>
+    </div>
+  );
+}
+
+function MediaConfirm({
+  onCancel,
+  onConfirm,
+}: {
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  return (
+    <div className="ali-media-confirm-layer">
+      <section className="ali-media-confirm-card" role="dialog" aria-modal="true">
+        <h3>开启 AI 商品图/视频封面生成？</h3>
+        <p>
+          开启后，本次上架会先生成 8 张 Ozon 商品套图，再自动合成 1 个 16 秒 MP4 视频封面。
+          图片按 3 点/张计费，本套图最多消耗 24 点；视频合成不额外扣点。
+          若视频合成失败，再次提交会复用已成功图片，不会整套重做或重复扣除已完成图片。
+        </p>
+        <div>
+          <button onClick={onCancel}>取消</button>
+          <button className="primary" onClick={onConfirm}>确认开启</button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function PriceSettings({
+  rows,
+  onCancel,
+  onApply,
+}: {
+  rows: ListingRow[];
+  onCancel: () => void;
+  onApply: (prices: Record<string, string>) => void;
+}) {
+  const [mode, setMode] = useState<"same" | "multiplier">("same");
+  const [same, setSame] = useState("");
+  const [multiplier, setMultiplier] = useState("");
+
+  const apply = () => {
+    const prices: Record<string, string> = {};
+    if (mode === "same") {
+      const n = Number(same);
+      if (!(n > 0)) return;
+      rows.forEach((row) => { if (!row.deleted) prices[row.skuId] = n.toFixed(2); });
+    } else {
+      const n = Number(multiplier);
+      if (!(n > 0)) return;
+      rows.forEach((row) => { if (!row.deleted) prices[row.skuId] = (Number(row.sourcePrice) * n).toFixed(2); });
+    }
+    onApply(prices);
+  };
+
+  return (
+    <div className="ali-price-layer">
+      <section className="ali-price-card">
+        <header><strong>价格设置</strong><button onClick={onCancel}><X size={17}/></button></header>
+        <label className={mode === "same" ? "active" : ""}>
+          <input type="radio" checked={mode === "same"} onChange={() => setMode("same")} />
+          <span>全部采用同一个售价</span>
+          <input value={same} onChange={(e) => setSame(e.target.value)} placeholder="例如 129.00" />
+        </label>
+        <label className={mode === "multiplier" ? "active" : ""}>
+          <input type="radio" checked={mode === "multiplier"} onChange={() => setMode("multiplier")} />
+          <span>1688 原价 × X</span>
+          <input value={multiplier} onChange={(e) => setMultiplier(e.target.value)} placeholder="例如 1.8" />
+        </label>
+        <p>批量规则会应用到当前未删除的 SKU。应用后仍可逐行调整售价。</p>
+        <footer><button onClick={onCancel}>取消</button><button className="primary" onClick={apply}>应用价格</button></footer>
+      </section>
+    </div>
+  );
+}
+
+function QuickListingModal({
+  onCancel,
+  onSubmit,
+}: {
+  onCancel: () => void;
+  onSubmit: () => void;
+}) {
+  const [rows, setRows] = useState<ListingRow[]>(listingSeed.map((row) => ({ ...row })));
+  const [storeId, setStoreId] = useState("test");
+  const [pricingMode, setPricingMode] = useState<"auto" | "manual">("auto");
+  const [dims, setDims] = useState({ length: "", width: "", height: "" });
+  const [mediaEnabled, setMediaEnabled] = useState(false);
+  const [mediaConfirm, setMediaConfirm] = useState(false);
+  const [priceSettings, setPriceSettings] = useState(false);
+  const [error, setError] = useState("");
+
+  const activeRows = rows.filter((row) => !row.deleted);
+  const selectedRows = activeRows.filter((row) => row.selected);
+  const allChecked = activeRows.length > 0 && selectedRows.length === activeRows.length;
+
+  const patchRow = (skuId: string, patch: Partial<ListingRow>) => {
+    setRows((current) => current.map((row) => row.skuId === skuId ? { ...row, ...patch } : row));
+  };
+
+  const submit = () => {
+    setError("");
+    if (!storeId) { setError("请选择目标 Ozon 店铺"); return; }
+    if (!selectedRows.length) { setError("至少保留一个 SKU"); return; }
+    if (pricingMode === "manual") {
+      const missing = selectedRows.find((row) => !(Number(row.manualPrice) > 0));
+      if (missing) { setError(`手动定价模式下，SKU ${missing.skuId} 必须填写有效售价`); return; }
+    }
+    onSubmit();
+  };
+
+  return (
+    <div className="ali-modal-layer quick-list-layer">
+      <section className="ali-quick-modal" role="dialog" aria-modal="true" aria-label="一键上架至 Ozon">
+        <header className="ali-quick-head">
+          <h2>一键上架至 Ozon</h2>
+          <button onClick={onCancel}><X size={18}/></button>
+        </header>
+
+        <div className="ali-quick-notice">
+          Ozon 类目、必填属性、俄语内容、变体合并与最终 JSON 继续由 ERP 后台统一处理。这里仅确认目标店铺、售价方式、SKU、重量和包装尺寸。
+        </div>
+
+        <div className="ali-quick-toolbar">
+          <label><b>*</b> 选择店铺：
+            <select value={storeId} onChange={(e) => setStoreId(e.target.value)}>
+              <option value="test">测试</option>
+              <option value="star">星桥家居</option>
+            </select>
+          </label>
+          <label><b>*</b> 售价方式：
+            <select value={pricingMode} onChange={(e) => setPricingMode(e.target.value as "auto" | "manual")}>
+              <option value="auto">自动定价</option>
+              <option value="manual">手动定价</option>
+            </select>
+          </label>
+          <div className={"ali-media-field " + (mediaEnabled ? "enabled" : "")}>
+            <div><strong>生成图/视频封面</strong><small>8 张图 · 24 点 · 16s MP4</small></div>
+            <button
+              role="switch"
+              aria-checked={mediaEnabled}
+              onClick={() => mediaEnabled ? setMediaEnabled(false) : setMediaConfirm(true)}
+            />
+          </div>
+        </div>
+
+        <div className="ali-quick-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th><input type="checkbox" checked={allChecked} onChange={(e) => {
+                  const checked = e.target.checked;
+                  setRows((current) => current.map((row) => row.deleted ? row : { ...row, selected: checked }));
+                }}/></th>
+                <th>序号</th><th>主图</th><th>变体</th><th>SKU</th><th>货号</th><th>1688原价</th>
+                <th><span className="ali-price-head">售价 <button disabled={pricingMode !== "manual"} onClick={() => setPriceSettings(true)}>⚙</button></span></th>
+                <th>自定义重量(g)</th><th>包装尺寸(mm)</th><th>操作</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.filter((row) => !row.deleted).map((row, index) => (
+                <tr key={row.skuId}>
+                  <td><input type="checkbox" checked={row.selected} onChange={(e) => patchRow(row.skuId, { selected: e.target.checked })}/></td>
+                  <td>{index + 1}</td>
+                  <td><ModalSkuThumb dark={row.id === 1}/></td>
+                  <td className="variant">{row.name}</td>
+                  <td className="sku">{row.skuId}</td>
+                  <td className="offer">{row.offerId}</td>
+                  <td className="source-price">¥{row.sourcePrice}</td>
+                  <td>
+                    {pricingMode === "auto"
+                      ? <b className="auto-price">后台计算</b>
+                      : <input className="manual-price" value={row.manualPrice} onChange={(e) => patchRow(row.skuId, { manualPrice: e.target.value })} placeholder="售价"/>}
+                  </td>
+                  <td><input className="mini" value={row.weight} onChange={(e) => patchRow(row.skuId, { weight: e.target.value })} placeholder="可不填"/></td>
+                  <td>
+                    <div className="ali-dims">
+                      <input value={dims.length} onChange={(e) => setDims({ ...dims, length: e.target.value })} placeholder="长"/>
+                      <span>×</span>
+                      <input value={dims.width} onChange={(e) => setDims({ ...dims, width: e.target.value })} placeholder="宽"/>
+                      <span>×</span>
+                      <input value={dims.height} onChange={(e) => setDims({ ...dims, height: e.target.value })} placeholder="高"/>
+                    </div>
+                  </td>
+                  <td><button className="ali-delete-row" onClick={() => patchRow(row.skuId, { deleted: true, selected: false })}>删除</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <footer className="ali-quick-foot">
+          <div>
+            <strong>已选择 {selectedRows.length} / {activeRows.length} 个 SKU</strong>
+            <span>上架货币：人民币 CNY</span>
+            <em>{pricingMode === "auto" ? "自动定价由 ERP 后台计算" : "手动定价模式"}</em>
+            {error && <i>{error}</i>}
+          </div>
+          <div><button onClick={onCancel}>取消</button><button className="primary" onClick={submit}>一键上架至 Ozon</button></div>
+        </footer>
+
+        {mediaConfirm && (
+          <MediaConfirm
+            onCancel={() => setMediaConfirm(false)}
+            onConfirm={() => { setMediaEnabled(true); setMediaConfirm(false); }}
+          />
+        )}
+        {priceSettings && (
+          <PriceSettings
+            rows={rows}
+            onCancel={() => setPriceSettings(false)}
+            onApply={(prices) => {
+              setRows((current) => current.map((row) => prices[row.skuId] ? { ...row, manualPrice: prices[row.skuId] } : row));
+              setPriceSettings(false);
+            }}
+          />
+        )}
+      </section>
+    </div>
+  );
+}
+
 export function Alibaba1688Demo({ onEnterErp }: Props) {
   const [activeThumb, setActiveThumb] = useState(0);
   const [activeSku, setActiveSku] = useState(0);
@@ -47,12 +366,75 @@ export function Alibaba1688Demo({ onEnterErp }: Props) {
   const [drawerOpen, setDrawerOpen] = useState(true);
   const [drawerCollapsed, setDrawerCollapsed] = useState(false);
   const [toast, setToast] = useState("");
-  const [favorited, setFavorited] = useState(false);
-  const selected = useMemo(() => skuRows[activeSku], [activeSku]);
+  const [quickModalOpen, setQuickModalOpen] = useState(false);
+  const [skuPickerOpen, setSkuPickerOpen] = useState(false);
+  const [quickLabel, setQuickLabel] = useState("一键上架至 Ozon");
+  const [collectLabel, setCollectLabel] = useState("采集到 OzonG");
+  const [drawerNotice, setDrawerNotice] = useState("");
+  const [quickBusy, setQuickBusy] = useState(false);
+  const [collectBusy, setCollectBusy] = useState(false);
+  const selected = useMemo(() => pageSkuRows[activeSku], [activeSku]);
 
   const flash = (message: string) => {
     setToast(message);
     window.setTimeout(() => setToast(""), 1800);
+  };
+
+  const openQuickListing = () => {
+    if (quickBusy || collectBusy) return;
+    setDrawerNotice("");
+    setQuickBusy(true);
+    setQuickLabel("读取商品数据…");
+    window.setTimeout(() => {
+      setQuickLabel("等待确认…");
+      setQuickModalOpen(true);
+    }, 420);
+  };
+
+  const cancelQuickListing = () => {
+    setQuickModalOpen(false);
+    setQuickBusy(false);
+    setQuickLabel("一键上架至 Ozon");
+  };
+
+  const submitQuickListing = () => {
+    setQuickModalOpen(false);
+    setQuickLabel("正在创建后台上架任务…");
+    window.setTimeout(() => {
+      setQuickLabel("✓ 已进入上架队列");
+      setDrawerNotice("已提交到后台流水线，Job 8A2C1F4D。可进入 OzonG 查看类目、属性、定价和 Ozon 校验进度。");
+      window.setTimeout(() => {
+        setQuickLabel("一键上架至 Ozon");
+        setQuickBusy(false);
+      }, 2400);
+    }, 760);
+  };
+
+  const openCollector = () => {
+    if (quickBusy || collectBusy) return;
+    setDrawerNotice("");
+    setCollectBusy(true);
+    setCollectLabel("读取 SKU…");
+    window.setTimeout(() => setSkuPickerOpen(true), 380);
+  };
+
+  const cancelCollector = () => {
+    setSkuPickerOpen(false);
+    setCollectBusy(false);
+    setCollectLabel("采集到 OzonG");
+  };
+
+  const confirmCollector = (ids: string[]) => {
+    setSkuPickerOpen(false);
+    setCollectLabel("采集中…");
+    window.setTimeout(() => {
+      setCollectLabel("✓ 已采集到 OzonG");
+      setDrawerNotice(`当前商品已保存到 OzonG 1688 商品工作台（${ids.length} 个 SKU）。中转采集不会自动触发上架。`);
+      window.setTimeout(() => {
+        setCollectLabel("采集到 OzonG");
+        setCollectBusy(false);
+      }, 1600);
+    }, 650);
   };
 
   return (
@@ -118,7 +500,7 @@ export function Alibaba1688Demo({ onEnterErp }: Props) {
 
               <div className="ali-sku-section">
                 <div className="ali-sku-label">颜色</div>
-                {skuRows.map((row,index)=>(
+                {pageSkuRows.map((row,index)=>(
                   <div className={"ali-sku-row "+(activeSku===index?"active":"")} key={row.id} onClick={()=>setActiveSku(index)}>
                     <div className={"ali-sku-mini m"+index}><span /></div>
                     <strong>{row.name}</strong>
@@ -186,9 +568,10 @@ export function Alibaba1688Demo({ onEnterErp }: Props) {
             </div>
           </header>
           {!drawerCollapsed&&<div className="ali-drawer-body">
-            <button className="ali-drawer-primary" onClick={()=>flash("已读取当前 1688 商品及 2 个 SKU，进入一键上架流程（Demo）")}>一键上架至 Ozon</button>
-            <button className="ali-drawer-primary second" onClick={()=>flash("商品已采集到 OzonG 采集箱（Demo）")}>采集到 OzonG</button>
+            <button className="ali-drawer-primary" disabled={quickBusy || collectBusy} onClick={openQuickListing}>{quickLabel}</button>
+            <button className="ali-drawer-primary second" disabled={quickBusy || collectBusy} onClick={openCollector}>{collectLabel}</button>
             <button className="ali-drawer-enter" onClick={onEnterErp}>进入 OzonG</button>
+            {drawerNotice && <div className="ali-drawer-notice">{drawerNotice}</div>}
             <div className="ali-source-summary"><span>当前货源</span><b>¥0.45–0.65</b><em>2 个 SKU · 广东揭阳</em></div>
             <div className="ali-drawer-version">插件版本 v0.0.19</div>
           </div>}
@@ -197,6 +580,8 @@ export function Alibaba1688Demo({ onEnterErp }: Props) {
         <button className="ali-drawer-entry" onClick={()=>setDrawerOpen(true)}><img src="/auto-ozon/auto-ozon-logo.png" alt="OzonG"/></button>
       )}
 
+      {quickModalOpen && <QuickListingModal onCancel={cancelQuickListing} onSubmit={submitQuickListing}/>}
+      {skuPickerOpen && <SkuPickerModal onCancel={cancelCollector} onConfirm={confirmCollector}/>}
       {toast&&<div className="ali-toast" onClick={()=>setToast("")}>{toast}</div>}
     </div>
   );
